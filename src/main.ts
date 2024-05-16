@@ -1,8 +1,8 @@
 
 import "./style.css";
 import { Color } from "excalibur";
-import Player from "./Actors/Player";
-import { Weapon } from "./Actors/Weapon";
+import Player from "./Actor/Player";
+import { Weapon } from "./Actor/Weapon";
 import Game from "./Utility/Game";
 import { MonsterSpawner } from "./Utility/MonsterSpawner";
 import PlayerCameraStrategy from "./Utility/PlayerCameraStrategy";

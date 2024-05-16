@@ -1,6 +1,6 @@
 import { BodyComponent, Engine, Random, TagQuery, Vector } from "excalibur";
-import { PlayerTag } from "../Actors/Player";
-import { Monster, MonsterTag } from "../Actors/Monster";
+import { PlayerTag } from "../Actor/Player";
+import { Monster, MonsterTag } from "../Actor/Monster";
 import DynamicEventListener from "./DynamicEventListener";
 
 export class MonsterSpawner {

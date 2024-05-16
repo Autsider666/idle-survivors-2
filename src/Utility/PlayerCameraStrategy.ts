@@ -1,5 +1,5 @@
 import { CameraStrategy, Vector } from "excalibur";
-import Player from "../Actors/Player";
+import Player from "../Actor/Player";
 
 const CAMERA_SPEED = 0.08;
 
