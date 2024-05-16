@@ -2,6 +2,7 @@ import { Actor, CollisionGroupManager, CollisionType, Color, Engine, Vector } fr
 import { Direction, DirectionQueue } from "../Utility/DirectionQueue";
 
 export const PlayerCollisionGroup = CollisionGroupManager.create('player');
+export const PlayerTag = 'PLAYER_TAG';
 
 export default class Player extends Actor {
     private readonly directionQueue = new DirectionQueue();
@@ -16,6 +17,12 @@ export default class Player extends Actor {
 
             collisionType: CollisionType.Active,
             collisionGroup: PlayerCollisionGroup,
+        });
+
+        this.addTag(PlayerTag);
+
+        this.events.on('damage', () => {
+            console.log('Auch!');
         });
     }
 

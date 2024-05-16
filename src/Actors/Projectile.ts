@@ -1,9 +1,10 @@
-import { Actor, CollisionType, Color, Engine, Vector } from "excalibur";
+import { Actor, CollisionType, Color } from "excalibur";
 import { SCALE_2x } from "../Utility/Game";
 import { PlayerCollisionGroup } from "./Player";
+import { Monster } from "./Monster";
 
 export class Projectile extends Actor {
-    private msRemaining: number = 2000;
+    // private msRemaining: number = 2000;
     private velosity: number = 300;
 
     constructor(origin: Actor, target: Actor, color: Color) {
@@ -17,14 +18,13 @@ export class Projectile extends Actor {
             collisionGroup: PlayerCollisionGroup,
         });
 
-        // this.vel.x = direction.x;
-        // this.vel.y = direction.y;
-
-        this.actions.moveTo(target.getGlobalPos().clone(), this.velosity);
+        this.actions.moveTo(target.getGlobalPos().clone(), this.velosity).die();
 
         this.on("collisionstart", ({ other }) => {
             this.actions.clearActions();
             this.actions.die();
+
+            (other as Monster).emit('damage');
         })
     }
 }

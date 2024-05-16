@@ -1,44 +1,90 @@
-import { Actor, CollisionGroupManager, CollisionType, Color, Shape, Vector } from "excalibur";
+import { Actor, CollisionGroupManager, CollisionType, Color, Engine, TagQuery, Vector } from "excalibur";
 import { SCALE_2x } from "../Utility/Game";
-import { ANCHOR_CENTER } from "../Utility/Constants";
+import { PlayerTag } from "./Player";
 
-const MONSTER_WALK_VELOCITY = 30;
-const MONSTER_CHASE_VELOCITY = 65;
-const MONSTER_DETECT_PLAYER_RANGE = 150;
+// const MONSTER_WALK_VELOCITY = 30;
+const MONSTER_CHASE_VELOCITY = 100;
+// const MONSTER_DETECT_PLAYER_RANGE = 150;
+const MONSTER_DAMAGE_FREQUENCY = 500;
+export const MonsterTag = 'MONSTER_TAG';
 
 export const MonsterCollisionGroup = CollisionGroupManager.create('monsters');
 
 export class Monster extends Actor {
+    private playerQuery: TagQuery<string> | null = null;
+
+    private target: Actor | null = null;
+
+    private touching: Map<Actor, number> = new Map();
+
     constructor(x: number, y: number) {
         super({
             pos: new Vector(x, y),
-            width: 16,
-            height: 16,
+            radius: 8,
+            // width: 16,
+            // height: 16,
             scale: SCALE_2x,
             // collider: Shape.Box(11, 10, ANCHOR_CENTER, new Vector(0, 4)),
             collisionType: CollisionType.Active,
-            collisionGroup: MonsterCollisionGroup,
+            // collisionGroup: MonsterCollisionGroup,
             color: Color.Black,
         });
 
-        // this.on("collisionstart", (evt) => this.onCollisionStart(evt));
+        this.addTag(MonsterTag);
+
+        this.events.on('damage', () => {
+            this.kill();
+        });
+
+        this.on("collisionstart", ({ other }) => {
+            if (!other.hasTag(PlayerTag)) {
+                return;
+            }
+
+            this.touching.set(other, 0);
+        });
+
+        this.on('collisionend', ({ other }) => {
+            this.touching.delete(other);
+        })
     }
 
-    // onInitialize(engine) {
-    //     //new DrawShapeHelper(this);
+    onInitialize(engine: Engine): void {
+        this.playerQuery = engine.currentScene.world.queryTags([PlayerTag]);
+    }
 
-    //     // Add to enemy group
-    //     this.addTag(TAG_DAMAGES_PLAYER);
+    // @ts-ignore
+    onPreUpdate(engine: Engine, delta: number): void {
+        this.chaseTarget();
 
-    //     // Choose random roaming point
-    //     this.chooseRoamingPoint();
+        this.touching.forEach((nextAttack, target) => {
+            const newNextAttack = nextAttack - delta;
+            if (newNextAttack > 0) {
+                this.touching.set(target, newNextAttack);
+                return;
+            }
 
-    //     // Periodically query for a new target
-    //     void this.queryForTarget();
+            target.emit('damage');
+            this.touching.set(target, MONSTER_DAMAGE_FREQUENCY);
+        });
+    }
 
-    //     // Send network updates on move
-    //     this.networkUpdater = new NetworkUpdater(engine, EVENT_SEND_MONSTER_UPDATE);
-    // }
+    private chaseTarget(): void {
+        if (this.playerQuery === null) {
+            return;
+        }
+
+        if (this.target !== null && !this.target.isKilled()) {
+            return;
+        }
+        this.target = (this.playerQuery.entities[0] as Actor) ?? null;
+
+        if (this.target === null) {
+            throw new Error('No player found to follow.')
+        }
+
+        this.actions.meet(this.target, MONSTER_CHASE_VELOCITY);
+    }
 
     // onCollisionStart(evt) {
     //     if (evt.other?.hasTag(TAG_PLAYER_WEAPON)) {

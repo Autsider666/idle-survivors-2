@@ -1,4 +1,4 @@
-import { Actor, Circle, CollisionType, Color, Engine, Timer } from "excalibur";
+import { Actor, Circle, CollisionType, Color, Engine } from "excalibur";
 import { Projectile } from "./Projectile";
 import { PlayerCollisionGroup } from "./Player";
 
@@ -37,7 +37,8 @@ export class Weapon extends Actor {
         });
     }
 
-    onPreUpdate(engine: Engine<any>, delta: number): void {
+    // @ts-ignore
+    onPreUpdate(engine: Engine, delta: number): void {
         if (this.targets.size === 0 || this.nextShot > 0) {
             this.nextShot -= delta;
 
