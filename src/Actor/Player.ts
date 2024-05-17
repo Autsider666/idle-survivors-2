@@ -1,5 +1,6 @@
 import { Actor, CollisionGroupManager, CollisionType, Color, Engine, Vector } from "excalibur";
 import { Direction, DirectionQueue } from "../Utility/DirectionQueue";
+import { HealthComponent } from "../Component/HealthComponent";
 
 export const PlayerCollisionGroup = CollisionGroupManager.create('player');
 export const PlayerTag = 'PLAYER_TAG';
@@ -21,9 +22,16 @@ export default class Player extends Actor {
 
         this.addTag(PlayerTag);
 
-        this.events.on('damage', () => {
-            console.log('Auch!');
-        });
+        // this.addComponent(new HealthComponent(100));
+
+        // this.events.on('damage', () => {
+        //     console.log('Auch!');
+        // });
+
+
+        // this.events.on('health', (data) => {
+        //     console.log('Auch!', data);
+        // });
     }
 
     onPreUpdate(engine: Engine): void {

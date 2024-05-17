@@ -1,7 +1,7 @@
 import { Actor, CollisionType, Color } from "excalibur";
 import { SCALE_2x } from "../Utility/Game";
 import { PlayerCollisionGroup } from "./Player";
-import { Monster } from "./Monster";
+import { DamageComponent } from "../Component/DamageComponent";
 
 export class Projectile extends Actor {
     // private msRemaining: number = 2000;
@@ -20,11 +20,6 @@ export class Projectile extends Actor {
 
         this.actions.moveTo(target.getGlobalPos().clone(), this.velosity).die();
 
-        this.on("collisionstart", ({ other }) => {
-            this.actions.clearActions();
-            this.actions.die();
-
-            (other as Monster).emit('damage');
-        })
+        this.addComponent(new DamageComponent({ amount: 1, killAfterHits: 1 }));
     }
 }
