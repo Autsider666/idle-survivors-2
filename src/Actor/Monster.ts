@@ -8,7 +8,7 @@ import { ChaseComponent } from "../Component/ChaseComponent";
 // const MONSTER_WALK_VELOCITY = 30;
 const MONSTER_CHASE_VELOCITY = 100;
 // const MONSTER_DETECT_PLAYER_RANGE = 150;
-const MONSTER_DAMAGE_FREQUENCY = 500;
+// const MONSTER_DAMAGE_FREQUENCY = 500;
 export const MonsterTag = 'MONSTER_TAG';
 
 export const MonsterCollisionGroup = CollisionGroupManager.create('monsters');

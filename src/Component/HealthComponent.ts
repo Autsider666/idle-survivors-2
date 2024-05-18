@@ -1,6 +1,6 @@
-import { Actor, Color, Entity, ExcaliburGraphicsContext, Vector } from "excalibur";
+import { Color, ExcaliburGraphicsContext, Vector } from "excalibur";
 import { BaseComponent } from "./BaseComponent";
-import { DamageEvent } from "../Event/DamageEvent";
+import { BaseActor } from "../Actor/BaseActor";
 
 export class HealthComponent extends BaseComponent {
     public max: number;
@@ -10,11 +10,11 @@ export class HealthComponent extends BaseComponent {
         this.max = amount;
     }
 
-    onAdd(owner: Actor): void {
-        owner.on('damage', ({ amount: damage }: DamageEvent) => {
+    onAdd(owner: BaseActor): void {
+        owner.on('damage', ({ amount: damage }) => {
             this.amount -= damage;
 
-            this.owner.emit('health', { amount: this.amount })
+            // this.owner.emit('health', { amount: this.amount })
 
             if (this.amount <= 0) {
                 owner.kill();

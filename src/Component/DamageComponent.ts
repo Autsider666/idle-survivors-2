@@ -1,5 +1,6 @@
 import { Actor, PreCollisionEvent } from "excalibur";
 import { BaseComponent } from "./BaseComponent";
+import { BaseActor } from "../Actor/BaseActor";
 
 type ComponentProps = {
     amount: number,
@@ -31,6 +32,10 @@ export class DamageComponent extends BaseComponent {
     }
 
     onPreCollision({ other }: PreCollisionEvent): void {
+        if (!(other instanceof BaseActor)) {
+            return;
+        }
+
         if (this.targetTag && !other.hasTag(this.targetTag)) {
             return;
         }

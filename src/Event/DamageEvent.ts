@@ -1,6 +1,3 @@
-import { Actor, Entity, GameEvent } from "excalibur";
-
-export interface DamageEvent<T extends Entity = Actor> extends GameEvent<T> {
-    source: T;
+export interface DamageEvent { //<T extends Entity = BaseActor> extends GameEvent<T> {
     amount: number;
 }

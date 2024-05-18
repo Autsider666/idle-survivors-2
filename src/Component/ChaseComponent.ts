@@ -1,4 +1,4 @@
-import { Actor, Entity, TagQuery } from "excalibur";
+import { Actor, TagQuery } from "excalibur";
 import { BaseComponent } from "./BaseComponent";
 
 type ComponentProps = {
