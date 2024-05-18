@@ -44,6 +44,6 @@ export class ChaseComponent extends BaseComponent {
 
             // TODO Could potentially queue up multiple meet actions.
             owner.actions.meet(this.target, this.velosity);
-        })
+        });
     }
 }
