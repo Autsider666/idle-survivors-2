@@ -65,7 +65,7 @@ export class RangedComponent extends BaseComponent {
             return;
         }
 
-        const projectile = new Projectile(this.owner, target, this.projectileColor);
+        const projectile = new Projectile(this.owner, target, { color: this.projectileColor, damage: 1 });
         this.owner.scene?.add(projectile);
 
         this.nextShot = 1000.0 / this.rateOfFire;

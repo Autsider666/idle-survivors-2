@@ -28,7 +28,7 @@ export class Monster extends BaseActor {
         this.addTag(MonsterTag);
 
         this.addComponent(new HealthComponent(1));
-        this.addComponent(new DamageComponent({ amount: 1, targetTag: PlayerTag }));
+        this.addComponent(new DamageComponent({ damage: 1, targetTag: PlayerTag }));
         this.addComponent(new ChaseComponent({ queryTags: [PlayerTag], velosity: MONSTER_CHASE_VELOCITY }));
     }
 }

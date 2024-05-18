@@ -3,26 +3,26 @@ import { BaseComponent } from "./BaseComponent";
 import { BaseActor } from "../Actor/BaseActor";
 
 type ComponentProps = {
-    amount: number,
+    damage: number,
     killAfterHits?: number,
     targetTag?: string,
 }
 
 export class DamageComponent extends BaseComponent {
-    public amount: number;
+    public damage: number;
     public killAfterHits?: number;
     public targetTag?: string;
 
     constructor(
         {
-            amount,
+            damage,
             killAfterHits,
             targetTag,
         }: ComponentProps
     ) {
         super();
 
-        this.amount = amount;
+        this.damage = damage;
         this.killAfterHits = killAfterHits;
         this.targetTag = targetTag;
     }
@@ -44,7 +44,7 @@ export class DamageComponent extends BaseComponent {
             return;
         }
 
-        other.emit('damage', { amount: this.amount });
+        other.emit('damage', { amount: this.damage });
 
         if (this.killAfterHits !== undefined && --this.killAfterHits === 0) {
             this.owner.kill();
