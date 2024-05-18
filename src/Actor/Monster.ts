@@ -1,10 +1,10 @@
 import { CollisionType, Color, Vector } from "excalibur";
-import { SCALE_2x } from "../Utility/Game";
 import { HealthComponent } from "../Component/HealthComponent";
 import { DamageComponent } from "../Component/DamageComponent";
 import { PlayerTag } from "./Player";
 import { ChaseComponent } from "../Component/ChaseComponent";
 import { BaseActor } from "./BaseActor";
+import { SCALE_2x } from "../Game/Constant";
 
 // const MONSTER_WALK_VELOCITY = 30;
 const MONSTER_CHASE_VELOCITY = 100;

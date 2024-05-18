@@ -1,8 +1,9 @@
 import { CollisionType, Color } from "excalibur";
-import { SCALE_2x } from "../Utility/Game";
 import { PlayerCollisionGroup } from "./Player";
 import { DamageComponent } from "../Component/DamageComponent";
 import { BaseActor } from "./BaseActor";
+import { DestinationComponent } from "../Component/DestinationComponent";
+import { SCALE_2x } from "../Game/Constant";
 
 export class Projectile extends BaseActor {
     // private msRemaining: number = 2000;
@@ -19,8 +20,11 @@ export class Projectile extends BaseActor {
             collisionGroup: PlayerCollisionGroup,
         });
 
-        this.actions.moveTo(target.getGlobalPos().clone(), this.velosity).die();
-
         this.addComponent(new DamageComponent({ amount: 1, killAfterHits: 1 }));
+        this.addComponent(new DestinationComponent({
+            destination: target,
+            velosity: this.velosity,
+            callback: () => this.kill(),
+        }));
     }
 }
