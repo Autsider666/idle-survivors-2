@@ -1,8 +1,9 @@
-import { Actor, CollisionType, Color } from "excalibur";
+import { CollisionType, Color } from "excalibur";
 import { PlayerCollisionGroup } from "./Player";
 import { RangedComponent } from "../Component/RangedComponent";
+import { BaseActor } from "./BaseActor";
 
-export class Weapon extends Actor {
+export class Weapon extends BaseActor {
 
     constructor(
         range: number = 150,

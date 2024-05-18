@@ -1,9 +1,10 @@
-import { Actor, CollisionGroupManager, CollisionType, Color, Vector } from "excalibur";
+import { CollisionType, Color, Vector } from "excalibur";
 import { SCALE_2x } from "../Utility/Game";
 import { HealthComponent } from "../Component/HealthComponent";
 import { DamageComponent } from "../Component/DamageComponent";
 import { PlayerTag } from "./Player";
 import { ChaseComponent } from "../Component/ChaseComponent";
+import { BaseActor } from "./BaseActor";
 
 // const MONSTER_WALK_VELOCITY = 30;
 const MONSTER_CHASE_VELOCITY = 100;
@@ -11,9 +12,7 @@ const MONSTER_CHASE_VELOCITY = 100;
 // const MONSTER_DAMAGE_FREQUENCY = 500;
 export const MonsterTag = 'MONSTER_TAG';
 
-export const MonsterCollisionGroup = CollisionGroupManager.create('monsters');
-
-export class Monster extends Actor {
+export class Monster extends BaseActor {
     constructor(x: number, y: number) {
         super({
             pos: new Vector(x, y),
@@ -23,7 +22,6 @@ export class Monster extends Actor {
             scale: SCALE_2x,
             // collider: Shape.Box(11, 10, ANCHOR_CENTER, new Vector(0, 4)),
             collisionType: CollisionType.Active,
-            // collisionGroup: MonsterCollisionGroup,
             color: Color.Black,
         });
 

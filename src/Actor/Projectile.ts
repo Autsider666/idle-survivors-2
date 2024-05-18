@@ -1,13 +1,14 @@
-import { Actor, CollisionType, Color } from "excalibur";
+import { CollisionType, Color } from "excalibur";
 import { SCALE_2x } from "../Utility/Game";
 import { PlayerCollisionGroup } from "./Player";
 import { DamageComponent } from "../Component/DamageComponent";
+import { BaseActor } from "./BaseActor";
 
-export class Projectile extends Actor {
+export class Projectile extends BaseActor {
     // private msRemaining: number = 2000;
     private velosity: number = 300;
 
-    constructor(origin: Actor, target: Actor, color: Color) {
+    constructor(origin: BaseActor, target: BaseActor, color: Color) {
         super({
             pos: origin.getGlobalPos().clone(),
             scale: SCALE_2x,

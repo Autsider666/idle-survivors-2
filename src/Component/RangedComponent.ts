@@ -1,6 +1,7 @@
 import { Actor, Circle, Color, PreUpdateEvent } from "excalibur";
 import { BaseComponent } from "./BaseComponent";
 import { Projectile } from "../Actor/Projectile";
+import { BaseActor } from "../Actor/BaseActor";
 
 type ComponentProps = {
     range: number,
@@ -59,8 +60,8 @@ export class RangedComponent extends BaseComponent {
     }
 
     private fireProjectile(): void {
-        const target = this.targets.values().next().value as Actor | undefined;
-        if (target === undefined) {
+        const target = this.targets.values().next().value;
+        if (!(target instanceof BaseActor)) {
             return;
         }
 

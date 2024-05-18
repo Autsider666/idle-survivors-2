@@ -1,10 +1,11 @@
-import { Actor, CollisionGroupManager, CollisionType, Color, Engine, Vector } from "excalibur";
+import { CollisionGroupManager, CollisionType, Color, Engine, Vector } from "excalibur";
 import { Direction, DirectionQueue } from "../Utility/DirectionQueue";
+import { BaseActor } from "./BaseActor";
 
 export const PlayerCollisionGroup = CollisionGroupManager.create('player');
 export const PlayerTag = 'PLAYER_TAG';
 
-export default class Player extends Actor {
+export default class Player extends BaseActor {
     private readonly directionQueue = new DirectionQueue();
     private speed: number = 160;
 
