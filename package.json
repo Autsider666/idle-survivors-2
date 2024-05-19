@@ -11,12 +11,14 @@
   },
   "devDependencies": {
     "@types/delaunator": "^5.0.2",
+    "@types/poisson-disk-sampling": "^2.2.4",
     "excalibur": "^0.29.3",
     "typescript": "^5.2.2",
     "vite": "^5.2.0"
   },
   "dependencies": {
     "delaunator": "^5.0.1",
+    "poisson-disk-sampling": "^2.3.1",
     "simplex-noise": "^4.0.1"
   }
 }

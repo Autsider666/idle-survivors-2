@@ -3,47 +3,57 @@ import { BaseComponent } from "./BaseComponent";
 import { BaseActor } from "../Actor/BaseActor";
 
 type ComponentProps = {
-    velosity: number,
+    speed: number,
     queryTags: string[],
 }
 
 export class ChaseComponent extends BaseComponent {
-    private readonly velosity: number;
+    private readonly speed: number;
     private readonly queryTags: string[];
     private query: TagQuery<string> | null = null;
     private target: BaseActor | null = null;
 
-    constructor({ velosity, queryTags }: ComponentProps) {
+    constructor({ speed, queryTags }: ComponentProps) {
         super();
 
-        this.velosity = velosity;
+        this.speed = speed;
         this.queryTags = queryTags;
     }
 
     onAdd(owner: BaseActor): void {
-        owner.on('preupdate', () => {
+        owner.on('preupdate', ({ engine }) => {
             if (this.query === null) {
-                const engine = owner.scene?.engine;
-                if (!engine) {
-                    return;
-                }
                 this.query = engine.currentScene.world.queryTags(this.queryTags);
             }
 
-            if (this.target !== null && !this.target.isKilled()) {
+            this.checkTarget();
+            if (this.target === null) {
                 return;
             }
 
-            const potentialTarget = this.query.entities[0];
 
-            if (!(potentialTarget instanceof BaseActor)) {
-                throw new Error('No player found to follow.')
-            }
+            const direction = this.target.pos.sub(this.owner.pos);
+            const velosity = this.owner.vel;
+            velosity.x = direction.x;
+            velosity.y = direction.y;
 
-            this.target = potentialTarget;
+            const normalizedVelosity = velosity.normalize();
+            velosity.x = normalizedVelosity.x * this.speed;
+            velosity.y = normalizedVelosity.y * this.speed;
+        })
+    }
 
-            // TODO Could potentially queue up multiple meet actions.
-            owner.actions.meet(this.target, this.velosity);
-        });
+    private checkTarget(): void {
+        if (this.target !== null && !this.target.isKilled() || !this.query) {
+            return;
+        }
+
+        const potentialTarget = this.query.entities[0];
+
+        if (!(potentialTarget instanceof BaseActor)) {
+            throw new Error('No player found to follow.')
+        }
+
+        this.target = potentialTarget;
     }
 }

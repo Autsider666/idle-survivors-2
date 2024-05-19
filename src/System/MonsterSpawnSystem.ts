@@ -4,7 +4,7 @@ import { PlayerTag } from "../Actor/Player";
 import DynamicEventListener from "../Utility/DynamicEventListener";
 
 export class MonsterSpawnSystem extends System {
-    private readonly maxMonsters: number = 50;
+    private readonly maxMonsters: number = 1;
     private readonly spawnRate: number = 10
     private readonly distanceFromPlayer: number = 400;
 

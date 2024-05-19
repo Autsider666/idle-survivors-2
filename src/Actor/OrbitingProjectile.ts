@@ -1,7 +1,7 @@
 import { CollisionType, Color } from "excalibur";
 import { OrbitingComponent } from "../Component/OrbitingComponent";
 import { BaseActor } from "./BaseActor";
-import { PlayerCollisionGroup } from "./Player";
+import { CollisionGroup } from "../Game/CollisionGroups";
 
 type Props = {
     phase: number,
@@ -20,7 +20,7 @@ export class OrbitingProjectile extends BaseActor {
             color: Color.Yellow,
 
             collisionType: CollisionType.Fixed,
-            collisionGroup: PlayerCollisionGroup,
+            collisionGroup: CollisionGroup.Weapon,
         });
 
         this.addComponent(new OrbitingComponent({ target, radius, orbitsPerSecond, phase, clockwise }));

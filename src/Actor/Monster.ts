@@ -1,10 +1,11 @@
-import { CollisionType, Color, Vector } from "excalibur";
+import { CollisionType, Color, Engine, Vector } from "excalibur";
 import { HealthComponent } from "../Component/HealthComponent";
 import { DamageComponent } from "../Component/DamageComponent";
 import { PlayerTag } from "./Player";
 import { ChaseComponent } from "../Component/ChaseComponent";
 import { BaseActor } from "./BaseActor";
 import { SCALE_2x } from "../Game/Constant";
+import { CollisionGroup } from "../Game/CollisionGroups";
 
 // const MONSTER_WALK_VELOCITY = 30;
 const MONSTER_CHASE_VELOCITY = 100;
@@ -17,11 +18,9 @@ export class Monster extends BaseActor {
         super({
             pos: new Vector(x, y),
             radius: 8,
-            // width: 16,
-            // height: 16,
             scale: SCALE_2x,
-            // collider: Shape.Box(11, 10, ANCHOR_CENTER, new Vector(0, 4)),
             collisionType: CollisionType.Active,
+            collisionGroup: CollisionGroup.Enemy,
             color: Color.Black,
         });
 
@@ -29,7 +28,7 @@ export class Monster extends BaseActor {
 
         this.addComponent(new HealthComponent(1));
         this.addComponent(new DamageComponent({ damage: 1, targetTag: PlayerTag }));
-        this.addComponent(new ChaseComponent({ queryTags: [PlayerTag], velosity: MONSTER_CHASE_VELOCITY }));
+        this.addComponent(new ChaseComponent({ queryTags: [PlayerTag], speed: MONSTER_CHASE_VELOCITY }));
     }
 }
 

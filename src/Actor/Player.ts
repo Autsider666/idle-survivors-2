@@ -1,8 +1,8 @@
-import { CollisionGroupManager, CollisionType, Color, Vector } from "excalibur";
+import { CollisionType, Color, Vector } from "excalibur";
 import { BaseActor } from "./BaseActor";
 import { PlayerControlledComponent } from "../Component/PlayerControlledComponent";
+import { CollisionGroup } from "../Game/CollisionGroups";
 
-export const PlayerCollisionGroup = CollisionGroupManager.create('player');
 export const PlayerTag = 'PLAYER_TAG';
 
 export default class Player extends BaseActor {
@@ -15,7 +15,7 @@ export default class Player extends BaseActor {
             color: Color.Red,
 
             collisionType: CollisionType.Active,
-            collisionGroup: PlayerCollisionGroup,
+            collisionGroup: CollisionGroup.Player,
         });
 
         this.addTag(PlayerTag);

@@ -1,9 +1,9 @@
 import { CollisionType, Color } from "excalibur";
-import { PlayerCollisionGroup } from "./Player";
 import { DamageComponent } from "../Component/DamageComponent";
 import { BaseActor } from "./BaseActor";
 import { DestinationComponent } from "../Component/DestinationComponent";
 import { SCALE_2x } from "../Game/Constant";
+import { CollisionGroup } from "../Game/CollisionGroups";
 
 export type ProjectileProperties = {
     color: Color,
@@ -24,7 +24,7 @@ export class Projectile extends BaseActor {
             color: projectile.color,
 
             collisionType: CollisionType.Passive,
-            collisionGroup: PlayerCollisionGroup,
+            collisionGroup: CollisionGroup.Weapon,
         });
 
         this.addComponent(new DamageComponent(projectile));
