@@ -1,4 +1,4 @@
-import { CollisionType, Color, Engine, Vector } from "excalibur";
+import { Circle, CircleCollider, CollisionType, Color, Engine, Vector } from "excalibur";
 import { HealthComponent } from "../Component/HealthComponent";
 import { DamageComponent } from "../Component/DamageComponent";
 import { PlayerTag } from "./Player";
@@ -13,16 +13,22 @@ const MONSTER_CHASE_VELOCITY = 100;
 // const MONSTER_DAMAGE_FREQUENCY = 500;
 export const MonsterTag = 'MONSTER_TAG';
 
+const circle = new Circle({
+    radius: 8,
+    color: Color.Black,
+});
+
 export class Monster extends BaseActor {
     constructor(x: number, y: number) {
         super({
             pos: new Vector(x, y),
-            radius: 8,
             scale: SCALE_2x,
+            collider: new CircleCollider({ radius: 8 }),
             collisionType: CollisionType.Active,
             collisionGroup: CollisionGroup.Enemy,
-            color: Color.Black,
         });
+
+        this.graphics.add(circle)
 
         this.addTag(MonsterTag);
 

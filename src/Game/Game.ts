@@ -13,7 +13,7 @@ export default class Game extends Engine {
             // height: VIEWPORT_HEIGHT * VIEWPORT_SCALE,
             // fixedUpdateFps: 60,
             // antialiasing: false,
-            pixelArt: true,
+            // pixelArt: true,
             displayMode: DisplayMode.FitScreenAndFill
         });
     }

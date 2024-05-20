@@ -2,10 +2,11 @@ import { BodyComponent, Engine, Random, Scene, System, SystemType, TagQuery, Vec
 import { Monster, MonsterTag } from "../Actor/Monster";
 import { PlayerTag } from "../Actor/Player";
 import DynamicEventListener from "../Utility/DynamicEventListener";
+import { SlowedComponent } from "../Component/SlowedComponent";
 
 export class MonsterSpawnSystem extends System {
-    private readonly maxMonsters: number = 1;
-    private readonly spawnRate: number = 10
+    private readonly maxMonsters: number = 50;
+    private readonly spawnRate: number = 50
     private readonly distanceFromPlayer: number = 400;
 
     private random: Random;
@@ -66,6 +67,12 @@ export class MonsterSpawnSystem extends System {
         monsterPos.x += randomDirection.x * this.distanceFromPlayer;
         monsterPos.y += randomDirection.y * this.distanceFromPlayer;
 
-        this.engine?.currentScene.add(new Monster(monsterPos.x, monsterPos.y))
+        const monster = new Monster(monsterPos.x, monsterPos.y);
+
+        const slow = new SlowedComponent();
+        slow.counter++;
+        // monster.addComponent(slow);
+
+        this.engine?.currentScene.add(monster)
     }
 }

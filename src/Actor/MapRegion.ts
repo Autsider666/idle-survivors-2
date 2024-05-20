@@ -37,11 +37,10 @@ export class MapRegion extends BaseActor {
         this.vertices = vertices;
 
         this.graphic = this.generatePolygon();
-        this.graphics.use(this.graphic);
+        // this.graphics.use(this.graphic);
 
         this.on('collisionstart', ({ other }) => {
             if (this.elevation < 0.5) {
-                console.log(other)
                 other.addComponent(new SlowedComponent());
                 other.get(SlowedComponent).counter++;
             }

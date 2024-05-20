@@ -31,8 +31,8 @@ export class WorldMap extends Actor {
     private readonly canvas: Canvas;
 
     constructor(
-        private readonly canvasHeight: number = 2000,
-        private readonly canvasWidth: number = 2000,
+        private readonly canvasHeight: number = 3000,
+        private readonly canvasWidth: number = 4000,
     ) {
         super({
             height: canvasHeight,
@@ -148,38 +148,38 @@ export class WorldMap extends Actor {
             cache: true,
             draw: (ctx: CanvasRenderingContext2D) => {
                 // this.drawCellCenters(ctx);
-                this.drawCellBoundaries(ctx);
                 // this.drawCellColors(
                 //     ctx,
-                //     r => this.mapData.elevation[r] < 0.5 ? "hsl(240, 30%, 50%)" : "hsl(90, 20%, 50%)",
-                //     // this.biomeColorFunction.bind(this),
+                //     // r => this.mapData.elevation[r] < 0.5 ? "hsl(240, 30%, 50%)" : "hsl(90, 20%, 50%)",
+                //     this.biomeColorFunction.bind(this),
                 // );
+                this.drawCellBoundaries(ctx);
             }
         });
     }
 
-    // private biomeColorFunction(r: number): string {
-    //     let elevation = (this.mapData.elevation[r] - 0.5) * 2;
-    //     let moisture = this.mapData.moisture[r];
-    //     let red: number;
-    //     let green: number;
-    //     let blue: number;
-    //     if (elevation < 0.0) {
-    //         red = 48 + 48 * elevation;
-    //         green = 64 + 64 * elevation;
-    //         blue = 127 + 127 * elevation;
-    //     } else {
-    //         moisture = moisture * (1 - elevation);
-    //         elevation = elevation ** 4; // tweaks
-    //         red = 210 - 100 * moisture;
-    //         green = 185 - 45 * moisture;
-    //         blue = 139 - 45 * moisture;
-    //         red = 255 * elevation + red * (1 - elevation);
-    //         green = 255 * elevation + green * (1 - elevation);
-    //         blue = 255 * elevation + blue * (1 - elevation);
-    //     }
-    //     return `rgb(${Math.max(0, red) | 0}, ${Math.max(0, green) | 0}, ${Math.max(0, blue) | 0})`;
-    // }
+    private biomeColorFunction(r: number): string {
+        let elevation = (this.mapData.elevation[r] - 0.5) * 2;
+        let moisture = this.mapData.moisture[r];
+        let red: number;
+        let green: number;
+        let blue: number;
+        if (elevation < 0.0) {
+            red = 48 + 48 * elevation;
+            green = 64 + 64 * elevation;
+            blue = 127 + 127 * elevation;
+        } else {
+            moisture = moisture * (1 - elevation);
+            elevation = elevation ** 4; // tweaks
+            red = 210 - 100 * moisture;
+            green = 185 - 45 * moisture;
+            blue = 139 - 45 * moisture;
+            red = 255 * elevation + red * (1 - elevation);
+            green = 255 * elevation + green * (1 - elevation);
+            blue = 255 * elevation + blue * (1 - elevation);
+        }
+        return `rgb(${Math.max(0, red) | 0}, ${Math.max(0, green) | 0}, ${Math.max(0, blue) | 0})`;
+    }
 
     private triangleOfEdge(e: number): number {
         return Math.floor(e / 3);
@@ -274,24 +274,24 @@ export class WorldMap extends Actor {
         return result;
     }
 
-    // private drawCellColors(ctx: CanvasRenderingContext2D, colorFn: ColorFunction) {
-    //     ctx.save();
-    //     const seen = new Set<number>();
-    //     const { delaunay, triangles, numberOfEdges, centers } = this.mapData;
-    //     for (let e = 0; e < numberOfEdges; e++) {
-    //         const r = triangles[this.nextHalfedge(e)];
-    //         if (!seen.has(r)) {
-    //             seen.add(r);
-    //             const vertices = this.edgesAroundPoint(delaunay, e)
-    //                 .map(e => centers[this.triangleOfEdge(e)]);
-    //             ctx.fillStyle = colorFn(r);
-    //             ctx.beginPath();
-    //             ctx.moveTo(vertices[0].x, vertices[0].y);
-    //             for (let i = 1; i < vertices.length; i++) {
-    //                 ctx.lineTo(vertices[i].x, vertices[i].y);
-    //             }
-    //             ctx.fill();
-    //         }
-    //     }
-    // }
+    private drawCellColors(ctx: CanvasRenderingContext2D, colorFn: (r: number) => string) {
+        ctx.save();
+        const seen = new Set<number>();
+        const { delaunay, triangles, numberOfEdges, centers } = this.mapData;
+        for (let e = 0; e < numberOfEdges; e++) {
+            const r = triangles[this.nextHalfedge(e)];
+            if (!seen.has(r)) {
+                seen.add(r);
+                const vertices = this.edgesAroundPoint(delaunay, e)
+                    .map(e => centers[this.triangleOfEdge(e)]);
+                ctx.fillStyle = colorFn(r);
+                ctx.beginPath();
+                ctx.moveTo(vertices[0].x, vertices[0].y);
+                for (let i = 1; i < vertices.length; i++) {
+                    ctx.lineTo(vertices[i].x, vertices[i].y);
+                }
+                ctx.fill();
+            }
+        }
+    }
 }
