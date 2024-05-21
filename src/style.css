@@ -2,10 +2,10 @@
     position: absolute;
     top: 10px;
     left: 10px;
+    color: white;
 }
 
 #menu button {
-
     cursor: pointer;
     outline: 0;
     display: inline-block;

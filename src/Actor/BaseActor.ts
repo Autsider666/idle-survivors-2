@@ -1,9 +1,11 @@
 import { Actor, EventEmitter, EventKey, Handler, Subscription } from "excalibur";
 import { ActorEvents } from "excalibur/build/dist/Actor";
 import { DamageEvent } from "../Event/DamageEvent";
+import {LevelUpEvent} from "../Event/LevelUpEvent.ts";
 
 type Events = {
-    damage: DamageEvent
+    damage: DamageEvent,
+    'level-up': LevelUpEvent,
 } & ActorEvents
 
 export class BaseActor extends Actor {

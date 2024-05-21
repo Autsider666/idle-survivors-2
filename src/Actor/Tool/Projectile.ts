@@ -1,9 +1,9 @@
 import { CollisionType, Color } from "excalibur";
-import { DamageComponent } from "../Component/DamageComponent";
-import { BaseActor } from "./BaseActor";
-import { DestinationComponent } from "../Component/DestinationComponent";
-import { SCALE_2x } from "../Game/Constant";
-import { CollisionGroup } from "../Game/CollisionGroups";
+import { DamageComponent } from "../../Component/DamageComponent.ts";
+import { BaseActor } from "../BaseActor.ts";
+import { DestinationComponent } from "../../Component/DestinationComponent.ts";
+import { SCALE_2x } from "../../Game/Constant.ts";
+import { CollisionGroup } from "../../Game/CollisionGroups.ts";
 
 export type ProjectileProperties = {
     color: Color,
@@ -14,7 +14,7 @@ export type ProjectileProperties = {
 
 export class Projectile extends BaseActor {
     // private msRemaining: number = 2000;
-    private velosity: number = 300;
+    private velocity: number = 300;
 
     constructor(origin: BaseActor, target: BaseActor, projectile: ProjectileProperties) {
         super({
@@ -30,7 +30,7 @@ export class Projectile extends BaseActor {
         this.addComponent(new DamageComponent(projectile));
         this.addComponent(new DestinationComponent({
             destination: target,
-            velosity: this.velosity,
+            velocity: this.velocity,
             callback: () => this.kill(),
         }));
     }

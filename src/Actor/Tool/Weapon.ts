@@ -1,7 +1,7 @@
 import { CollisionType, Color } from "excalibur";
-import { RangedComponent } from "../Component/RangedComponent";
-import { BaseActor } from "./BaseActor";
-import { CollisionGroup } from "../Game/CollisionGroups";
+import { RangedComponent } from "../../Component/RangedComponent.ts";
+import { BaseActor } from "../BaseActor.ts";
+import { CollisionGroup } from "../../Game/CollisionGroups.ts";
 
 export class Weapon extends BaseActor {
 

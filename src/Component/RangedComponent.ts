@@ -1,6 +1,6 @@
 import { Actor, Circle, Color, PreUpdateEvent } from "excalibur";
 import { BaseComponent } from "./BaseComponent";
-import { Projectile } from "../Actor/Projectile";
+import { Projectile } from "../Actor/Tool/Projectile.ts";
 import { BaseActor } from "../Actor/BaseActor";
 
 type ComponentProps = {

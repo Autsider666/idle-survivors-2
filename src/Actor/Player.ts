@@ -1,7 +1,8 @@
 import { CollisionType, Color, Vector } from "excalibur";
 import { BaseActor } from "./BaseActor";
-import { PlayerControlledComponent } from "../Component/PlayerControlledComponent";
+import { PlayerControlledComponent } from "../Component/Movement/PlayerControlledComponent.ts";
 import { CollisionGroup } from "../Game/CollisionGroups";
+import {LevelComponent} from "../Component/LevelComponent.ts";
 
 export const PlayerTag = 'PLAYER_TAG';
 
@@ -22,5 +23,6 @@ export default class Player extends BaseActor {
 
         // this.addComponent(new HealthComponent(100));
         this.addComponent(new PlayerControlledComponent())
+        this.addComponent(new LevelComponent())
     }
 }

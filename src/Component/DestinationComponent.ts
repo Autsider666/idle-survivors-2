@@ -5,16 +5,16 @@ import { BaseActor } from "../Actor/BaseActor";
 type FinishedCallback = () => void;
 type Props = {
     destination: Vector | BaseActor,
-    velosity: number,
+    velocity: number,
     callback?: FinishedCallback
 }
 
 export class DestinationComponent extends BaseComponent {
     private destination: Vector;
-    private velosity: number;
+    private velocity: number;
     private callback?: FinishedCallback;
 
-    constructor({ destination, velosity, callback }: Props) {
+    constructor({ destination, velocity, callback }: Props) {
         super();
 
         if (destination instanceof BaseActor) {
@@ -23,12 +23,12 @@ export class DestinationComponent extends BaseComponent {
             this.destination = destination;
         }
 
-        this.velosity = velosity;
+        this.velocity = velocity;
         this.callback = callback;
     }
 
     onAdd(owner: BaseActor): void {
-        owner.actions.moveTo(this.destination, this.velosity).callMethod(() => {
+        owner.actions.moveTo(this.destination, this.velocity).callMethod(() => {
             if (this.callback) {
                 this.callback();
             }

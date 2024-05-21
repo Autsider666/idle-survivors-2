@@ -39,6 +39,7 @@ export class WorldMap extends Actor {
             width: canvasWidth,
             x: 0,
             y: 0,
+            z:-10,
             // x: -(canvasWidth / 2),
             // y: -(canvasHeight / 2),
             collisionType: CollisionType.PreventCollision
@@ -148,11 +149,11 @@ export class WorldMap extends Actor {
             cache: true,
             draw: (ctx: CanvasRenderingContext2D) => {
                 // this.drawCellCenters(ctx);
-                // this.drawCellColors(
-                //     ctx,
-                //     // r => this.mapData.elevation[r] < 0.5 ? "hsl(240, 30%, 50%)" : "hsl(90, 20%, 50%)",
-                //     this.biomeColorFunction.bind(this),
-                // );
+                this.drawCellColors(
+                    ctx,
+                    // r => this.mapData.elevation[r] < 0.5 ? "hsl(240, 30%, 50%)" : "hsl(90, 20%, 50%)",
+                    this.biomeColorFunction.bind(this),
+                );
                 this.drawCellBoundaries(ctx);
             }
         });

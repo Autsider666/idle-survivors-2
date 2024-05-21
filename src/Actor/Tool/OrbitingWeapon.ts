@@ -1,6 +1,6 @@
-import { DamageComponent } from "../Component/DamageComponent";
-import { BaseActor } from "./BaseActor";
-import { OrbitingProjectile } from "./OrbitingProjectile";
+import { DamageComponent } from "../../Component/DamageComponent.ts";
+import { BaseActor } from "../BaseActor.ts";
+import { OrbitingProjectile } from "./OrbitingProjectile.ts";
 
 type Props = {
     range: number,

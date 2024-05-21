@@ -1,11 +1,13 @@
-import { Circle, CircleCollider, CollisionType, Color, Engine, Vector } from "excalibur";
-import { HealthComponent } from "../Component/HealthComponent";
-import { DamageComponent } from "../Component/DamageComponent";
-import { PlayerTag } from "./Player";
-import { ChaseComponent } from "../Component/ChaseComponent";
-import { BaseActor } from "./BaseActor";
-import { SCALE_2x } from "../Game/Constant";
-import { CollisionGroup } from "../Game/CollisionGroups";
+import {Circle, CircleCollider, CollisionType, Color, Vector} from "excalibur";
+import {HealthComponent} from "../Component/HealthComponent";
+import {DamageComponent} from "../Component/DamageComponent";
+import {PlayerTag} from "./Player";
+import {ChaseComponent} from "../Component/Movement/ChaseComponent.ts";
+import {BaseActor} from "./BaseActor";
+import {SCALE_2x} from "../Game/Constant";
+import {CollisionGroup} from "../Game/CollisionGroups";
+import {SearchComponent} from "../Component/SearchComponent.ts";
+import {DropsLootComponent} from "../Component/DropsLootComponent.ts";
 
 // const MONSTER_WALK_VELOCITY = 30;
 const MONSTER_CHASE_VELOCITY = 100;
@@ -23,7 +25,7 @@ export class Monster extends BaseActor {
         super({
             pos: new Vector(x, y),
             scale: SCALE_2x,
-            collider: new CircleCollider({ radius: 8 }),
+            collider: new CircleCollider({radius: 8}),
             collisionType: CollisionType.Active,
             collisionGroup: CollisionGroup.Enemy,
         });
@@ -33,8 +35,10 @@ export class Monster extends BaseActor {
         this.addTag(MonsterTag);
 
         this.addComponent(new HealthComponent(1));
-        this.addComponent(new DamageComponent({ damage: 1, targetTag: PlayerTag }));
-        this.addComponent(new ChaseComponent({ queryTags: [PlayerTag], speed: MONSTER_CHASE_VELOCITY }));
+        this.addComponent(new DamageComponent({damage: 1, targetTag: PlayerTag}));
+        this.addComponent(new ChaseComponent({speed: MONSTER_CHASE_VELOCITY}));
+        this.addComponent(new SearchComponent({queryTags: [PlayerTag]}));
+        this.addComponent(new DropsLootComponent({experience:{min: 1, max: 3}}));
     }
 }
 

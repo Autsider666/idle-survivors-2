@@ -6,7 +6,7 @@ import { SlowedComponent } from "../Component/SlowedComponent";
 
 export class MonsterSpawnSystem extends System {
     private readonly maxMonsters: number = 50;
-    private readonly spawnRate: number = 50
+    private readonly spawnRate: number = 10
     private readonly distanceFromPlayer: number = 400;
 
     private random: Random;

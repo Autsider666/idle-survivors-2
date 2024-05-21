@@ -1,7 +1,7 @@
 import { CollisionType, Color } from "excalibur";
-import { OrbitingComponent } from "../Component/OrbitingComponent";
-import { BaseActor } from "./BaseActor";
-import { CollisionGroup } from "../Game/CollisionGroups";
+import { OrbitingComponent } from "../../Component/OrbitingComponent.ts";
+import { BaseActor } from "../BaseActor.ts";
+import { CollisionGroup } from "../../Game/CollisionGroups.ts";
 
 type Props = {
     phase: number,
