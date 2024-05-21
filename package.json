@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "delaunator": "^5.0.1",
+    "peerjs": "^1.5.4",
     "poisson-disk-sampling": "^2.3.1",
     "simplex-noise": "^4.0.1"
   }

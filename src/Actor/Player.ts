@@ -1,8 +1,10 @@
-import { CollisionType, Color, Vector } from "excalibur";
+import {CollisionType, Color, Engine, Vector} from "excalibur";
 import { BaseActor } from "./BaseActor";
 import { PlayerControlledComponent } from "../Component/Movement/PlayerControlledComponent.ts";
 import { CollisionGroup } from "../Game/CollisionGroups";
 import {LevelComponent} from "../Component/LevelComponent.ts";
+import {Weapon} from "./Tool/Weapon.ts";
+import {NETWORK_SEND_UPDATE_EVENT, NetworkUpdate} from "../Multiplayer/NetworkClient.ts";
 
 export const PlayerTag = 'PLAYER_TAG';
 
@@ -24,5 +26,27 @@ export default class Player extends BaseActor {
         // this.addComponent(new HealthComponent(100));
         this.addComponent(new PlayerControlledComponent())
         this.addComponent(new LevelComponent())
+
+        this.addChild(new Weapon(150, Color.Magenta, 3));
+    }
+
+    onInitialize(engine: Engine) {
+        this.on<'postupdate'>('postupdate', () => {
+            if (this.vel.x !== 0 || this.vel.y !== 0) {
+
+                const update:NetworkUpdate = {
+                    id: this.id,
+                    position: {
+                        x: this.pos.x,
+                        y: this.pos.y,
+                    },
+                    velocity: {
+                        x: this.vel.x,
+                        y: this.vel.y,
+                    },
+                };
+                engine.emit(NETWORK_SEND_UPDATE_EVENT,update)
+            }
+        })
     }
 }

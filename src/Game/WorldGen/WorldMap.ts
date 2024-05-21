@@ -18,10 +18,8 @@ type MapData = {
     moisture: number[],
 }
 
-const urlParams = new URLSearchParams(window.location.search);
-
 export class WorldMap extends Actor {
-    private readonly seed: number = Number.parseInt(urlParams.get('game') ?? Date.now().toString());
+    private readonly seed: number;
     private readonly waveLength: number = 0.5;
     private readonly random: Randomizer;
     private readonly noise: NoiseFunction2D;
@@ -31,6 +29,7 @@ export class WorldMap extends Actor {
     private readonly canvas: Canvas;
 
     constructor(
+        private readonly seed: number,
         private readonly canvasHeight: number = 3000,
         private readonly canvasWidth: number = 4000,
     ) {
