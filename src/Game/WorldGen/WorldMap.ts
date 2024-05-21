@@ -57,10 +57,11 @@ export class WorldMap extends Actor {
     }
 
     onInitialize(engine: Engine): void {
-        this.createActors(engine);
+        // this.createActors(engine);
     }
 
     private createActors(engine: Engine): void {
+
         const { delaunay, triangles, numberOfEdges, centers, elevation, moisture } = this.mapData;
 
         const visitedRegions = new Set<number>();

@@ -21,9 +21,8 @@ const circle = new Circle({
 });
 
 export class Monster extends BaseActor {
-    constructor(x: number, y: number) {
+    constructor() {
         super({
-            pos: new Vector(x, y),
             scale: SCALE_2x,
             collider: new CircleCollider({radius: 8}),
             collisionType: CollisionType.Active,

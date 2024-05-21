@@ -19,6 +19,8 @@ export class TargetComponent extends BaseComponent {
             if (this.target.isKilled()) {
                 owner.removeComponent(TargetComponent);
             }
-        })
+        });
+
+        owner.on<'kill'>('kill', () => owner.removeComponent(TargetComponent));
     }
 }

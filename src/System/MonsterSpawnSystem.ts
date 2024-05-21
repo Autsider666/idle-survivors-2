@@ -2,7 +2,9 @@ import { BodyComponent, Engine, Random, Scene, System, SystemType, TagQuery, Vec
 import { Monster, MonsterTag } from "../Actor/Monster";
 import { PlayerTag } from "../Actor/Player";
 import DynamicEventListener from "../Utility/DynamicEventListener";
-import { SlowedComponent } from "../Component/SlowedComponent";
+import {ActorPool} from "../Utility/ActorPool.ts";
+
+const pool = new ActorPool<Monster>(()=> new Monster())
 
 export class MonsterSpawnSystem extends System {
     private readonly maxMonsters: number = 50;
@@ -33,16 +35,13 @@ export class MonsterSpawnSystem extends System {
     }
 
     update(elapsedMs: number): void {
-        if (this.monsterQuery.entities.length >= this.maxMonsters) {
+        const monsterCount = this.monsterQuery.entities.filter(monster => !monster.isKilled()).length;
+        if (monsterCount >= this.maxMonsters) {
             return;
         }
 
         this.nextMonsterIn -= elapsedMs;
         if (this.nextMonsterIn > 0) {
-            return;
-        }
-
-        if (this.monsterQuery.entities.length >= this.maxMonsters) {
             return;
         }
 
@@ -67,11 +66,8 @@ export class MonsterSpawnSystem extends System {
         monsterPos.x += randomDirection.x * this.distanceFromPlayer;
         monsterPos.y += randomDirection.y * this.distanceFromPlayer;
 
-        const monster = new Monster(monsterPos.x, monsterPos.y);
-
-        const slow = new SlowedComponent();
-        slow.counter++;
-        // monster.addComponent(slow);
+        const monster = pool.requestActor();
+        monster.pos = monsterPos;
 
         this.engine?.currentScene.add(monster)
     }

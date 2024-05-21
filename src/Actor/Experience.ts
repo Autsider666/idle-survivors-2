@@ -1,32 +1,49 @@
-import {CircleCollider, CollisionType, Color, Label, Vector} from "excalibur";
+import {Circle, CircleCollider, CollisionType, Color, Vector} from "excalibur";
 import {COLLECTABLE_TAG} from "./Tool/ItemCollector.ts";
 import {CollisionGroup} from "../Game/CollisionGroups.ts";
 import {ChaseComponent} from "../Component/Movement/ChaseComponent.ts";
+import {BaseActor} from "./BaseActor.ts";
 
 type Props = {
-    value: number,
-    pos: Vector,
+    value?: number,
+    pos?: Vector,
 }
 
-export  class Experience extends Label{
-    public readonly value:number;
+const circle = new Circle({
+    radius: 3,
+    color: Color.fromRGBString('rgb(80, 200, 120)'),
+})
 
-    constructor({value, pos}:Props) {
+export class Experience extends BaseActor {
+    private _value: number;
+
+    constructor({value, pos}: Props = {}) {
         super({
-            text: value.toString(),
-            pos,
-            color: Color.fromRGBString('rgb(80, 200, 120)'),
+            pos: pos ?? Vector.Zero,
             collisionGroup: CollisionGroup.Climbable,
             collisionType: CollisionType.Passive,
-            collider: new CircleCollider({radius: 5})
+            collider: new CircleCollider({radius: 3})
         });
 
-        this.value = value;
+        this.value = value ?? 0;
 
         this.addTag(COLLECTABLE_TAG);
 
-        this.actions.delay(5000).blink(500,100,10).die();
+        this.addComponent(new ChaseComponent({speed: 500}));
 
-        this.addComponent(new ChaseComponent({speed: 1000}));
+        this.graphics.use(circle)
+    }
+
+    set value(value: number) {
+        this._value = value;
+    }
+
+    get value(): number {
+        return this._value
+    }
+
+    public startCountdown():void {
+        this.actions.clearActions();
+        this.actions.delay(5000).blink(500, 100, 10).die()
     }
 }
