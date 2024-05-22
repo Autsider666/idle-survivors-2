@@ -15,7 +15,7 @@ export class ChaseComponent extends BaseMovementComponent {
     }
 
     onAdd(owner: BaseActor): void {
-        owner.on<'preupdate'>('preupdate', ({ engine }) => {
+        owner.on<'preupdate'>('preupdate', () => {
             const target = owner.get(TargetComponent)?.target;
             if (target === undefined) {
                 return;

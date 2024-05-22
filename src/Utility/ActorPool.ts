@@ -4,12 +4,14 @@ type BuilderCallback<A extends BaseActor> = () => A;
 
 export class ActorPool<A extends BaseActor> {
     private readonly deadPool: A[] = [];
+    private readonly activePool: A[] = [];
     private readonly builderCallback: BuilderCallback<A>;
 
-    constructor(builderCallback: BuilderCallback<A>) {
+    constructor(builderCallback: BuilderCallback<A>, cleanupCallback?: (actor: A) => void) {
         this.builderCallback = () => {
             const actor = builderCallback();
             actor.on<'postkill'>('postkill', () => {
+                this.activePool.splice(this.activePool.indexOf(actor), 1);
                 this.deadPool.push(actor);
 
                 const parent = actor.parent;
@@ -23,20 +25,30 @@ export class ActorPool<A extends BaseActor> {
                 actor.vel.y = 0;
                 actor.pos.x = 0;
                 actor.pos.y = 0;
-            })
+
+                if (cleanupCallback) {
+                    cleanupCallback(actor);
+                }
+            });
+
+            console.debug('new', actor.constructor.name, Date.now());
+
             return actor;
         }
     }
 
     public requestActor(): A {
-        const actor = this.deadPool.pop();
-        if (actor !== undefined) {
-            return actor;
-        }
+        const actor = this.deadPool.pop() ?? this.builderCallback();
+        this.activePool.push(actor);
 
-        const newActor = this.builderCallback();
-        console.debug('new', newActor.constructor.name, Date.now());
+        return actor;
+    }
 
-        return newActor;
+    get activeActors(): A[] {
+        return this.activePool;
+    }
+
+    get deadActors(): A[] {
+        return this.deadPool;
     }
 }

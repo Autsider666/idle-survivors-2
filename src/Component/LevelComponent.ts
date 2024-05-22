@@ -39,12 +39,12 @@ export class LevelComponent extends BaseComponent {
             this.handleLevelUp();
 
             document.getElementById('currentLevel').innerText = this.currentLevel.toString();
-            document.getElementById<HTMLProgressElement>('xp').setAttribute('max', this.experienceTillNextLevel.toString());
+            document.getElementById('xp')?.setAttribute('max', this.experienceTillNextLevel.toString());
 
             this.owner.emit<'level-up'>('level-up', {level: this.currentLevel});
         }
 
-        document.getElementById<HTMLProgressElement>('xp').setAttribute('value', this.currentExperience.toString());
+        document.getElementById('xp')?.setAttribute('value', this.currentExperience.toString());
     }
 
     get experienceForNextLevel(): number {

@@ -20,12 +20,13 @@ export class Experience extends BaseActor {
     constructor({value, pos}: Props = {}) {
         super({
             pos: pos ?? Vector.Zero,
+            z: -1,
             collisionGroup: CollisionGroup.Climbable,
             collisionType: CollisionType.Passive,
             collider: new CircleCollider({radius: 3})
         });
 
-        this.value = value ?? 0;
+        this._value = value ?? 0;
 
         this.addTag(COLLECTABLE_TAG);
 

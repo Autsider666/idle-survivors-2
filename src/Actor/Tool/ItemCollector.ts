@@ -1,7 +1,6 @@
 import {BaseActor} from "../BaseActor.ts";
-import {Circle, CollisionStartEvent, CollisionType, Color, Side} from "excalibur";
+import {Circle, CollisionStartEvent, CollisionType, Color, } from "excalibur";
 import {CollisionGroup} from "../../Game/CollisionGroups.ts";
-import {ChaseComponent} from "../../Component/Movement/ChaseComponent.ts";
 import {TargetComponent} from "../../Component/TargetComponent.ts";
 
 export const COLLECTABLE_TAG = 'COLLECTABLE_TAG';
@@ -30,6 +29,10 @@ export class ItemCollector extends BaseActor {
 
     private onCollision({other}:CollisionStartEvent):void {
         if (!other.hasTag(COLLECTABLE_TAG)) {
+            return;
+        }
+
+        if (this.parent === null) {
             return;
         }
 

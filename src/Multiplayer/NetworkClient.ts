@@ -15,7 +15,7 @@ export type NetworkUpdate = {
 
 }
 
-export type ActorUpdate = {identifier: NetworkIdentifier, data: NetworkUpdate};
+export type ActorUpdate = { identifier: NetworkIdentifier, data: NetworkUpdate };
 
 export const NETWORK_SEND_UPDATE_EVENT = 'network_send_update_event'
 export const NETWORK_HANDLE_UPDATE_EVENT = 'network_handle_update_event'
@@ -23,7 +23,7 @@ export const NETWORK_HANDLE_UPDATE_EVENT = 'network_handle_update_event'
 export class NetworkClient {
     private readonly identifier: NetworkIdentifier;
     private readonly activeConnections = new Map<NetworkIdentifier, DataConnection>();
-    private peer: Peer;
+    private peer?: Peer;
 
     constructor(private readonly engine: Engine, private readonly seed: number) {
         this.identifier = this.generateIdentifier();
@@ -52,7 +52,7 @@ export class NetworkClient {
         });
 
         window.addEventListener("unload", () => {
-            this.peer.disconnect();
+            this.peer?.disconnect();
         });
 
         this.peer.listAllPeers((identifiers: string[]) => {
@@ -61,6 +61,7 @@ export class NetworkClient {
                 .forEach(identifier => this.connect(identifier));
         });
 
+        // @ts-ignore
         this.engine.on(NETWORK_SEND_UPDATE_EVENT, (update: NetworkUpdate) => this.sendUpdate(update));
     }
 
@@ -70,8 +71,9 @@ export class NetworkClient {
             this.activeConnections.set(connectionIdentifier, connection);
         });
 
-        connection.on('data', (data:NetworkUpdate) => {
-            const eventData: ActorUpdate = {identifier:connectionIdentifier, data}
+        // @ts-ignore
+        connection.on('data', (data: NetworkUpdate) => {
+            const eventData: ActorUpdate = {identifier: connectionIdentifier, data}
 
             this.engine.emit(NETWORK_HANDLE_UPDATE_EVENT, eventData);
         });
@@ -83,7 +85,7 @@ export class NetworkClient {
     }
 
     private connect(id: NetworkIdentifier): void {
-        if (this.identifier === id) {
+        if (this.peer === undefined || this.identifier === id) {
             return;
         }
         const connection = this.peer.connect(id);
@@ -91,7 +93,7 @@ export class NetworkClient {
         this.handleConnection(connection);
     }
 
-    private sendUpdate(update: NetworkUpdate):void {
+    private sendUpdate(update: NetworkUpdate): void {
         this.activeConnections.forEach(connection => connection.send(update))
     }
 }

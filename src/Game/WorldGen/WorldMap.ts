@@ -27,11 +27,10 @@ type RegionData = {
 };
 
 export class WorldMap extends Actor {
-    private readonly seed: number;
     private readonly waveLength: number = MAP_GEN_WAVE_LENGTH;
     private readonly random: Randomizer;
     private readonly noise: NoiseFunction2D;
-    private delaunay: Delaunator;
+    private delaunay: Delaunator<Vector>;
 
     private readonly mapData: MapData;
     private readonly regions: RegionData[] = [];
@@ -39,7 +38,7 @@ export class WorldMap extends Actor {
     private readonly canvas: Canvas;
 
     constructor(
-        private readonly seed: number,
+        seed: number,
         private readonly canvasHeight: number = MAP_GEN_HEIGHT,
         private readonly canvasWidth: number = MAP_GEN_WIDTH,
     ) {
@@ -54,7 +53,7 @@ export class WorldMap extends Actor {
             collisionType: CollisionType.PreventCollision
         });
 
-        this.random = new Randomizer(this.seed);
+        this.random = new Randomizer(seed);
         this.noise = createNoise2D(() => this.random.getFloat());
         this.delaunay = this.generateDelaunay([]);
 
@@ -111,7 +110,7 @@ export class WorldMap extends Actor {
         }
     }
 
-    private generateDelaunay(points: Vector[]): Delaunator {
+    private generateDelaunay(points: Vector[]): Delaunator<Vector> {
         return Delaunator.from(points, (point: Vector) => point.x, (point: Vector) => point.y)
     }
 

@@ -2,7 +2,7 @@ import {Vector} from "excalibur";
 import {BaseComponent} from "../BaseComponent.ts";
 
 export abstract class BaseMovementComponent extends BaseComponent {
-    public readonly maxSpeed: number;
+    protected maxSpeed: number = 0;
 
     protected moveInDirection(direction: Vector): void {
         if (direction.x === 0 && direction.y === 0) {

@@ -1,4 +1,4 @@
-import {CircleCollider, CollisionType, Color, Graphic, Polygon, PolygonCollider, Vector} from "excalibur";
+import {CollisionType, Color, Graphic, Polygon, PolygonCollider, Vector} from "excalibur";
 import { BaseActor } from "./BaseActor";
 import { SlowedComponent } from "../Component/SlowedComponent";
 import { CollisionGroup } from "../Game/CollisionGroups";
@@ -42,7 +42,6 @@ export class MapRegion extends BaseActor {
         // this.graphics.use(this.graphic);
 
         this.on('collisionstart', ({ other }) => {
-            console.log(other.constructor.name);
             if (this.elevation < 0.5) {
                 other.addComponent(new SlowedComponent());
                 other.get(SlowedComponent).counter++;

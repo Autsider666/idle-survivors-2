@@ -1,6 +1,6 @@
-import {Actor, Color, Engine, Vector} from "excalibur";
+import {Color, Engine} from "excalibur";
 import {BaseActor} from "../Actor/BaseActor.ts";
-import {ActorUpdate, NETWORK_HANDLE_UPDATE_EVENT, NetworkIdentifier, NetworkUpdate} from "./NetworkClient.ts";
+import {ActorUpdate, NETWORK_HANDLE_UPDATE_EVENT, NetworkIdentifier} from "./NetworkClient.ts";
 
 export class NetworkActorManager {
     private readonly networkActors = new Map<NetworkIdentifier, BaseActor>();
@@ -9,18 +9,18 @@ export class NetworkActorManager {
     }
 
     private handleUpdate({identifier, data}:ActorUpdate):void {
-        let actor:BaseActor | undefined = this.networkActors.get(identifier);
+        const actor:BaseActor | undefined = this.networkActors.get(identifier);
         if (actor === undefined) {
-            actor = new Actor({
+            const newActor  = new BaseActor({
                 radius: 5,
                 color: Color.Chartreuse,
                 x: data.position.x,
                 y: data.position.y,
             });
 
-            this.networkActors.set(identifier, actor);
+            this.networkActors.set(identifier, newActor);
 
-            this.engine.add(actor);
+            this.engine.add(newActor);
             return;
         }
 

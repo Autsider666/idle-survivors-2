@@ -1,4 +1,4 @@
-import {Circle, CircleCollider, CollisionType, Color, Vector} from "excalibur";
+import {Circle, CircleCollider, CollisionType, Color} from "excalibur";
 import {HealthComponent} from "../Component/HealthComponent";
 import {DamageComponent} from "../Component/DamageComponent";
 import {PlayerTag} from "./Player";
