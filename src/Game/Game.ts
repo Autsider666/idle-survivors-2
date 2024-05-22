@@ -1,10 +1,8 @@
-import {Color, Engine} from "excalibur";
+import {Engine} from "excalibur";
 import PlayerCameraStrategy from "../Utility/PlayerCameraStrategy";
 import Player from "../Actor/Player";
 import { WorldMap } from "./WorldGen/WorldMap";
 import {MonsterSpawnSystem} from "../System/MonsterSpawnSystem.ts";
-import {Weapon} from "../Actor/Tool/Weapon.ts";
-import {ItemCollector} from "../Actor/Tool/ItemCollector.ts";
 import {NetworkClient} from "../Multiplayer/NetworkClient.ts";
 import {NetworkActorManager} from "../Multiplayer/NetworkActorManager.ts";
 
@@ -35,9 +33,6 @@ export default class Game extends Engine {
 
         const player = new Player(1000, 1000);
         this.add(player);
-
-        const collector = new ItemCollector(100);
-        player.addChild(collector);
 
         this.currentScene.world.add(MonsterSpawnSystem);
 

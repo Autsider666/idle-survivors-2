@@ -1,9 +1,10 @@
-import { Actor, Canvas, CollisionType, Engine, Vector } from "excalibur";
+import {Actor, Canvas, CollisionType, Engine, Vector} from "excalibur";
 import Delaunator from 'delaunator';
-import { createNoise2D, NoiseFunction2D } from 'simplex-noise';
+import {createNoise2D, NoiseFunction2D} from 'simplex-noise';
 import Randomizer from "./Randomizer";
 import PoissonDiskSampling from "poisson-disk-sampling";
-import { MapRegion } from "../../Actor/MapRegion";
+import {MapRegion} from "../../Actor/MapRegion";
+import {MAP_GEN_USE_ACTORS, MAP_GEN_HEIGHT, MAP_GEN_WAVE_LENGTH, MAP_GEN_WIDTH} from "../../config.ts";
 
 type MapData = {
     delaunay: Delaunator<Vector>, //TODO refactor asap
@@ -18,27 +19,36 @@ type MapData = {
     moisture: number[],
 }
 
+type RegionData = {
+    id: number,
+    vertices: Vector[],
+    elevation: number,
+    moisture: number,
+};
+
 export class WorldMap extends Actor {
     private readonly seed: number;
-    private readonly waveLength: number = 0.5;
+    private readonly waveLength: number = MAP_GEN_WAVE_LENGTH;
     private readonly random: Randomizer;
     private readonly noise: NoiseFunction2D;
+    private delaunay: Delaunator;
 
     private readonly mapData: MapData;
+    private readonly regions: RegionData[] = [];
 
     private readonly canvas: Canvas;
 
     constructor(
         private readonly seed: number,
-        private readonly canvasHeight: number = 3000,
-        private readonly canvasWidth: number = 4000,
+        private readonly canvasHeight: number = MAP_GEN_HEIGHT,
+        private readonly canvasWidth: number = MAP_GEN_WIDTH,
     ) {
         super({
             height: canvasHeight,
             width: canvasWidth,
             x: 0,
             y: 0,
-            z:-10,
+            z: -10,
             // x: -(canvasWidth / 2),
             // y: -(canvasHeight / 2),
             collisionType: CollisionType.PreventCollision
@@ -46,6 +56,7 @@ export class WorldMap extends Actor {
 
         this.random = new Randomizer(this.seed);
         this.noise = createNoise2D(() => this.random.getFloat());
+        this.delaunay = this.generateDelaunay([]);
 
         this.mapData = this.generateMapData();
 
@@ -53,17 +64,16 @@ export class WorldMap extends Actor {
 
         this.graphics.use(this.canvas);
         this.graphics.anchor = Vector.Zero;
-
     }
 
     onInitialize(engine: Engine): void {
-        // this.createActors(engine);
+        if (MAP_GEN_USE_ACTORS) {
+            this.createActors(engine);
+        }
     }
 
     private createActors(engine: Engine): void {
-
-        const { delaunay, triangles, numberOfEdges, centers, elevation, moisture } = this.mapData;
-
+        const {delaunay, triangles, numberOfEdges, centers, elevation, moisture} = this.mapData;
         const visitedRegions = new Set<number>();
         for (let edgeId = 0; edgeId < numberOfEdges; edgeId++) {
             const regionId = triangles[this.nextHalfedge(edgeId)];
@@ -94,27 +104,56 @@ export class WorldMap extends Actor {
                     vertices,
                 });
 
+
                 // this.addChild(cellActor);
                 engine.add(cellActor);
             }
         }
     }
 
+    private generateDelaunay(points: Vector[]): Delaunator {
+        return Delaunator.from(points, (point: Vector) => point.x, (point: Vector) => point.y)
+    }
+
     private generateMapData(): MapData {
         const points = this.generatePoints();
         const delaunay = Delaunator.from(points, (point: Vector) => point.x, (point: Vector) => point.y);
+
+        const numberOfEdges = delaunay.halfedges.length;
+        const triangles = delaunay.triangles;
+        const centers = this.calculateCentroids(points, delaunay);
+        const elevation = this.generateElevationMap(points);
+        const moisture = this.generateMoistureMap(points);
+
+        this.regions.length = 0;
+        const visitedRegions = new Set<number>();
+        for (let edgeId = 0; edgeId < numberOfEdges; edgeId++) {
+            const regionId = triangles[this.nextHalfedge(edgeId)];
+            if (!visitedRegions.has(regionId)) {
+                visitedRegions.add(regionId);
+                const vertices = this.edgesAroundPoint(delaunay, edgeId)
+                    .map(e => centers[this.triangleOfEdge(e)]);
+
+                this.regions.push({
+                    id: regionId,
+                    vertices,
+                    moisture: moisture[regionId],
+                    elevation: elevation[regionId],
+                })
+            }
+        }
 
         return {
             delaunay,
             points,
             numberOfRegions: points.length,
             numberOfTriangles: delaunay.halfedges.length / 3,
-            numberOfEdges: delaunay.halfedges.length,
+            numberOfEdges,
             halfEdges: delaunay.halfedges,
-            triangles: delaunay.triangles,
-            centers: this.calculateCentroids(points, delaunay),
-            elevation: this.generateElevationMap(points),
-            moisture: this.generateMoistureMap(points),
+            triangles,
+            centers,
+            elevation,
+            moisture,
         };
     }
 
@@ -130,14 +169,7 @@ export class WorldMap extends Actor {
             points.push(new Vector(x, y));
         }
 
-        // points.push({ ...defaultRegion, x: -10, y: this.mapHeight / 2 });
-        // points.push({ ...defaultRegion, x: this.mapWidth + 10, y: this.mapHeight / 2 });
-        // points.push({ ...defaultRegion, y: -10, x: this.mapWidth / 2 });
-        // points.push({ ...defaultRegion, y: this.mapHeight + 10, x: this.mapWidth / 2 });
-        // points.push({ ...defaultRegion, x: -10, y: -10 });
-        // points.push({ ...defaultRegion, x: this.mapWidth + 10, y: this.mapHeight + 10 });
-        // points.push({ ...defaultRegion, y: -10, x: this.mapHeight + 10 });
-        // points.push({ ...defaultRegion, y: this.mapHeight + 10, x: -10 });
+        // Just read these points based on the article!
 
         return points;
     }
@@ -185,12 +217,13 @@ export class WorldMap extends Actor {
     private triangleOfEdge(e: number): number {
         return Math.floor(e / 3);
     }
+
     private nextHalfedge(e: number): number {
         return (e % 3 === 2) ? e - 2 : e + 1;
     }
 
     private drawCellBoundaries(ctx: CanvasRenderingContext2D) {
-        const { delaunay, centers, halfEdges, numberOfEdges } = this.mapData;
+        const {delaunay, centers, halfEdges, numberOfEdges} = this.mapData;
         ctx.save();
         ctx.lineWidth = 1;
         ctx.strokeStyle = "black";
@@ -278,7 +311,7 @@ export class WorldMap extends Actor {
     private drawCellColors(ctx: CanvasRenderingContext2D, colorFn: (r: number) => string) {
         ctx.save();
         const seen = new Set<number>();
-        const { delaunay, triangles, numberOfEdges, centers } = this.mapData;
+        const {delaunay, triangles, numberOfEdges, centers} = this.mapData;
         for (let e = 0; e < numberOfEdges; e++) {
             const r = triangles[this.nextHalfedge(e)];
             if (!seen.has(r)) {

@@ -1,5 +1,4 @@
 import {BaseActor} from "../Actor/BaseActor.ts";
-import {Vector} from "excalibur";
 
 type BuilderCallback<A extends BaseActor> = () => A;
 
@@ -36,7 +35,7 @@ export class ActorPool<A extends BaseActor> {
         }
 
         const newActor = this.builderCallback();
-        console.log('new', newActor.constructor.name, Date.now());
+        console.debug('new', newActor.constructor.name, Date.now());
 
         return newActor;
     }

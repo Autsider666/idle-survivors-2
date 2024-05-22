@@ -1,4 +1,4 @@
-import { CollisionType, Color, Graphic, Polygon, PolygonCollider, Vector } from "excalibur";
+import {CircleCollider, CollisionType, Color, Graphic, Polygon, PolygonCollider, Vector} from "excalibur";
 import { BaseActor } from "./BaseActor";
 import { SlowedComponent } from "../Component/SlowedComponent";
 import { CollisionGroup } from "../Game/CollisionGroups";
@@ -17,10 +17,12 @@ export class MapRegion extends BaseActor {
     private graphic: Graphic;
 
     constructor({ pos, elevation, moisture, vertices }: RegionProps) {
+        const collider = new PolygonCollider({ points: vertices.map(vertice => vertice.sub(pos))});
         super({
             pos,
             z: -1,
-            collider: new PolygonCollider({ points: vertices.map(vertice => vertice.sub(pos)) }),
+            // collider: new CircleCollider({radius: 20}),
+            collider: collider.isConvex() ? collider : collider.triangulate(),
             collisionType: CollisionType.Passive,
             collisionGroup: CollisionGroup.Ground,
             // radius: 3,
@@ -40,6 +42,7 @@ export class MapRegion extends BaseActor {
         // this.graphics.use(this.graphic);
 
         this.on('collisionstart', ({ other }) => {
+            console.log(other.constructor.name);
             if (this.elevation < 0.5) {
                 other.addComponent(new SlowedComponent());
                 other.get(SlowedComponent).counter++;
