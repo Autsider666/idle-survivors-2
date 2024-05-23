@@ -1,4 +1,4 @@
-import { CollisionGroup as EXCollisionGroup } from "excalibur"
+import { CollisionGroup as EXCollisionGroup } from "excalibur";
 
 enum Category {
     Ground = 0b0000_0001, // prettier-ignore
@@ -12,7 +12,7 @@ enum Category {
 }
 
 function collideWith(...categories: Category[]): number {
-    return categories.reduce((acc, cat) => acc | cat, 0)
+    return categories.reduce((acc, cat) => acc | cat, 0);
 }
 
 export const CollisionGroup: Record<string, EXCollisionGroup> = {
@@ -62,4 +62,4 @@ export const CollisionGroup: Record<string, EXCollisionGroup> = {
         Category.Climbable,
         collideWith(Category.Player)
     ),
-}
+};

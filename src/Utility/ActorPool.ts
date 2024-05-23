@@ -18,7 +18,7 @@ export class ActorPool<A extends BaseActor> {
                 if (parent === null) {
                     actor.scene?.remove(actor);
                 } else {
-                    parent.removeChild(actor)
+                    parent.removeChild(actor);
                 }
 
                 actor.vel.x = 0;
@@ -34,7 +34,7 @@ export class ActorPool<A extends BaseActor> {
             console.debug('new', actor.constructor.name, Date.now());
 
             return actor;
-        }
+        };
     }
 
     public requestActor(): A {

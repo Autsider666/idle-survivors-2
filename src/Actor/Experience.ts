@@ -12,7 +12,7 @@ type Props = {
 const circle = new Circle({
     radius: 3,
     color: Color.fromRGBString('rgb(80, 200, 120)'),
-})
+});
 
 export class Experience extends BaseActor {
     private _value: number;
@@ -32,7 +32,7 @@ export class Experience extends BaseActor {
 
         this.addComponent(new ChaseComponent({speed: 500}));
 
-        this.graphics.use(circle)
+        this.graphics.use(circle);
     }
 
     set value(value: number) {
@@ -40,11 +40,11 @@ export class Experience extends BaseActor {
     }
 
     get value(): number {
-        return this._value
+        return this._value;
     }
 
     public startCountdown():void {
         this.actions.clearActions();
-        this.actions.delay(5000).blink(500, 100, 10).die()
+        this.actions.delay(5000).blink(500, 100, 10).die();
     }
 }

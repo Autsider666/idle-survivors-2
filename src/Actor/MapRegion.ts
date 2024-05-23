@@ -50,7 +50,7 @@ export class MapRegion extends BaseActor {
                 other.addComponent(new SlowedComponent());
                 other.get(SlowedComponent).counter++;
             }
-        })
+        });
 
         this.on<'collisionend'>('collisionend', ({other}) => {
             if (this.elevation < 0.5) {
@@ -58,7 +58,7 @@ export class MapRegion extends BaseActor {
                     other.removeComponent(SlowedComponent);
                 }
             }
-        })
+        });
     }
 
     // private generatePolygon(): Polygon {

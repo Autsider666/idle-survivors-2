@@ -24,7 +24,7 @@ export class ItemCollector extends BaseActor {
             padding: 5 // optional, might need to give padding to avoid being cut off
         }));
 
-        this.on<'collisionstart'>('collisionstart',this.onCollision.bind(this))
+        this.on<'collisionstart'>('collisionstart',this.onCollision.bind(this));
     }
 
     private onCollision({other}:CollisionStartEvent):void {

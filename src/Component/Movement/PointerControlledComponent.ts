@@ -36,7 +36,7 @@ export class PointerControlledComponent extends BaseMovementComponent {
         });
 
         document.addEventListener('mouseup', () => {
-            console.log(1)
+            console.log(1);
             this.state = TrackState.Idle;
         });
 
@@ -58,6 +58,6 @@ export class PointerControlledComponent extends BaseMovementComponent {
             }
 
             this.moveInDirection(engine.screen.screenToWorldCoordinates(pointer.lastScreenPos).sub(this.owner.pos));
-        })
+        });
     }
 }

@@ -5,7 +5,8 @@ import {ActorUpdate, NETWORK_HANDLE_UPDATE_EVENT, NetworkIdentifier} from "./Net
 export class NetworkActorManager {
     private readonly networkActors = new Map<NetworkIdentifier, BaseActor>();
     constructor(private readonly engine:Engine) {
-        engine.on(NETWORK_HANDLE_UPDATE_EVENT, this.handleUpdate.bind(this))
+        // @ts-expect-error because of EX event system
+        engine.on(NETWORK_HANDLE_UPDATE_EVENT, this.handleUpdate.bind(this));
     }
 
     private handleUpdate({identifier, data}:ActorUpdate):void {

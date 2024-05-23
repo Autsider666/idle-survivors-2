@@ -26,10 +26,10 @@ export class SearchComponent extends BaseComponent {
             const target = this.query.entities[0];
 
             if (!(target instanceof BaseActor)) {
-                throw new Error('No player found to follow.')
+                throw new Error('No player found to follow.');
             }
 
             owner.addComponent(new TargetComponent({target}));
-        })
+        });
     }
 }

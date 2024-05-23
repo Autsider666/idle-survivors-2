@@ -22,6 +22,6 @@ export class ChaseComponent extends BaseMovementComponent {
             }
 
             this.moveInDirection(target.pos.sub(owner.pos));
-        })
+        });
     }
 }

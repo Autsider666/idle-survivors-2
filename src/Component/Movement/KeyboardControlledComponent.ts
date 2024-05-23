@@ -17,7 +17,7 @@ export class KeyboardControlledComponent extends BaseMovementComponent {
             this.directionQueue.update(engine);
 
             this.handleMovement();
-        })
+        });
     }
 
     private handleMovement(): void {

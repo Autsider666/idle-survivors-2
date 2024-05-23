@@ -12,8 +12,8 @@ type MapData = {
     numberOfRegions: number,
     numberOfTriangles: number,
     numberOfEdges: number,
-    halfEdges: any,
-    triangles: any,
+    halfEdges: Int32Array,
+    triangles: Uint32Array,
     centers: Vector[],
     elevation: number[],
     moisture: number[],
@@ -111,7 +111,7 @@ export class WorldMap extends Actor {
     }
 
     private generateDelaunay(points: Vector[]): Delaunator<Vector> {
-        return Delaunator.from(points, (point: Vector) => point.x, (point: Vector) => point.y)
+        return Delaunator.from(points, (point: Vector) => point.x, (point: Vector) => point.y);
     }
 
     private generateMapData(): MapData {
@@ -138,7 +138,7 @@ export class WorldMap extends Actor {
                     vertices,
                     moisture: moisture[regionId],
                     elevation: elevation[regionId],
-                })
+                });
             }
         }
 
@@ -259,8 +259,8 @@ export class WorldMap extends Actor {
         for (let t = 0; t < numberOfTriangles; t++) {
             let sumOfX = 0, sumOfY = 0;
             for (let i = 0; i < 3; i++) {
-                let s = 3 * t + i;
-                let p = points[delaunay.triangles[s]];
+                const s = 3 * t + i;
+                const p = points[delaunay.triangles[s]];
                 sumOfX += p.x;
                 sumOfY += p.y;
             }

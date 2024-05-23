@@ -29,7 +29,7 @@ export class Monster extends BaseActor {
             collisionGroup: CollisionGroup.Enemy,
         });
 
-        this.graphics.add(circle)
+        this.graphics.add(circle);
 
         this.addTag(MonsterTag);
 

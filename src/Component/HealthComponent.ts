@@ -24,7 +24,7 @@ export class HealthComponent extends BaseComponent {
         if (this.max > 1) {
             owner.graphics.onPostDraw = (gfx: ExcaliburGraphicsContext) => {
                 gfx.drawRectangle(new Vector(-5, -2), 10, 4, Color.Green);
-            }
+            };
         }
     }
 }

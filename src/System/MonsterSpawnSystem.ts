@@ -5,11 +5,11 @@ import DynamicEventListener from "../Utility/DynamicEventListener";
 import {ActorPool} from "../Utility/ActorPool.ts";
 import {SPAWN_DISTANCE, SPAWN_MAX_MONSTERS, SPAWN_RATE} from "../config.ts";
 
-const pool = new ActorPool<Monster>(()=> new Monster())
+const pool = new ActorPool<Monster>(()=> new Monster());
 
 export class MonsterSpawnSystem extends System {
     private readonly maxMonsters: number = SPAWN_MAX_MONSTERS;
-    private readonly spawnRate: number = SPAWN_RATE
+    private readonly spawnRate: number = SPAWN_RATE;
     private readonly distanceFromPlayer: number = SPAWN_DISTANCE;
 
     private random: Random;
@@ -70,6 +70,6 @@ export class MonsterSpawnSystem extends System {
         const monster = pool.requestActor();
         monster.pos = monsterPos;
 
-        this.engine?.currentScene.add(monster)
+        this.engine?.currentScene.add(monster);
     }
 }

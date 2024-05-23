@@ -17,8 +17,8 @@ export type NetworkUpdate = {
 
 export type ActorUpdate = { identifier: NetworkIdentifier, data: NetworkUpdate };
 
-export const NETWORK_SEND_UPDATE_EVENT = 'network_send_update_event'
-export const NETWORK_HANDLE_UPDATE_EVENT = 'network_handle_update_event'
+export const NETWORK_SEND_UPDATE_EVENT = 'network_send_update_event';
+export const NETWORK_HANDLE_UPDATE_EVENT = 'network_handle_update_event';
 
 export class NetworkClient {
     private readonly identifier: NetworkIdentifier;
@@ -61,7 +61,7 @@ export class NetworkClient {
                 .forEach(identifier => this.connect(identifier));
         });
 
-        // @ts-ignore
+        // @ts-expect-error because of EX event system
         this.engine.on(NETWORK_SEND_UPDATE_EVENT, (update: NetworkUpdate) => this.sendUpdate(update));
     }
 
@@ -71,9 +71,9 @@ export class NetworkClient {
             this.activeConnections.set(connectionIdentifier, connection);
         });
 
-        // @ts-ignore
+        // @ts-expect-error because of EX event system
         connection.on('data', (data: NetworkUpdate) => {
-            const eventData: ActorUpdate = {identifier: connectionIdentifier, data}
+            const eventData: ActorUpdate = {identifier: connectionIdentifier, data};
 
             this.engine.emit(NETWORK_HANDLE_UPDATE_EVENT, eventData);
         });
@@ -81,7 +81,7 @@ export class NetworkClient {
         connection.on('close', () => {
             console.log('close', connectionIdentifier);
             this.activeConnections.delete(connectionIdentifier);
-        })
+        });
     }
 
     private connect(id: NetworkIdentifier): void {
@@ -94,6 +94,6 @@ export class NetworkClient {
     }
 
     private sendUpdate(update: NetworkUpdate): void {
-        this.activeConnections.forEach(connection => connection.send(update))
+        this.activeConnections.forEach(connection => connection.send(update));
     }
 }

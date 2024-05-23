@@ -25,7 +25,7 @@ export class DropsLootComponent extends BaseComponent {
     }
 
     onAdd(owner: BaseActor) {
-        owner.on<'kill'>('kill', ({}) => {
+        owner.on<'kill'>('kill', () => {
             let experience = 0;
             if (!Number.isFinite(this.experience)) {
                 const {min, max} = this.experience as { min: number, max: number };
@@ -51,6 +51,6 @@ export class DropsLootComponent extends BaseComponent {
 
 
             owner.scene?.engine.add(actor);
-        })
+        });
     }
 }
