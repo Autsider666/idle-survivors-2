@@ -1,11 +1,12 @@
 import {CollisionType, Color, Engine, Vector} from "excalibur";
 import {BaseActor} from "./BaseActor";
-import {PlayerControlledComponent} from "../Component/Movement/PlayerControlledComponent.ts";
+import {KeyboardControlledComponent} from "../Component/Movement/KeyboardControlledComponent.ts";
 import {CollisionGroup} from "../Game/CollisionGroups";
 import {LevelComponent} from "../Component/LevelComponent.ts";
 import {Weapon} from "./Tool/Weapon.ts";
 import {NETWORK_SEND_UPDATE_EVENT, NetworkUpdate} from "../Multiplayer/NetworkClient.ts";
 import {ItemCollector} from "./Tool/ItemCollector.ts";
+import {MouseControlledComponent} from "../Component/Movement/MouseControlledComponent.ts";
 
 export const PlayerTag = 'PLAYER_TAG';
 
@@ -25,7 +26,8 @@ export default class Player extends BaseActor {
         this.addTag(PlayerTag);
 
         // this.addComponent(new HealthComponent(100));
-        this.addComponent(new PlayerControlledComponent())
+        this.addComponent(new KeyboardControlledComponent())
+        this.addComponent(new MouseControlledComponent())
         this.addComponent(new LevelComponent())
 
         this.addChild(new Weapon(150, Color.Magenta, 3));

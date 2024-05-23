@@ -3,7 +3,7 @@ import { Direction, DirectionQueue } from "../../Utility/DirectionQueue.ts";
 import { BaseActor } from "../../Actor/BaseActor.ts";
 import {BaseMovementComponent} from "./BaseMovementComponent.ts";
 
-export class PlayerControlledComponent extends BaseMovementComponent {
+export class KeyboardControlledComponent extends BaseMovementComponent {
     private readonly directionQueue = new DirectionQueue();
     
     constructor() {
