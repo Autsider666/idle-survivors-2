@@ -6,7 +6,7 @@ import {LevelComponent} from "../Component/LevelComponent.ts";
 import {Weapon} from "./Tool/Weapon.ts";
 import {NETWORK_SEND_UPDATE_EVENT, NetworkUpdate} from "../Multiplayer/NetworkClient.ts";
 import {ItemCollector} from "./Tool/ItemCollector.ts";
-import {MouseControlledComponent} from "../Component/Movement/MouseControlledComponent.ts";
+import {PointerControlledComponent} from "../Component/Movement/PointerControlledComponent.ts";
 
 export const PlayerTag = 'PLAYER_TAG';
 
@@ -27,7 +27,7 @@ export default class Player extends BaseActor {
 
         // this.addComponent(new HealthComponent(100));
         this.addComponent(new KeyboardControlledComponent())
-        this.addComponent(new MouseControlledComponent())
+        this.addComponent(new PointerControlledComponent())
         this.addComponent(new LevelComponent())
 
         this.addChild(new Weapon(150, Color.Magenta, 3));

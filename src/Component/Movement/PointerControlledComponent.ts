@@ -1,8 +1,8 @@
 import { BaseActor } from "../../Actor/BaseActor.ts";
 import {BaseMovementComponent} from "./BaseMovementComponent.ts";
 
-export class MouseControlledComponent extends BaseMovementComponent {
-    private trackPoints:boolean = false;
+export class PointerControlledComponent extends BaseMovementComponent {
+    private trackPointer:boolean = false;
     
     constructor() {
         super();
@@ -15,22 +15,29 @@ export class MouseControlledComponent extends BaseMovementComponent {
     }
 
     private initialize():void {
-        const pointer = this.owner.scene?.engine.input.pointers.primary;
+        const engine = this.owner.scene?.engine;
+        if (engine === undefined) {
+            throw new Error('Why no engine?');
+        }
+        const pointer = engine.input.pointers.primary;
         if (pointer === undefined) {
             throw new Error('Why no pointer?');
         }
+
         pointer.on<'down'>('down',() => {
-            this.trackPoints =  true
+            this.trackPointer =  true
         });
+
         pointer.on<'up'>('up',() => {
-            this.trackPoints =  false
+            this.trackPointer =  false
         });
+
         this.owner.on<'preupdate'>('preupdate', () => {
-            if (!this.trackPoints){
+            if (!this.trackPointer){
                 return;
             }
 
-            this.moveInDirection(pointer.lastWorldPos.sub(this.owner.pos));
+            this.moveInDirection(engine.screen.screenToWorldCoordinates(pointer.lastScreenPos).sub(this.owner.pos));
         })
     }
 }
