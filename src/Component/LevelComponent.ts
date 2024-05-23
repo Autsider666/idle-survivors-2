@@ -1,15 +1,13 @@
 import {BaseComponent} from "./BaseComponent.ts";
 import {BaseActor} from "../Actor/BaseActor.ts";
 import {Experience} from "../Actor/Experience.ts";
-import {OrbitingWeapon} from "../Actor/Tool/OrbitingWeapon.ts";
-import {Weapon} from "../Actor/Tool/Weapon.ts";
-import {Color} from "excalibur";
+import {WEAPONS} from "../config.ts";
 
-const upgrades: Record<number, BaseActor> = {
-    2: new Weapon(50, Color.White, 10),
-    3: new OrbitingWeapon({ projectiles: 4, range: 150, rps: 0.6, damage: 1 }),
-    4: new OrbitingWeapon({ projectiles: 10, range: 200, rps: 0.1, clockwise: false }),
-};
+// const upgrades: Record<number, BaseActor> = {
+//     2: new Weapon(50, Color.White, 10),
+//     3: new OrbitingWeapon({ projectiles: 4, range: 150, rps: 0.6, damage: 1 }),
+//     4: new OrbitingWeapon({ projectiles: 10, range: 200, rps: 0.1, clockwise: false }),
+// };
 
 export class LevelComponent extends BaseComponent {
     private currentExperience: number = 0;
@@ -56,9 +54,13 @@ export class LevelComponent extends BaseComponent {
     }
 
     private handleLevelUp():void {
-        const upgrade = upgrades[this.currentLevel];
-        if (upgrade !== undefined) {
-            this.owner.addChild(upgrade);
+        for (const data of Object.values(WEAPONS)) {
+            if (data.minLevel !== this.currentLevel) {
+                continue;
+            }
+
+            this.owner.addChild(new data.type(data));
+
         }
     }
 }

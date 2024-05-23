@@ -36,7 +36,6 @@ export class PointerControlledComponent extends BaseMovementComponent {
         });
 
         document.addEventListener('mouseup', () => {
-            console.log(1);
             this.state = TrackState.Idle;
         });
 

@@ -3,14 +3,27 @@ import { RangedComponent } from "../../Component/RangedComponent.ts";
 import { BaseActor } from "../BaseActor.ts";
 import { CollisionGroup } from "../../Game/CollisionGroups.ts";
 
-export class Weapon extends BaseActor {
+type Props = {
+    name: string,
+    range: number,
+    color: Color,
+    rateOfFire: number,
+    pierce: number,
+}
+
+export class ProjectileWeapon extends BaseActor {
 
     constructor(
-        range: number = 150,
-        projectileColor: Color = Color.White,
-        rateOfFire: number = 2
+        {
+            name = 'Weapon',
+            range = 150,
+            color = Color.White,
+            rateOfFire = 2,
+            pierce = 0,
+        }:Props,
     ) {
         super({
+            name,
             radius: range,
             opacity: 0.6,
             z: -1,
@@ -20,8 +33,9 @@ export class Weapon extends BaseActor {
 
         this.addComponent(new RangedComponent({
             range,
-            projectileColor,
+            color,
             rateOfFire,
+            pierce,
         }));
 
     }

@@ -3,10 +3,10 @@ import {BaseActor} from "./BaseActor";
 import {KeyboardControlledComponent} from "../Component/Movement/KeyboardControlledComponent.ts";
 import {CollisionGroup} from "../Game/CollisionGroups";
 import {LevelComponent} from "../Component/LevelComponent.ts";
-import {Weapon} from "./Tool/Weapon.ts";
 import {NETWORK_SEND_UPDATE_EVENT, NetworkUpdate} from "../Multiplayer/NetworkClient.ts";
 import {ItemCollector} from "./Tool/ItemCollector.ts";
 import {PointerControlledComponent} from "../Component/Movement/PointerControlledComponent.ts";
+import {WEAPONS} from "../config.ts";
 
 export const PlayerTag = 'PLAYER_TAG';
 
@@ -30,7 +30,15 @@ export default class Player extends BaseActor {
         this.addComponent(new PointerControlledComponent());
         this.addComponent(new LevelComponent());
 
-        this.addChild(new Weapon(150, Color.Magenta, 3));
+        // this.addChild(new Weapon(150, Color.Magenta, 3));
+        for (const data of Object.values(WEAPONS)) {
+            if (data.minLevel) {
+                continue;
+            }
+
+            this.addChild(new data.type(data));
+
+        }
         this.addChild(new ItemCollector(100));
     }
 
