@@ -32,7 +32,7 @@ export class OrbitingComponent extends BaseComponent {
 
     onAdd(owner: BaseActor): void {
         const radPerMs = (Math.PI * 2) / 1000 * this.orbitsPerSecond;
-        owner.on('postupdate', ({ delta }: PostUpdateEvent) => {
+        owner.on<'postupdate'>('postupdate', ({ delta }: PostUpdateEvent) => {
 
 
             this.progression += this.clockwise ? delta : -delta;

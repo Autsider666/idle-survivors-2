@@ -1,6 +1,7 @@
 import {ProjectileWeapon} from "./Actor/Tool/ProjectileWeapon.ts";
 import {BaseActor} from "./Actor/BaseActor.ts";
 import {Color} from "excalibur";
+import {MeleeWeapon} from "./Actor/Tool/MeleeWeapon.ts";
 
 export const SPAWN_MAX_MONSTERS:number = 50;
 export const SPAWN_RATE:number = 10;
@@ -15,13 +16,15 @@ export const XP_MAX_MERGE_RANGE:number = 25;
 
 type WeaponData<W extends BaseActor = BaseActor> = {
     name: string,
-    type: new (data: WeaponData<W>) => W,
+    type: W & (new (data: WeaponData<W>) => W),
     minLevel?: number,
     range: number,
     color: Color,
     rateOfFire: number,
-    pierce: number,
+    pierce?: number,
     damage: number,
+    pushback?:boolean,
+    clockwise?: boolean,
 }
 export const WEAPONS: Record<string, WeaponData> = {
     'main': {
@@ -30,9 +33,26 @@ export const WEAPONS: Record<string, WeaponData> = {
         range: 150,
         color: Color.Red,
         rateOfFire: 3,
-        pierce: 0,
         damage: 1,
     },
+    'axe': {
+        name: 'Axe',
+        type: MeleeWeapon,
+        range: 100,
+        color: Color.Red,
+        rateOfFire: 1,
+        damage: 1,
+    }<MeleeWeapon>,
+    // 'test': {
+    //     name: 'Test',
+    //     type: MeleeWeapon,
+    //     range: 100,
+    //     color: Color.Red,
+    //     rateOfFire: 5,
+    //     damage: 0,
+    //     pushback: true,
+    //     minLevel: 3,
+    // }<MeleeWeapon>,
     'pdc': {
         name: 'Personal Defense Cannon',
         type: ProjectileWeapon,
@@ -40,7 +60,6 @@ export const WEAPONS: Record<string, WeaponData> = {
         range: 50,
         color: Color.White,
         rateOfFire: 10,
-        pierce: 0,
         damage: 1,
     },
     'sniper': {

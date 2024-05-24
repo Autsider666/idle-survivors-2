@@ -4,13 +4,13 @@ import { Projectile } from "../Actor/Tool/Projectile.ts";
 import { BaseActor } from "../Actor/BaseActor";
 import {ActorPool} from "../Utility/ActorPool.ts";
 
-type ComponentProps = {
+type Props = {
     range: number,
     color: Color,
     rateOfFire: number,
     pierce: number,
-    projectileLifetime?: number,
-    projectileSpeed?: number,
+    lifetime?: number,
+    speed?: number,
 }
 
 const pools = new Map<string, ActorPool<Projectile>>();
@@ -22,8 +22,8 @@ export class RangedComponent extends BaseComponent {
     private readonly rateOfFire: number;
     private readonly pierce: number;
     private nextShot: number = 0;
-    private projectileLifetime?:number;
-    private projectileSpeed:number;
+    private readonly lifetime?:number;
+    private readonly speed:number;
 
     constructor(
         {
@@ -31,9 +31,9 @@ export class RangedComponent extends BaseComponent {
             color,
             rateOfFire,
             pierce,
-            projectileLifetime,
-            projectileSpeed,
-        }: ComponentProps
+            lifetime,
+            speed,
+        }: Props
     ) {
         super();
 
@@ -41,10 +41,10 @@ export class RangedComponent extends BaseComponent {
         this.color = color;
         this.rateOfFire = rateOfFire;
         this.pierce = pierce;
-        this.projectileSpeed = projectileSpeed ?? 300;
+        this.speed = speed ?? 300;
 
-        if (projectileLifetime === undefined) {
-            this.projectileLifetime = 1000 * this.range / this.projectileSpeed;
+        if (lifetime === undefined) {
+            this.lifetime = 1000 * this.range / this.speed;
         }
     }
 
@@ -96,7 +96,7 @@ export class RangedComponent extends BaseComponent {
 
         let pool = pools.get(this.owner.name);
         if (pool === undefined) {
-            pool = new ActorPool<Projectile>(() => new Projectile(this.owner,{ color: this.color, damage: 1, pierce: this.pierce, maxLifetime: this.projectileLifetime,speed: this.projectileSpeed }));
+            pool = new ActorPool<Projectile>(() => new Projectile(this.owner,{ color: this.color, damage: 1, pierce: this.pierce, maxLifetime: this.lifetime,speed: this.speed }));
             pools.set(this.owner.name, pool);
         }
 

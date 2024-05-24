@@ -28,7 +28,7 @@ export class DamageComponent extends BaseComponent {
     }
 
     onAdd(owner: Actor): void {
-        owner.on('precollision', this.onPreCollision.bind(this));
+        owner.on<'precollision'>('precollision', this.onPreCollision.bind(this));
     }
 
     onPreCollision({ other }: PreCollisionEvent): void {
