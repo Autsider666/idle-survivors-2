@@ -8,9 +8,10 @@ export const SPAWN_RATE:number = 10;
 export const SPAWN_DISTANCE:number = 400;
 
 export const MAP_GEN_WAVE_LENGTH:number = 0.5;
-export const MAP_GEN_HEIGHT:number = 3000;
-export const MAP_GEN_WIDTH:number = 3000;
-export const MAP_GEN_USE_ACTORS:boolean = true;
+export const MAP_GEN_HEIGHT:number = 5000;
+export const MAP_GEN_WIDTH:number = 5000;
+
+export const MAP_ACTOR_EXTRA_DISTANCE_OFFSCREEN:number = 0;
 
 export const XP_MAX_MERGE_RANGE:number = 25;
 
@@ -34,7 +35,7 @@ export const WEAPONS: Record<string, WeaponData> = {
         color: Color.Red,
         rateOfFire: 3,
         damage: 1,
-    },
+    }<ProjectileWeapon>,
     'axe': {
         name: 'Axe',
         type: MeleeWeapon,
@@ -61,7 +62,7 @@ export const WEAPONS: Record<string, WeaponData> = {
         color: Color.White,
         rateOfFire: 10,
         damage: 1,
-    },
+    }<ProjectileWeapon>,
     'sniper': {
         name: 'Sniper',
         type: ProjectileWeapon,
@@ -71,7 +72,7 @@ export const WEAPONS: Record<string, WeaponData> = {
         rateOfFire: 0.5,
         pierce: 5,
         damage: 10,
-    },
+    }<ProjectileWeapon>,
 };
 //     2: new Weapon(50, Color.White, 10),
 //     3: new OrbitingWeapon({ projectiles: 4, range: 150, rps: 0.6, damage: 1 }),

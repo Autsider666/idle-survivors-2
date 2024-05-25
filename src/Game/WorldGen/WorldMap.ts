@@ -1,10 +1,22 @@
-import {Actor, Canvas, CollisionType, Engine, Vector} from "excalibur";
+import {
+    Actor, BoundingBox,
+    CollisionType,
+    CoordPlane,
+    GraphicsComponent, Random,
+    TransformComponent,
+    Vector
+} from "excalibur";
 import Delaunator from 'delaunator';
 import {createNoise2D, NoiseFunction2D} from 'simplex-noise';
 import Randomizer from "./Randomizer";
 import PoissonDiskSampling from "poisson-disk-sampling";
 import {MapRegion} from "../../Actor/MapRegion";
-import {MAP_GEN_USE_ACTORS, MAP_GEN_HEIGHT, MAP_GEN_WAVE_LENGTH, MAP_GEN_WIDTH} from "../../config.ts";
+import {
+    MAP_GEN_HEIGHT,
+    MAP_GEN_WAVE_LENGTH,
+    MAP_GEN_WIDTH,
+    MAP_ACTOR_EXTRA_DISTANCE_OFFSCREEN
+} from "../../config.ts";
 
 type MapData = {
     delaunay: Delaunator<Vector>, //TODO refactor asap
@@ -35,21 +47,22 @@ export class WorldMap extends Actor {
     private readonly mapData: MapData;
     private readonly regions: RegionData[] = [];
 
-    private readonly canvas: Canvas;
+    private readonly inactiveRegions: MapRegion[] = [];
+    private readonly safeRegions=new Set<MapRegion>();
 
     constructor(
         seed: number,
-        private readonly canvasHeight: number = MAP_GEN_HEIGHT,
-        private readonly canvasWidth: number = MAP_GEN_WIDTH,
+        height: number = MAP_GEN_HEIGHT,
+        width: number = MAP_GEN_WIDTH,
     ) {
         super({
-            height: canvasHeight,
-            width: canvasWidth,
+            height: height,
+            width: width,
             x: 0,
             y: 0,
             z: -10,
-            // x: -(canvasWidth / 2),
-            // y: -(canvasHeight / 2),
+            // x: -(width / 2),
+            // y: -(height / 2),
             collisionType: CollisionType.PreventCollision
         });
 
@@ -59,19 +72,78 @@ export class WorldMap extends Actor {
 
         this.mapData = this.generateMapData();
 
-        this.canvas = this.generateCanvas();
+        this.createActors();
 
-        this.graphics.use(this.canvas);
-        this.graphics.anchor = Vector.Zero;
+        this.on<'postupdate'>('postupdate', ({engine}) => {
+            let worldBounds = engine.screen.getWorldBounds();
+            const distanceOffscreen = MAP_ACTOR_EXTRA_DISTANCE_OFFSCREEN;
+            if (distanceOffscreen > 0) {
+                const worldBoundPoints = worldBounds.getPoints();
+                worldBoundPoints[0].x -= distanceOffscreen;
+                worldBoundPoints[0].y -= distanceOffscreen;
+                worldBoundPoints[1].x += distanceOffscreen;
+                worldBoundPoints[1].y -= distanceOffscreen;
+                worldBoundPoints[2].x += distanceOffscreen;
+                worldBoundPoints[2].y += distanceOffscreen;
+                worldBoundPoints[3].x -= distanceOffscreen;
+                worldBoundPoints[3].y += distanceOffscreen;
+                worldBounds = BoundingBox.fromPoints(worldBoundPoints);
+            }
+            for (const inactiveRegion of this.inactiveRegions) {
+                const graphics = inactiveRegion.get(GraphicsComponent);
+                const transform = inactiveRegion.get(TransformComponent);
+                const offscreen = this.isRegionOffscreen(transform, graphics, worldBounds);
+                if (offscreen) {
+                    continue;
+                }
+
+                engine.add(inactiveRegion);
+                this.inactiveRegions.splice(this.inactiveRegions.indexOf(inactiveRegion), 1);
+            }
+        });
     }
 
-    onInitialize(engine: Engine): void {
-        if (MAP_GEN_USE_ACTORS) {
-            this.createActors(engine);
+    public getRandomSafeRegion(): MapRegion {
+        const random = new Random();
+        return random.pickOne(Array.from(this.safeRegions));
+    }
+
+    // public onInitialize(engine: Engine): void {
+    //     if (MAP_GEN_USE_ACTORS) {
+    //         this.createActors(engine);
+    //
+    //         this.on<'postupdate'>('postupdate', () => {
+    //             for (const inactiveRegion of this.inactiveRegions) {
+    //                 const graphics = inactiveRegion.get(GraphicsComponent);
+    //                 const transform = inactiveRegion.get(TransformComponent);
+    //                 const worldBounds = engine.screen.getWorldBounds();
+    //                 const offscreen = this.isRegionOffscreen(transform, graphics, worldBounds);
+    //                 if (offscreen) {
+    //                     continue;
+    //                 }
+    //
+    //                 engine.add(inactiveRegion);
+    //                 this.inactiveRegions.splice(this.inactiveRegions.indexOf(inactiveRegion), 1);
+    //             }
+    //         });
+    //     } else {
+    //         this.graphics.use(this.generateCanvas());
+    //         this.graphics.anchor = Vector.Zero;
+    //     }
+    // }
+
+    private isRegionOffscreen(transform: TransformComponent, graphics: GraphicsComponent, worldBounds: BoundingBox) {
+        if (transform.coordPlane === CoordPlane.World) {
+            const bounds = graphics.localBounds;
+            const transformedBounds = bounds.transform(transform.get().matrix);
+            return !worldBounds.overlaps(transformedBounds);
+        } else {
+            // TODO screen coordinates
+            return false;
         }
     }
 
-    private createActors(engine: Engine): void {
+    private createActors(): void {
         const {delaunay, triangles, numberOfEdges, centers, elevation, moisture} = this.mapData;
         const visitedRegions = new Set<number>();
         for (let edgeId = 0; edgeId < numberOfEdges; edgeId++) {
@@ -96,16 +168,24 @@ export class WorldMap extends Actor {
 
                 const anchorVector = max.add(min).scale(0.5);
 
-                const cellActor = new MapRegion({
+                const regionActor = new MapRegion({
                     pos: anchorVector,
                     elevation: elevation[regionId],
                     moisture: moisture[regionId],
                     vertices,
                 });
 
+                regionActor.on<'exitviewport'>('exitviewport', () => {
+                    if (!this.inactiveRegions.includes(regionActor)) {
+                        this.inactiveRegions.push(regionActor);
+                        this.scene?.remove(regionActor);
+                    }
+                });
 
-                // this.addChild(cellActor);
-                engine.add(cellActor);
+                this.inactiveRegions.push(regionActor);
+                if (regionActor.isSafe()) {
+                    this.safeRegions.add(regionActor);
+                }
             }
         }
     }
@@ -159,7 +239,7 @@ export class WorldMap extends Actor {
     private generatePoints(): Vector[] {
         const points = [];
         const sampler = new PoissonDiskSampling({
-            shape: [this.canvasWidth, this.canvasHeight],
+            shape: [this.width, this.height],
             minDistance: 100,
             maxDistance: 250,
             tries: 10,
@@ -173,22 +253,22 @@ export class WorldMap extends Actor {
         return points;
     }
 
-    private generateCanvas(): Canvas {
-        return new Canvas({
-            width: this.canvasWidth,
-            height: this.canvasHeight,
-            cache: true,
-            draw: (ctx: CanvasRenderingContext2D) => {
-                // this.drawCellCenters(ctx);
-                this.drawCellColors(
-                    ctx,
-                    // r => this.mapData.elevation[r] < 0.5 ? "hsl(240, 30%, 50%)" : "hsl(90, 20%, 50%)",
-                    this.biomeColorFunction.bind(this),
-                );
-                this.drawCellBoundaries(ctx);
-            }
-        });
-    }
+    // private generateCanvas(): Canvas {
+    //     return new Canvas({
+    //         width: this.width,
+    //         height: this.height,
+    //         cache: true,
+    //         draw: (ctx: CanvasRenderingContext2D) => {
+    //             // this.drawCellCenters(ctx);
+    //             this.drawCellColors(
+    //                 ctx,
+    //                 // r => this.mapData.elevation[r] < 0.5 ? "hsl(240, 30%, 50%)" : "hsl(90, 20%, 50%)",
+    //                 this.biomeColorFunction.bind(this),
+    //             );
+    //             this.drawCellBoundaries(ctx);
+    //         }
+    //     });
+    // }
 
     private biomeColorFunction(r: number): string {
         let elevation = (this.mapData.elevation[r] - 0.5) * 2;
@@ -272,8 +352,8 @@ export class WorldMap extends Actor {
     private generateElevationMap(points: Vector[]): number[] {
         const elevationMap = [];
         for (let r = 0; r < points.length; r++) {
-            const nx = points[r].x / this.canvasWidth - 1 / 2;
-            const ny = points[r].y / this.canvasHeight - 1 / 2;
+            const nx = points[r].x / this.width - 1 / 2;
+            const ny = points[r].y / this.height - 1 / 2;
             // start with noise:
             elevationMap[r] = (1 + this.noise(nx / this.waveLength, ny / this.waveLength)) / 2;
             // modify noise to make islands:
@@ -287,8 +367,8 @@ export class WorldMap extends Actor {
     private generateMoistureMap(points: Vector[]): number[] {
         const moistureMap = [];
         for (let r = 0; r < points.length; r++) {
-            const nx = points[r].x / this.canvasWidth - 1 / 2;
-            const ny = points[r].y / this.canvasHeight - 1 / 2;
+            const nx = points[r].x / this.width - 1 / 2;
+            const ny = points[r].y / this.height - 1 / 2;
             // start with noise:
             moistureMap[r] = (1 + this.noise(nx / this.waveLength, ny / this.waveLength)) / 2;
         }

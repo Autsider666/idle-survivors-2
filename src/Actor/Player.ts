@@ -12,9 +12,9 @@ export const PlayerTag = 'PLAYER_TAG';
 
 export default class Player extends BaseActor {
 
-    constructor(x: number, y: number) {
+    constructor(pos:Vector) {
         super({
-            pos: new Vector(x, y),
+            pos,
             width: 32,
             height: 32,
             color: Color.Red,

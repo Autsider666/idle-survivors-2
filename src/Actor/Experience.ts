@@ -11,7 +11,8 @@ type Props = {
 
 const circle = new Circle({
     radius: 3,
-    color: Color.fromRGBString('rgb(80, 200, 120)'),
+    color: Color.fromRGBString('rgb(93,232,139)'),
+    lineWidth: 2,
 });
 
 export class Experience extends BaseActor {

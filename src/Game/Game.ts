@@ -1,10 +1,5 @@
-import {Engine} from "excalibur";
-import PlayerCameraStrategy from "../Utility/PlayerCameraStrategy";
-import Player from "../Actor/Player";
-import { WorldMap } from "./WorldGen/WorldMap";
-import {MonsterSpawnSystem} from "../System/MonsterSpawnSystem.ts";
-import {NetworkClient} from "../Multiplayer/NetworkClient.ts";
-import {NetworkActorManager} from "../Multiplayer/NetworkActorManager.ts";
+import {Color, Engine} from "excalibur";
+import {RunActivationData, RunScene} from "../Scene/RunScene.ts";
 
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -17,25 +12,20 @@ export default class Game extends Engine {
             // fixedUpdateFps: 60,
             // antialiasing: false,
             // pixelArt: true,
-            // displayMode: DisplayMode.FitScreenAndFill
+            // displayMode: DisplayMode.FitScreenAndFill,
+            backgroundColor: Color.Black,
         });
     }
 
     onInitialize(engine: Engine) {
         super.onInitialize(engine);
 
-        const client = new NetworkClient(engine, this.seed);
-        new NetworkActorManager(engine);
+        // const client = new NetworkClient(engine, this.seed);
+        // new NetworkActorManager(engine);
+        //
+        // client.init();
 
-        client.init();
-
-        this.add(new WorldMap(this.seed));
-
-        const player = new Player(1000, 1000);
-        this.add(player);
-
-        this.currentScene.world.add(MonsterSpawnSystem);
-
-        this.currentScene.camera.addStrategy(new PlayerCameraStrategy(player));
+        this.add('run', new RunScene());
+        this.goToScene<RunActivationData>('run',{sceneActivationData:{seed:this.seed}});
     }
 }
