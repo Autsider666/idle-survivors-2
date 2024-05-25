@@ -62,7 +62,7 @@ export class MapRegion extends BaseActor {
         return new Polygon({
             points: vertices,
             strokeColor: Color.Black,
-            lineWidth:2,
+            lineWidth:1,
             // color: Color.Transparent,
             color: Color.fromRGBString(this.biomeColorFunction()),
         });

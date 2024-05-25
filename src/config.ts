@@ -11,7 +11,7 @@ export const MAP_GEN_WAVE_LENGTH:number = 0.5;
 export const MAP_GEN_HEIGHT:number = 5000;
 export const MAP_GEN_WIDTH:number = 5000;
 
-export const MAP_ACTOR_EXTRA_DISTANCE_OFFSCREEN:number = 0;
+export const MAP_ACTOR_EXTRA_DISTANCE_OFFSCREEN:number = import.meta.env.VITE_MAX_MAP_ACTORS_OUTSIDE_VIEWPORT;
 
 export const XP_MAX_MERGE_RANGE:number = 25;
 
