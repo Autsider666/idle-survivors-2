@@ -79,16 +79,13 @@ export class WorldMap extends Actor {
             const distanceOffscreen = MAP_ACTOR_EXTRA_DISTANCE_OFFSCREEN;
             if (distanceOffscreen > 0) {
                 const worldBoundPoints = worldBounds.getPoints();
-                worldBoundPoints[0].x -= distanceOffscreen;
-                worldBoundPoints[0].y -= distanceOffscreen;
-                worldBoundPoints[1].x += distanceOffscreen;
-                worldBoundPoints[1].y -= distanceOffscreen;
-                worldBoundPoints[2].x += distanceOffscreen;
-                worldBoundPoints[2].y += distanceOffscreen;
-                worldBoundPoints[3].x -= distanceOffscreen;
-                worldBoundPoints[3].y += distanceOffscreen;
+                worldBoundPoints[0] = worldBoundPoints[0].add(new Vector(-distanceOffscreen,-distanceOffscreen));
+                worldBoundPoints[1] = worldBoundPoints[1].add(new Vector(distanceOffscreen,-distanceOffscreen));
+                worldBoundPoints[2] = worldBoundPoints[2].add(new Vector(distanceOffscreen,distanceOffscreen));
+                worldBoundPoints[3] = worldBoundPoints[3].add(new Vector(-distanceOffscreen,distanceOffscreen));
                 worldBounds = BoundingBox.fromPoints(worldBoundPoints);
             }
+
             for (const inactiveRegion of this.inactiveRegions) {
                 const graphics = inactiveRegion.get(GraphicsComponent);
                 const transform = inactiveRegion.get(TransformComponent);
