@@ -1,9 +1,6 @@
 import {
-    Actor, BoundingBox,
-    CollisionType,
-    CoordPlane,
-    GraphicsComponent, Random,
-    TransformComponent,
+    Actor, CollisionType,
+    Random,
     Vector
 } from "excalibur";
 import Delaunator from 'delaunator';
@@ -17,6 +14,8 @@ import {
     MAP_GEN_WIDTH,
     MAP_ACTOR_EXTRA_DISTANCE_OFFSCREEN
 } from "../../config.ts";
+import {MapGenFunction} from "./MapGenFunction.ts";
+import {ActorRenderManager} from "../../Utility/ActorRenderManager.ts";
 
 type MapData = {
     delaunay: Delaunator<Vector>, //TODO refactor asap
@@ -38,17 +37,23 @@ type RegionData = {
     moisture: number,
 };
 
+const multiplier = 1;
+const minSpace = 100;
+const maxSpace = 500;
+const tries = 3;
+
 export class WorldMap extends Actor {
-    private readonly waveLength: number = MAP_GEN_WAVE_LENGTH;
+    private waveLength: number = MAP_GEN_WAVE_LENGTH; // Zoom function. Lower means more chaos
     private readonly random: Randomizer;
-    private readonly noise: NoiseFunction2D;
-    private delaunay: Delaunator<Vector>;
+    private readonly elevationNoise: NoiseFunction2D;
+    // private readonly moistureNoise: NoiseFunction2D;
+    // private delaunay: Delaunator<Vector>;
 
     private readonly mapData: MapData;
     private readonly regions: RegionData[] = [];
 
-    private readonly inactiveRegions: MapRegion[] = [];
-    private readonly safeRegions=new Set<MapRegion>();
+    private readonly actorRenderManager:ActorRenderManager<MapRegion> = new ActorRenderManager<MapRegion>();
+    private readonly safeRegions = new Set<MapRegion>();
 
     constructor(
         seed: number,
@@ -56,8 +61,8 @@ export class WorldMap extends Actor {
         width: number = MAP_GEN_WIDTH,
     ) {
         super({
-            height: height,
-            width: width,
+            height: height * multiplier,
+            width: width * multiplier,
             x: 0,
             y: 0,
             z: -10,
@@ -67,36 +72,17 @@ export class WorldMap extends Actor {
         });
 
         this.random = new Randomizer(seed);
-        this.noise = createNoise2D(() => this.random.getFloat());
-        this.delaunay = this.generateDelaunay([]);
+        this.elevationNoise = createNoise2D(() => this.random.getFloat());
+        // this.moistureNoise = createNoise2D(() => this.random.getFloat());
+
+        // this.delaunay = this.generateDelaunay([]);
 
         this.mapData = this.generateMapData();
 
         this.createActors();
 
         this.on<'postupdate'>('postupdate', ({engine}) => {
-            let worldBounds = engine.screen.getWorldBounds();
-            const distanceOffscreen = MAP_ACTOR_EXTRA_DISTANCE_OFFSCREEN;
-            if (distanceOffscreen > 0) {
-                const worldBoundPoints = worldBounds.getPoints();
-                worldBoundPoints[0] = worldBoundPoints[0].add(new Vector(-distanceOffscreen,-distanceOffscreen));
-                worldBoundPoints[1] = worldBoundPoints[1].add(new Vector(distanceOffscreen,-distanceOffscreen));
-                worldBoundPoints[2] = worldBoundPoints[2].add(new Vector(distanceOffscreen,distanceOffscreen));
-                worldBoundPoints[3] = worldBoundPoints[3].add(new Vector(-distanceOffscreen,distanceOffscreen));
-                worldBounds = BoundingBox.fromPoints(worldBoundPoints);
-            }
-
-            for (const inactiveRegion of this.inactiveRegions) {
-                const graphics = inactiveRegion.get(GraphicsComponent);
-                const transform = inactiveRegion.get(TransformComponent);
-                const offscreen = this.isRegionOffscreen(transform, graphics, worldBounds);
-                if (offscreen) {
-                    continue;
-                }
-
-                engine.add(inactiveRegion);
-                this.inactiveRegions.splice(this.inactiveRegions.indexOf(inactiveRegion), 1);
-            }
+            this.actorRenderManager.check(engine,MAP_ACTOR_EXTRA_DISTANCE_OFFSCREEN);
         });
     }
 
@@ -129,57 +115,40 @@ export class WorldMap extends Actor {
     //     }
     // }
 
-    private isRegionOffscreen(transform: TransformComponent, graphics: GraphicsComponent, worldBounds: BoundingBox) {
-        if (transform.coordPlane === CoordPlane.World) {
-            const bounds = graphics.localBounds;
-            const transformedBounds = bounds.transform(transform.get().matrix);
-            return !worldBounds.overlaps(transformedBounds);
-        } else {
-            // TODO screen coordinates
-            return false;
-        }
-    }
-
     private createActors(): void {
         const {delaunay, triangles, numberOfEdges, centers, elevation, moisture} = this.mapData;
         const visitedRegions = new Set<number>();
         for (let edgeId = 0; edgeId < numberOfEdges; edgeId++) {
-            const regionId = triangles[this.nextHalfedge(edgeId)];
+            const regionId = triangles[MapGenFunction.nextHalfEdge(edgeId)];
             if (!visitedRegions.has(regionId)) {
                 visitedRegions.add(regionId);
-                const vertices = this.edgesAroundPoint(delaunay, edgeId)
-                    .map(e => centers[this.triangleOfEdge(e)]);
+                const vertices = MapGenFunction.edgesAroundPoint(delaunay, edgeId)
+                    .map(e => centers[MapGenFunction.triangleOfEdge(e)]);
 
                 if (vertices.length < 4) {
                     continue;
                 }
 
-                const min = new Vector(Infinity, Infinity);
-                const max = new Vector(-Infinity, -Infinity);
-                vertices.forEach(vertice => {
-                    min.x = Math.min(min.x, vertice.x);
-                    min.y = Math.min(min.y, vertice.y);
-                    max.x = Math.max(max.x, vertice.x);
-                    max.y = Math.max(max.y, vertice.y);
-                });
-
-                const anchorVector = max.add(min).scale(0.5);
+                // const min = new Vector(Infinity, Infinity);
+                // const max = new Vector(-Infinity, -Infinity);
+                // vertices.forEach(vertice => {
+                //     min.x = Math.min(min.x, vertice.x);
+                //     min.y = Math.min(min.y, vertice.y);
+                //     max.x = Math.max(max.x, vertice.x);
+                //     max.y = Math.max(max.y, vertice.y);
+                // });
+                //
+                // const anchorVector = max.add(min).scale(0.5);
 
                 const regionActor = new MapRegion({
-                    pos: anchorVector,
+                    pos: MapGenFunction.calculateAnchor(vertices),
                     elevation: elevation[regionId],
                     moisture: moisture[regionId],
                     vertices,
                 });
 
-                regionActor.on<'exitviewport'>('exitviewport', () => {
-                    if (!this.inactiveRegions.includes(regionActor)) {
-                        this.inactiveRegions.push(regionActor);
-                        this.scene?.remove(regionActor);
-                    }
-                });
+                this.actorRenderManager.add(regionActor);
 
-                this.inactiveRegions.push(regionActor);
                 if (regionActor.isSafe()) {
                     this.safeRegions.add(regionActor);
                 }
@@ -187,9 +156,9 @@ export class WorldMap extends Actor {
         }
     }
 
-    private generateDelaunay(points: Vector[]): Delaunator<Vector> {
-        return Delaunator.from(points, (point: Vector) => point.x, (point: Vector) => point.y);
-    }
+    // private generateDelaunay(points: Vector[]): Delaunator<Vector> {
+    //     return Delaunator.from(points, (point: Vector) => point.x, (point: Vector) => point.y);
+    // }
 
     private generateMapData(): MapData {
         const points = this.generatePoints();
@@ -197,18 +166,18 @@ export class WorldMap extends Actor {
 
         const numberOfEdges = delaunay.halfedges.length;
         const triangles = delaunay.triangles;
-        const centers = this.calculateCentroids(points, delaunay);
+        const centers = MapGenFunction.calculateCentroids(points, delaunay);
         const elevation = this.generateElevationMap(points);
         const moisture = this.generateMoistureMap(points);
 
         this.regions.length = 0;
         const visitedRegions = new Set<number>();
         for (let edgeId = 0; edgeId < numberOfEdges; edgeId++) {
-            const regionId = triangles[this.nextHalfedge(edgeId)];
+            const regionId = triangles[MapGenFunction.nextHalfEdge(edgeId)];
             if (!visitedRegions.has(regionId)) {
                 visitedRegions.add(regionId);
-                const vertices = this.edgesAroundPoint(delaunay, edgeId)
-                    .map(e => centers[this.triangleOfEdge(e)]);
+                const vertices = MapGenFunction.edgesAroundPoint(delaunay, edgeId)
+                    .map(e => centers[MapGenFunction.triangleOfEdge(e)]);
 
                 this.regions.push({
                     id: regionId,
@@ -237,9 +206,9 @@ export class WorldMap extends Actor {
         const points = [];
         const sampler = new PoissonDiskSampling({
             shape: [this.width, this.height],
-            minDistance: 100,
-            maxDistance: 250,
-            tries: 10,
+            minDistance: minSpace * multiplier,
+            maxDistance: maxSpace * multiplier,
+            tries: tries,
         }, () => this.random.getFloat());
         for (const [x, y] of sampler.fill()) {
             points.push(new Vector(x, y));
@@ -267,57 +236,49 @@ export class WorldMap extends Actor {
     //     });
     // }
 
-    private biomeColorFunction(r: number): string {
-        let elevation = (this.mapData.elevation[r] - 0.5) * 2;
-        let moisture = this.mapData.moisture[r];
-        let red: number;
-        let green: number;
-        let blue: number;
-        if (elevation < 0.0) {
-            red = 48 + 48 * elevation;
-            green = 64 + 64 * elevation;
-            blue = 127 + 127 * elevation;
-        } else {
-            moisture = moisture * (1 - elevation);
-            elevation = elevation ** 4; // tweaks
-            red = 210 - 100 * moisture;
-            green = 185 - 45 * moisture;
-            blue = 139 - 45 * moisture;
-            red = 255 * elevation + red * (1 - elevation);
-            green = 255 * elevation + green * (1 - elevation);
-            blue = 255 * elevation + blue * (1 - elevation);
-        }
-        return `rgb(${Math.max(0, red) | 0}, ${Math.max(0, green) | 0}, ${Math.max(0, blue) | 0})`;
-    }
+    // private biomeColorFunction(r: number): string {
+    //     let elevation = (this.mapData.elevation[r] - 0.5) * 2;
+    //     let moisture = this.mapData.moisture[r];
+    //     let red: number;
+    //     let green: number;
+    //     let blue: number;
+    //     if (elevation < 0.0) {
+    //         red = 48 + 48 * elevation;
+    //         green = 64 + 64 * elevation;
+    //         blue = 127 + 127 * elevation;
+    //     } else {
+    //         moisture = moisture * (1 - elevation);
+    //         elevation = elevation ** 4; // tweaks
+    //         red = 210 - 100 * moisture;
+    //         green = 185 - 45 * moisture;
+    //         blue = 139 - 45 * moisture;
+    //         red = 255 * elevation + red * (1 - elevation);
+    //         green = 255 * elevation + green * (1 - elevation);
+    //         blue = 255 * elevation + blue * (1 - elevation);
+    //     }
+    //     return `rgb(${Math.max(0, red) | 0}, ${Math.max(0, green) | 0}, ${Math.max(0, blue) | 0})`;
+    // }
 
-    private triangleOfEdge(e: number): number {
-        return Math.floor(e / 3);
-    }
-
-    private nextHalfedge(e: number): number {
-        return (e % 3 === 2) ? e - 2 : e + 1;
-    }
-
-    private drawCellBoundaries(ctx: CanvasRenderingContext2D) {
-        const {delaunay, centers, halfEdges, numberOfEdges} = this.mapData;
-        ctx.save();
-        ctx.lineWidth = 1;
-        ctx.strokeStyle = "black";
-        for (let e = 0; e < numberOfEdges; e++) {
-            if (e < delaunay.halfedges[e]) {
-                const start = centers[this.triangleOfEdge(e)];
-                const end = centers[this.triangleOfEdge(halfEdges[e])];
-                ctx.beginPath();
-                ctx.moveTo(start.x, start.y);
-                ctx.lineTo(end.x, end.y);
-                ctx.stroke();
-
-                // this.scene?.engine.add(new Actor({ x: start.x, y: start.y, radius: 2, color: Color.Red }));
-                // this.scene?.engine.add(new Actor({ x: end.x, y: end.y, radius: 2, color: Color.Red }));
-            }
-        }
-        ctx.restore();
-    }
+    // private drawCellBoundaries(ctx: CanvasRenderingContext2D) {
+    //     const {delaunay, centers, halfEdges, numberOfEdges} = this.mapData;
+    //     ctx.save();
+    //     ctx.lineWidth = 1;
+    //     ctx.strokeStyle = "black";
+    //     for (let e = 0; e < numberOfEdges; e++) {
+    //         if (e < delaunay.halfedges[e]) {
+    //             const start = centers[this.triangleOfEdge(e)];
+    //             const end = centers[this.triangleOfEdge(halfEdges[e])];
+    //             ctx.beginPath();
+    //             ctx.moveTo(start.x, start.y);
+    //             ctx.lineTo(end.x, end.y);
+    //             ctx.stroke();
+    //
+    //             // this.scene?.engine.add(new Actor({ x: start.x, y: start.y, radius: 2, color: Color.Red }));
+    //             // this.scene?.engine.add(new Actor({ x: end.x, y: end.y, radius: 2, color: Color.Red }));
+    //         }
+    //     }
+    //     ctx.restore();
+    // }
 
     // private drawCellCenters(ctx: CanvasRenderingContext2D): void {
     //     ctx.save();
@@ -330,36 +291,42 @@ export class WorldMap extends Actor {
     //     ctx.restore();
     // }
 
-    private calculateCentroids(points: Vector[], delaunay: Delaunator<Vector>): Vector[] {
-        const numberOfTriangles = delaunay.halfedges.length / 3;
-        const centroids = [];
-        for (let t = 0; t < numberOfTriangles; t++) {
-            let sumOfX = 0, sumOfY = 0;
-            for (let i = 0; i < 3; i++) {
-                const s = 3 * t + i;
-                const p = points[delaunay.triangles[s]];
-                sumOfX += p.x;
-                sumOfY += p.y;
-            }
-            centroids[t] = new Vector(sumOfX / 3, sumOfY / 3);
-        }
-        return centroids;
-    }
-
     private generateElevationMap(points: Vector[]): number[] {
         const elevationMap = [];
         for (let r = 0; r < points.length; r++) {
-            const nx = points[r].x / this.width - 1 / 2;
-            const ny = points[r].y / this.height - 1 / 2;
-            // start with noise:
-            elevationMap[r] = (1 + this.noise(nx / this.waveLength, ny / this.waveLength)) / 2;
-            // modify noise to make islands:
-            const d = 2 * Math.max(Math.abs(nx), Math.abs(ny)); // should be 0-1
+            // From noise article
+            const nx = 2*points[r].x / this.width - 1;
+            const ny = 2*points[r].y / this.height - 1;
+            // Original
+            // const nx = points[r].x / this.width - 1 / 2;
+            // const ny = points[r].y / this.height - 1 / 2;
+            // NOISE:
+            elevationMap[r]=this.generateElevationNoise(nx/ this.waveLength,ny/this.waveLength); // Original but better
+            // Amplitude
+            // elevationMap[r] = this.generateElevationNoise(nx, ny)
+            // elevationMap[r] += 0.5 * this.generateElevationNoise(2 * nx, 2 * ny)
+            // elevationMap[r] += 0.25 * this.generateElevationNoise(4 * nx, 4 * ny)
+            // elevationMap[r] = elevationMap[r]/(1+0.5+0.25)
+            // elevationMap[r] = Math.pow(elevationMap[r],0.5) //Weird one, smaller is more island, larger = less island
+            // DISTANCE FUNCTION
+            const d = MapGenFunction.squareBump(nx,ny); // Square Bump
+            // const d = MapGenFunction.euclideanSquared(nx,ny); // EuclideanSquared
+            // const d = 2 * Math.max(Math.abs(nx), Math.abs(ny)); // Original
             elevationMap[r] = (1 + elevationMap[r] - d) / 2;
+
+            // elevationMap[r] = MapGenFunction.lerp(elevationMap[r], 1 - d, 0.5)
         }
 
         return elevationMap;
     }
+
+    private generateElevationNoise(nx:number,ny:number):number {
+        return (1+this.elevationNoise(nx*this.waveLength,ny*this.waveLength))/2;
+    }
+
+    // private generateMoistureNoise(nx:number,ny:number):number {
+    //     return (1+this.elevationNoise(nx*this.waveLength,ny*this.waveLength))/2;
+    // }
 
     private generateMoistureMap(points: Vector[]): number[] {
         const moistureMap = [];
@@ -367,41 +334,30 @@ export class WorldMap extends Actor {
             const nx = points[r].x / this.width - 1 / 2;
             const ny = points[r].y / this.height - 1 / 2;
             // start with noise:
-            moistureMap[r] = (1 + this.noise(nx / this.waveLength, ny / this.waveLength)) / 2;
+            moistureMap[r] = (1 + this.elevationNoise(nx / this.waveLength, ny / this.waveLength)) / 2;
         }
 
         return moistureMap;
     }
 
-    private edgesAroundPoint(delaunay: Delaunator<Vector>, start: number): number[] {
-        const result = [];
-        let incoming = start;
-        do {
-            result.push(incoming);
-            const outgoing = this.nextHalfedge(incoming);
-            incoming = delaunay.halfedges[outgoing];
-        } while (incoming !== -1 && incoming !== start);
-        return result;
-    }
-
-    private drawCellColors(ctx: CanvasRenderingContext2D, colorFn: (r: number) => string) {
-        ctx.save();
-        const seen = new Set<number>();
-        const {delaunay, triangles, numberOfEdges, centers} = this.mapData;
-        for (let e = 0; e < numberOfEdges; e++) {
-            const r = triangles[this.nextHalfedge(e)];
-            if (!seen.has(r)) {
-                seen.add(r);
-                const vertices = this.edgesAroundPoint(delaunay, e)
-                    .map(e => centers[this.triangleOfEdge(e)]);
-                ctx.fillStyle = colorFn(r);
-                ctx.beginPath();
-                ctx.moveTo(vertices[0].x, vertices[0].y);
-                for (let i = 1; i < vertices.length; i++) {
-                    ctx.lineTo(vertices[i].x, vertices[i].y);
-                }
-                ctx.fill();
-            }
-        }
-    }
+    // private drawCellColors(ctx: CanvasRenderingContext2D, colorFn: (r: number) => string) {
+    //     ctx.save();
+    //     const seen = new Set<number>();
+    //     const {delaunay, triangles, numberOfEdges, centers} = this.mapData;
+    //     for (let e = 0; e < numberOfEdges; e++) {
+    //         const r = triangles[this.nextHalfedge(e)];
+    //         if (!seen.has(r)) {
+    //             seen.add(r);
+    //             const vertices = this.edgesAroundPoint(delaunay, e)
+    //                 .map(e => centers[this.triangleOfEdge(e)]);
+    //             ctx.fillStyle = colorFn(r);
+    //             ctx.beginPath();
+    //             ctx.moveTo(vertices[0].x, vertices[0].y);
+    //             for (let i = 1; i < vertices.length; i++) {
+    //                 ctx.lineTo(vertices[i].x, vertices[i].y);
+    //             }
+    //             ctx.fill();
+    //         }
+    //     }
+    // }
 }

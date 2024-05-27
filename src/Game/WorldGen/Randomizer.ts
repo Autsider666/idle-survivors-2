@@ -1,4 +1,4 @@
-import { Random } from "excalibur";
+import {Random} from "excalibur";
 
 type Point = {
     x: number,
@@ -16,8 +16,12 @@ export default class Randomizer {
         this.random = new Random(this.seed);
     }
 
-    public getFloat({ min = 0, max = 1 }: { min?: number, max?: number } = {}): number {
+    public getFloat({min = 0, max = 1}: { min?: number, max?: number } = {}): number {
         return this.random.floating(min, max);
+    }
+
+    public getInt(min: number = 0, max: number = Number.MAX_SAFE_INTEGER): number {
+        return this.random.integer(min, max);
     }
 
     public randomizePoint<P extends Point = Point>(point: P): P {

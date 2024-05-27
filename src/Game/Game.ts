@@ -1,5 +1,6 @@
 import {Color, DisplayMode, Engine} from "excalibur";
 import {RunActivationData, RunScene} from "../Scene/RunScene.ts";
+import {TestScene} from "../Scene/TestScene.ts";
 
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -25,7 +26,10 @@ export default class Game extends Engine {
         //
         // client.init();
 
-        this.add('run', new RunScene());
-        this.goToScene<RunActivationData>('run',{sceneActivationData:{seed:this.seed}});
+        // this.add('run', new RunScene());
+        // this.goToScene<RunActivationData>('run',{sceneActivationData:{seed:this.seed}});
+
+        this.add('test', new TestScene(this.seed));
+        this.goToScene('test');
     }
 }

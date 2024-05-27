@@ -12,7 +12,7 @@ export const PlayerTag = 'PLAYER_TAG';
 
 export default class Player extends BaseActor {
 
-    constructor(pos:Vector) {
+    constructor(pos: Vector, addWeapons: boolean = true) {
         super({
             pos,
             width: 32,
@@ -29,6 +29,10 @@ export default class Player extends BaseActor {
         this.addComponent(new KeyboardControlledComponent());
         this.addComponent(new PointerControlledComponent());
         this.addComponent(new LevelComponent());
+
+        if (!addWeapons) {
+            return;
+        }
 
         // this.addChild(new Weapon(150, Color.Magenta, 3));
         for (const data of Object.values(WEAPONS)) {

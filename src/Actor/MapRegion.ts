@@ -2,6 +2,7 @@ import {CollisionType, Color, Graphic, Polygon, PolygonCollider, Vector} from "e
 import {BaseActor} from "./BaseActor";
 import {SlowedComponent} from "../Component/SlowedComponent";
 import {CollisionGroup} from "../Game/CollisionGroups";
+import Player from "./Player.ts";
 
 export type RegionProps = {
     pos: Vector,
@@ -18,7 +19,7 @@ export class MapRegion extends BaseActor {
 
     constructor({pos, elevation, moisture, vertices}: RegionProps) {
         const collider = new PolygonCollider({
-            points: vertices.map(vertice => vertice.sub(pos)),
+            points: vertices.map(vertex => vertex.sub(pos)),
             suppressConvexWarning: true,
         });
         super({
@@ -42,7 +43,12 @@ export class MapRegion extends BaseActor {
         this.graphic = this.generatePolygon(vertices);
         this.graphics.use(this.graphic);
 
+        console.log(this.pos);
+
         this.on<'collisionstart'>('collisionstart', ({other}) => {
+            if (other instanceof Player) {
+                console.log(this.elevation);
+            }
             if (this.isSlow()) {
                 other.addComponent(new SlowedComponent());
                 other.get(SlowedComponent).counter++;
@@ -65,12 +71,14 @@ export class MapRegion extends BaseActor {
             lineWidth:1,
             // color: Color.Transparent,
             color: Color.fromRGBString(this.biomeColorFunction()),
+            // color: Color.fromHex(this.biomeTypeFunction()),
         });
     }
 
     private biomeColorFunction(): string {
         let elevation = (this.elevation - 0.5) * 2;
-        let moisture = this.moisture;
+        // let elevation = this.elevation -0.5;
+        let moisture = this.moisture * 2;
         let red: number;
         let green: number;
         let blue: number;
@@ -78,7 +86,7 @@ export class MapRegion extends BaseActor {
             red = 48 + 48 * elevation;
             green = 64 + 64 * elevation;
             blue = 127 + 127 * elevation;
-        } else {
+        } else if (elevation < 0.7 ) {
             moisture = moisture * (1 - elevation);
             elevation = elevation ** 4; // tweaks
             red = 210 - 100 * moisture;
@@ -87,8 +95,22 @@ export class MapRegion extends BaseActor {
             red = 255 * elevation + red * (1 - elevation);
             green = 255 * elevation + green * (1 - elevation);
             blue = 255 * elevation + blue * (1 - elevation);
+        } else {
+            red = 220 * elevation;
+            green = 220 * elevation;
+            blue = 220 * elevation;
         }
         return `rgb(${Math.max(0, red) | 0}, ${Math.max(0, green) | 0}, ${Math.max(0, blue) | 0})`;
+    }
+
+    private biomeTypeFunction():string {
+        if (this.elevation < 0.1) return '#26618d';// WATER
+        else if (this.elevation < 0.2) return '#d5b63b';// BEACH
+        else if (this.elevation < 0.3) return '#21b65d';// FOREST
+        else if (this.elevation < 0.5) return '#15773b';// JUNGLE
+        else if (this.elevation < 0.7) return '#d5b63b';// SAVANNAH
+        else if (this.elevation < 0.9) return '#987F6E42';// DESERT
+        else return '#FFF';// SNOW
     }
 
     isSlow():boolean {
