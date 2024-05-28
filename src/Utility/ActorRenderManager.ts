@@ -9,9 +9,9 @@ import {
     Vector
 } from "excalibur";
 
-export class ActorRenderManager<A extends BaseActor> {
-    private readonly inactiveActors: A[] = []; //TODO REPLACE WITH SET?
-    private readonly registeredActors: A[] = [];
+export class ActorRenderManager {
+    private readonly inactiveActors: BaseActor[] = []; //TODO REPLACE WITH SET?
+    private readonly registeredActors: BaseActor[] = [];
 
     constructor(private readonly maxMsRandomSpread?:number, private currentScene?: Scene) {
     }
@@ -22,7 +22,7 @@ export class ActorRenderManager<A extends BaseActor> {
         }
 
         let worldBounds = engine.screen.getWorldBounds();
-        if (distanceOffscreen > 0) {
+        if (distanceOffscreen !== 0) {
             const worldBoundPoints = worldBounds.getPoints();
             worldBoundPoints[0] = worldBoundPoints[0].add(new Vector(-distanceOffscreen, -distanceOffscreen));
             worldBoundPoints[1] = worldBoundPoints[1].add(new Vector(distanceOffscreen, -distanceOffscreen));
@@ -45,7 +45,7 @@ export class ActorRenderManager<A extends BaseActor> {
         }
     }
 
-    public add(actor: A): void {
+    public add(actor: BaseActor): void {
         if (this.registeredActors.includes(actor)) {
             return;
         }
@@ -56,7 +56,7 @@ export class ActorRenderManager<A extends BaseActor> {
         this.registeredActors.push(actor);
     }
 
-    public remove(actor: A): void {
+    public remove(actor: BaseActor): void {
         if (!this.registeredActors.includes(actor)) {
             return;
         }
@@ -69,7 +69,7 @@ export class ActorRenderManager<A extends BaseActor> {
         this.inactiveActors.splice(this.inactiveActors.indexOf(actor), 1);
     }
 
-    private isActorOffscreen(actor: A, worldBounds: BoundingBox): boolean {
+    private isActorOffscreen(actor: BaseActor, worldBounds: BoundingBox): boolean {
         const transform: TransformComponent = actor.get(TransformComponent);
         const graphics: GraphicsComponent = actor.get(GraphicsComponent);
         if (transform.coordPlane === CoordPlane.World) {
@@ -87,7 +87,7 @@ export class ActorRenderManager<A extends BaseActor> {
             throw new Error('No current scene');
         }
 
-        const {target} = event as ExitViewPortEvent & { target: A };
+        const {target} = event as ExitViewPortEvent & { target: BaseActor };
         if (this.inactiveActors.includes(target)) {
             return;
         }

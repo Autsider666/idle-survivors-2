@@ -52,7 +52,7 @@ export class WorldMap extends Actor {
     private readonly mapData: MapData;
     private readonly regions: RegionData[] = [];
 
-    private readonly actorRenderManager:ActorRenderManager<MapRegion> = new ActorRenderManager<MapRegion>();
+    private readonly actorRenderManager:ActorRenderManager = new ActorRenderManager();
     private readonly safeRegions = new Set<MapRegion>();
 
     constructor(

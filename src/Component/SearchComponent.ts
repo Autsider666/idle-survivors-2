@@ -23,7 +23,7 @@ export class SearchComponent extends BaseComponent {
                 this.query = engine.currentScene.world.queryTags(this.queryTags);
             }
 
-            const target = this.query.entities[0];
+            const target = this.query?.entities[0];
 
             if (!(target instanceof BaseActor)) {
                 throw new Error('No player found to follow.');

@@ -1,7 +1,8 @@
-import {BoundingBox, Color, Polygon, Rectangle, Vector} from "excalibur";
+import {BoundingBox, Color, Label, Rectangle, Vector} from "excalibur";
 import Randomizer from "../Randomizer.ts";
 import {BaseActor} from "../../../Actor/BaseActor.ts";
 import {MapGenFunction} from "../MapGenFunction.ts";
+import {MapRegion} from "../../../Actor/MapRegion.ts";
 
 // Level 0 = random points
 // Level 1 = Poisson points
@@ -45,10 +46,10 @@ export class LayeredCell extends BaseActor { //TODO Sure we want this to be Base
     private readonly coordinateOffset: Vector;
 
     constructor(
-        private readonly seed: number,
+        seed: number,
         private readonly area: BoundingBox,
         startingPoints: number = 3,
-        initialNeighbors: LayeredCell[] = []
+        initialNeighbors: LayeredCell[] = [],
     ) {
         super({
             pos: area.center,
@@ -118,21 +119,27 @@ export class LayeredCell extends BaseActor { //TODO Sure we want this to be Base
         return point.sub(this.area.topLeft);
     }
 
-    private renderPoints(points: Vector[], color: Color): void {
+    private renderPoints(points: Vector[], color: Color, addCoordinates: boolean = false, addCallback: (actor: BaseActor) => void = actor => this.addChild(actor)): void {
         for (const point of points) {
-            this.addChild(new BaseActor({
+            addCallback(new BaseActor({
+                name: `Point ${Math.round(point.x)},${Math.round(point.y)}`,
                 z: -1,
-                pos: this.translateCoordinatesForRendering(point),
-                radius: 2,
+                pos: point,
+                radius: 4,
                 color,
             }));
 
-            // this.addChild(new Label({
-            //     text: `${this.area.left/this.area.width},${this.area.top/this.area.height}`,
-            //     pos:  this.translateGlobalCoordinates(point),
-            //     radius: 2,
-            //     color: Color.Gray,
-            // }));
+            if (!addCoordinates) {
+                return;
+            }
+
+            addCallback(new Label({
+                name: `Label ${Math.round(point.x)},${Math.round(point.y)}`,
+                text: `${Math.round(point.x)},${Math.round(point.y)}`,
+                pos: point,
+                radius: 2,
+                color: Color.Gray,
+            }));
         }
     }
 
@@ -186,14 +193,14 @@ export class LayeredCell extends BaseActor { //TODO Sure we want this to be Base
         }
 
         for (const neighbor of this.neighbors) {
-            neighbor.readyLevel1();
+            // neighbor.readyLevel1();
             const neighborPoints = neighbor.metadata["1"];
             if (neighborPoints === undefined) {
                 throw new Error('No lvl 1 data yet?');
             }
 
             for (const point of neighborPoints) {
-                globalPoints.push(neighbor.translateCoordinatesToGlobal(point));
+                globalPoints.push(neighbor.translateCoordinatesToGlobal(point)); //TODO caching
             }
         }
 
@@ -206,10 +213,7 @@ export class LayeredCell extends BaseActor { //TODO Sure we want this to be Base
             let hasLocalVertex = false;
             for (const globalVertex of globalVertices) {
                 const localVertex = this.translateCoordinatesToLocal(globalVertex);
-                if (localVertex.x >= 0
-                    && localVertex.y >= 0
-                    && localVertex.x <= this.area.width
-                    && localVertex.y <= this.area.height) {
+                if (this.isPointInCell(localVertex)) {
                     hasLocalVertex = true;
                 }
 
@@ -235,11 +239,18 @@ export class LayeredCell extends BaseActor { //TODO Sure we want this to be Base
 
         this.checkLevelNeighbors(2);
 
-        for (const regionData: Level3Region of this.metadata["2"]) {
-            regionData.pos = this.translateCoordinatesForRendering(MapGenFunction.calculateAnchor(regionData.vertices));
-            regionData.elevation = 0;
-            regionData.moisture = 0;
-            this.metadata["3"].push(regionData);
+        for (const regionData of this.metadata["2"]) {
+            const pos = MapGenFunction.calculateAnchor(regionData.vertices);
+            if(!this.isPointInCell(pos)) {
+                continue;
+            }
+
+            this.metadata["3"].push({
+                ...regionData,
+                pos,
+                elevation: 0.5,
+                moisture: 0.5,
+            });
         }
 
         this.currentLevel = 3;
@@ -253,20 +264,37 @@ export class LayeredCell extends BaseActor { //TODO Sure we want this to be Base
         this.checkLevelNeighbors(3);
 
         let i = 0;
-        for (const regionData: Level3Region of this.metadata["3"]) {
-            const poly = new BaseActor(regionData);
-            poly.z = -1;
-            poly.graphics.use(new Polygon({
-                points: regionData.vertices,
-                color: Color.Transparent,
-                strokeColor:Color.ExcaliburBlue,
-                lineWidth: 1
-            }));
+        for (const regionData of this.metadata["3"]) {
+            // const poly = new BaseActor({
+            //     pos: this.translateCoordinatesForRendering(regionData.pos)
+            // });
+            // poly.z = -2;
+            // poly.graphics.use(new Polygon({
+            //     points: regionData.vertices,
+            //     // points: regionData.vertices.map(point => this.translateCoordinatesForRendering(point)), // Why this no work?
+            //     color: Color.Transparent,
+            //     strokeColor: Color.ExcaliburBlue,
+            //     lineWidth: 3
+            // }));
 
-            this.addChild(poly);
+            // this.manager.add(poly)
+            // this.addChild(poly);
+
+            // console.log(i, regionData,regionData.vertices.map(vertex => this.translateCoordinatesForRendering(vertex)))
+            // this.renderPoints(
+            //     regionData.vertices.map(vertex => this.translateCoordinatesForRendering(vertex)),
+            //     Color.Red,
+            // )
 
             // this.addChild(new Label({
-            //     pos: regionData.pos,
+            //     pos: this.translateCoordinatesForRendering(regionData.pos),
+            //     text: `${Math.round(regionData.pos.x)},${Math.round(regionData.pos.y)}`,
+            //     color: Color.White,
+            //     scale: new Vector(1,1)
+            // }))
+
+            // this.addChild(new Label({
+            //     pos: this.translateCoordinatesForRendering(regionData.pos),
             //     text: i.toString(),
             //     color: Color.White,
             //     scale: new Vector(1,1)
@@ -274,14 +302,23 @@ export class LayeredCell extends BaseActor { //TODO Sure we want this to be Base
 
             i++;
 
-            // this.addChild(new MapRegion(
-            //     regionData
-            // ));
+            regionData.pos = this.translateCoordinatesForRendering(regionData.pos);
+            regionData.vertices = regionData.vertices.map(point => this.translateCoordinatesForRendering(point));
+            this.addChild(new MapRegion(
+                regionData
+            ));
         }
 
         this.metadata['4'] = true;
 
         this.currentLevel = 4;
+    }
+
+    isPointInCell(point: Vector): boolean {
+        return point.x >= 0
+            && point.y >= 0
+            && point.x <= this.area.width
+            && point.y <= this.area.height;
     }
 
     public getGridPos(): Vector {

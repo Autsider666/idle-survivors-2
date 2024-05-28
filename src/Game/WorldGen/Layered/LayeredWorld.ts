@@ -7,7 +7,7 @@ import {createNoise2D, NoiseFunction2D} from "simplex-noise";
 import Randomizer from "../Randomizer.ts";
 
 export class LayeredWorld extends BaseActor {
-    private readonly manager: ActorRenderManager<LayeredCell>;
+    private readonly manager: ActorRenderManager;
     private currentGridPos: Vector = new Vector(Infinity, Infinity);
     private readonly cells = new Array2D<LayeredCell>();
     private readonly gridSeedRandomizer: Randomizer;
@@ -15,15 +15,15 @@ export class LayeredWorld extends BaseActor {
 
     constructor(
         private readonly seed: number,
-        private readonly cellHeight: number = 100,
-        private readonly cellWidth: number = 100,
+        private readonly cellHeight: number = 200,
+        private readonly cellWidth: number = 200,
         private readonly pointsPerCell: number = 5,
-        private readonly readyCellRadius: number = 2,
+        private readonly readyCellRadius: number = 1,
         private readonly maxNewPerUpdate: number = 5,
     ) {
         super();
 
-        this.manager = new ActorRenderManager<LayeredCell>(1000);
+        this.manager = new ActorRenderManager(1000);
 
         this.gridSeedRandomizer = new Randomizer(this.seed);
 
@@ -33,7 +33,7 @@ export class LayeredWorld extends BaseActor {
     }
 
     onPostUpdate(engine: Engine) {
-        this.manager.check(engine); //TODO move to listener?
+        this.manager.check(engine, 1000); //TODO move to listener?
     }
 
     onInitialize(engine: Engine) {
@@ -176,6 +176,8 @@ export class LayeredWorld extends BaseActor {
             this.getGroundUsingNoise(gridX, gridY),
             BoundingBox.fromDimension(this.cellWidth, this.cellHeight, Vector.Zero, new Vector(gridX * this.cellWidth, gridY * this.cellHeight)),
             this.pointsPerCell,
+            [],
+            this.manager,
         );
     }
 }

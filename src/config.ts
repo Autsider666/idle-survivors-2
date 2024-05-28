@@ -35,7 +35,7 @@ export const WEAPONS: Record<string, WeaponData> = {
         color: Color.Red,
         rateOfFire: 3,
         damage: 1,
-    }<ProjectileWeapon>,
+    },
     'axe': {
         name: 'Axe',
         type: MeleeWeapon,
@@ -43,7 +43,7 @@ export const WEAPONS: Record<string, WeaponData> = {
         color: Color.Red,
         rateOfFire: 1,
         damage: 1,
-    }<MeleeWeapon>,
+    },
     // 'test': {
     //     name: 'Test',
     //     type: MeleeWeapon,
@@ -62,7 +62,7 @@ export const WEAPONS: Record<string, WeaponData> = {
         color: Color.White,
         rateOfFire: 10,
         damage: 1,
-    }<ProjectileWeapon>,
+    },
     'sniper': {
         name: 'Sniper',
         type: ProjectileWeapon,
@@ -72,7 +72,7 @@ export const WEAPONS: Record<string, WeaponData> = {
         rateOfFire: 0.5,
         pierce: 5,
         damage: 10,
-    }<ProjectileWeapon>,
+    },
 };
 //     2: new Weapon(50, Color.White, 10),
 //     3: new OrbitingWeapon({ projectiles: 4, range: 150, rps: 0.6, damage: 1 }),

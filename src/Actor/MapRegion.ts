@@ -1,8 +1,6 @@
 import {CollisionType, Color, Graphic, Polygon, PolygonCollider, Vector} from "excalibur";
 import {BaseActor} from "./BaseActor";
-import {SlowedComponent} from "../Component/SlowedComponent";
 import {CollisionGroup} from "../Game/CollisionGroups";
-import Player from "./Player.ts";
 
 export type RegionProps = {
     pos: Vector,
@@ -18,8 +16,9 @@ export class MapRegion extends BaseActor {
     private graphic: Graphic;
 
     constructor({pos, elevation, moisture, vertices}: RegionProps) {
+        vertices = vertices.map(vertex => vertex.sub(pos));
         const collider = new PolygonCollider({
-            points: vertices.map(vertex => vertex.sub(pos)),
+            points: vertices,
             suppressConvexWarning: true,
         });
         super({
@@ -43,25 +42,23 @@ export class MapRegion extends BaseActor {
         this.graphic = this.generatePolygon(vertices);
         this.graphics.use(this.graphic);
 
-        console.log(this.pos);
-
-        this.on<'collisionstart'>('collisionstart', ({other}) => {
-            if (other instanceof Player) {
-                console.log(this.elevation);
-            }
-            if (this.isSlow()) {
-                other.addComponent(new SlowedComponent());
-                other.get(SlowedComponent).counter++;
-            }
-        });
-
-        this.on<'collisionend'>('collisionend', ({other}) => {
-            if (this.isSlow()) {
-                if ((--other.get(SlowedComponent).counter) === 0) {
-                    other.removeComponent(SlowedComponent);
-                }
-            }
-        });
+        // this.on<'collisionstart'>('collisionstart', ({other}) => {
+        //     if (other instanceof Player) {
+        //         console.log(this.elevation);
+        //     }
+        //     if (this.isSlow()) {
+        //         other.addComponent(new SlowedComponent());
+        //         other.get(SlowedComponent).counter++;
+        //     }
+        // });
+        //
+        // this.on<'collisionend'>('collisionend', ({other}) => {
+        //     if (this.isSlow()) {
+        //         if ((--other.get(SlowedComponent).counter) === 0) {
+        //             other.removeComponent(SlowedComponent);
+        //         }
+        //     }
+        // });
     }
 
     private generatePolygon(vertices: Vector[]): Polygon {
