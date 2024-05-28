@@ -35,7 +35,7 @@ export class MapRegion extends BaseActor {
         this.elevation = elevation;
         this.moisture = moisture;
 
-        if (vertices.length < 4) {
+        if (vertices.length < 3) {
             throw new Error('Need more vertices for a Poligon.');
         }
 

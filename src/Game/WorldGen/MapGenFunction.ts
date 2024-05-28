@@ -107,4 +107,22 @@ export class MapGenFunction {
 
         return max.add(min).scale(0.5);
     }
+
+    static generatePointsByRegion(width:number, height:number, numberOfPoints:number, random:(min:number, max:number) => number):Vector[] {
+        // determine increment for grid
+        const yIndex = height / Math.round(Math.sqrt((height * numberOfPoints) / width));
+        const xIndex = width / Math.round(numberOfPoints / Math.sqrt((height * numberOfPoints) / width));
+
+        const points:Vector[] = [];
+        for (let y = 0; y < height; y+=yIndex) {
+            for (let x = 0; x < width; x+=xIndex) {
+                points.push(new Vector(
+                    random(x,x+xIndex),
+                    random(y,y+yIndex),
+                ))
+            }
+        }
+
+        return points;
+    }
 }

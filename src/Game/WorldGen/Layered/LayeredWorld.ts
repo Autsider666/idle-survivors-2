@@ -15,10 +15,10 @@ export class LayeredWorld extends BaseActor {
 
     constructor(
         private readonly seed: number,
-        private readonly cellHeight: number = 200,
-        private readonly cellWidth: number = 200,
-        private readonly pointsPerCell: number = 5,
-        private readonly readyCellRadius: number = 1,
+        private readonly cellHeight: number = 100,
+        private readonly cellWidth: number = 100,
+        private readonly pointsPerCell: number = 25,
+        private readonly readyCellRadius: number = 3,
         private readonly maxNewPerUpdate: number = 5,
     ) {
         super();
@@ -29,18 +29,18 @@ export class LayeredWorld extends BaseActor {
 
         this.gridSeedNoise = createNoise2D(() => this.gridSeedRandomizer.getFloat());
 
-        this.moveTo(Vector.Zero,Infinity);
+        this.moveTo(Vector.Zero, Infinity);
     }
 
     onPostUpdate(engine: Engine) {
-        this.manager.check(engine, 1000); //TODO move to listener?
+        this.manager.check(engine, (this.cellHeight+this.cellWidth)/4); //TODO move to listener?
     }
 
     onInitialize(engine: Engine) {
         this.manager.setScene(engine.currentScene);
     }
 
-    moveTo(location: Vector, maxCreates:number = this.maxNewPerUpdate): void {
+    moveTo(location: Vector, maxCreates: number = this.maxNewPerUpdate): void {
         const gridX = Math.floor(location.x / this.cellWidth);
         const gridY = Math.floor(location.y / this.cellWidth);
 
@@ -174,10 +174,13 @@ export class LayeredWorld extends BaseActor {
     private generateCell(gridX: number, gridY: number): LayeredCell {
         return new LayeredCell(
             this.getGroundUsingNoise(gridX, gridY),
-            BoundingBox.fromDimension(this.cellWidth, this.cellHeight, Vector.Zero, new Vector(gridX * this.cellWidth, gridY * this.cellHeight)),
+            BoundingBox.fromDimension(
+                this.cellWidth,
+                this.cellHeight,
+                Vector.Zero,
+                new Vector(gridX * this.cellWidth, gridY * this.cellHeight),
+                ),
             this.pointsPerCell,
-            [],
-            this.manager,
         );
     }
 }

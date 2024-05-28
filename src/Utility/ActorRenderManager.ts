@@ -33,13 +33,10 @@ export class ActorRenderManager {
 
         for (const inactiveActor of this.inactiveActors) {
             if (this.isActorOffscreen(inactiveActor, worldBounds)) {
-                if (!inactiveActor.name.includes('Grid ')) {
-                    console.log(inactiveActor);
-                }
                 continue;
             }
 
-            console.warn('Render manager adding',inactiveActor.name);
+            console.debug('Render manager adding',inactiveActor.name);
             this.currentScene.add(inactiveActor);
             this.inactiveActors.splice(this.inactiveActors.indexOf(inactiveActor), 1);
         }
@@ -92,7 +89,7 @@ export class ActorRenderManager {
             return;
         }
 
-        console.warn('Render manager removing',target.name);
+        console.debug('Render manager removing',target.name);
 
         this.currentScene.remove(target);
 

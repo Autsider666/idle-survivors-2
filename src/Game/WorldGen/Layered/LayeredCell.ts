@@ -31,8 +31,8 @@ type CellData = {
 export class LayeredCell extends BaseActor { //TODO Sure we want this to be BaseActor? Maybe create a "getTestActor()"?
     static maxLevel: number = 4;
     private currentLevel: number = 0;
-    private readonly neighbors: Set<LayeredCell>;
-    private readonly randomizer: Randomizer;
+    private readonly neighbors: Set<LayeredCell> = new Set<LayeredCell>();
+    // private readonly randomizer: Randomizer;
     // private randomPoints?: Vector[];
     // private poissonPoints?: Vector[];
     // private vertices?: Vector[];
@@ -48,8 +48,7 @@ export class LayeredCell extends BaseActor { //TODO Sure we want this to be Base
     constructor(
         seed: number,
         private readonly area: BoundingBox,
-        startingPoints: number = 3,
-        initialNeighbors: LayeredCell[] = [],
+        startingPoints: number,
     ) {
         super({
             pos: area.center,
@@ -60,8 +59,6 @@ export class LayeredCell extends BaseActor { //TODO Sure we want this to be Base
         this.name = `Grid ${grid.x},${grid.y}`;
 
         this.coordinateOffset = new Vector(-area.width / 2, -area.height / 2);
-
-        this.neighbors = new Set<LayeredCell>(initialNeighbors);
 
         this.seeds = {
             0: Number.parseInt(seed.toString() + "0"),
@@ -81,7 +78,8 @@ export class LayeredCell extends BaseActor { //TODO Sure we want this to be Base
         }
 
         this.metadata = {
-            0: randomPoints,
+            // 0: randomPoints,
+            0: MapGenFunction.generatePointsByRegion(area.width,area.height,startingPoints,(min:number,max:number)=> randomizer.getInt(min, max)),
             1: [],
             2: [],
             3: [],
@@ -119,7 +117,13 @@ export class LayeredCell extends BaseActor { //TODO Sure we want this to be Base
         return point.sub(this.area.topLeft);
     }
 
-    private renderPoints(points: Vector[], color: Color, addCoordinates: boolean = false, addCallback: (actor: BaseActor) => void = actor => this.addChild(actor)): void {
+    // @ts-expect-error Debug function
+    private renderPoints(
+        points: Vector[],
+        color: Color,
+        addLabel: boolean = false,
+        addCallback: (actor: BaseActor) => void = actor => this.addChild(actor),
+    ): void {
         for (const point of points) {
             addCallback(new BaseActor({
                 name: `Point ${Math.round(point.x)},${Math.round(point.y)}`,
@@ -129,7 +133,7 @@ export class LayeredCell extends BaseActor { //TODO Sure we want this to be Base
                 color,
             }));
 
-            if (!addCoordinates) {
+            if (!addLabel) {
                 return;
             }
 
@@ -205,7 +209,7 @@ export class LayeredCell extends BaseActor { //TODO Sure we want this to be Base
         }
 
         for (const globalVertices of MapGenFunction.calculateVertices(globalPoints)) {
-            if (globalVertices.length < 4) {
+            if (globalVertices.length < 3) {
                 continue;
             }
 
