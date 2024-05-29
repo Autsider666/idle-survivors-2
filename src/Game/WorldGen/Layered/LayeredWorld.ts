@@ -3,37 +3,44 @@ import {BoundingBox, Engine, Vector} from "excalibur";
 import {ActorRenderManager} from "../../../Utility/ActorRenderManager.ts";
 import {LayeredCell} from "./LayeredCell.ts";
 import Array2D from "../../../Utility/Array2D.ts";
-import {createNoise2D, NoiseFunction2D} from "simplex-noise";
-import Randomizer from "../Randomizer.ts";
+import {CoordinateBasedSeedGenerator} from "../../../Utility/CoordinateBasedSeedGenerator.ts";
+import {RandomPointLayer} from "./Layer/RandomPointLayer.ts";
+import {PolygonData, PolygonLayer} from "./Layer/PolygonLayer.ts";
+import {MapRegion} from "../../../Actor/MapRegion.ts";
 
 export class LayeredWorld extends BaseActor {
     private readonly manager: ActorRenderManager;
     private currentGridPos: Vector = new Vector(Infinity, Infinity);
     private readonly cells = new Array2D<LayeredCell>();
-    private readonly gridSeedRandomizer: Randomizer;
-    private readonly gridSeedNoise: NoiseFunction2D;
+    private readonly seedGenerator: CoordinateBasedSeedGenerator;
+
+    private readonly pointLayer:RandomPointLayer;
+    private readonly polygonLayer:PolygonLayer;
+    private readonly polygons = new Set<PolygonData>();
+
 
     constructor(
         private readonly seed: number,
-        private readonly cellHeight: number = 100,
-        private readonly cellWidth: number = 100,
+        private readonly cellHeight: number = 1000,
+        private readonly cellWidth: number = 1000,
         private readonly pointsPerCell: number = 25,
-        private readonly readyCellRadius: number = 3,
+        private readonly readyCellRadius: number = 2,
         private readonly maxNewPerUpdate: number = 5,
     ) {
         super();
 
         this.manager = new ActorRenderManager(1000);
 
-        this.gridSeedRandomizer = new Randomizer(this.seed);
+        this.seedGenerator = new CoordinateBasedSeedGenerator(this.seed);
 
-        this.gridSeedNoise = createNoise2D(() => this.gridSeedRandomizer.getFloat());
+        // this.moveTo(Vector.Zero, Infinity);
 
-        this.moveTo(Vector.Zero, Infinity);
+        this.pointLayer = new RandomPointLayer(this.seed, this.cellWidth, this.cellHeight, 50);
+        this.polygonLayer = new PolygonLayer(this.cellWidth, this.cellHeight, this.pointLayer);
     }
 
     onPostUpdate(engine: Engine) {
-        this.manager.check(engine, (this.cellHeight+this.cellWidth)/4); //TODO move to listener?
+        this.manager.check(engine, 200); //TODO move to listener?
     }
 
     onInitialize(engine: Engine) {
@@ -44,9 +51,50 @@ export class LayeredWorld extends BaseActor {
         const gridX = Math.floor(location.x / this.cellWidth);
         const gridY = Math.floor(location.y / this.cellWidth);
 
-        if (this.currentGridPos.x === gridX && this.currentGridPos.y === gridY) {
+        // if (this.currentGridPos.x === gridX && this.currentGridPos.y === gridY) {
+        //     return;
+        // }
+
+        if (this.currentGridPos.x === Math.floor(location.x) && this.currentGridPos.y === Math.floor(location.y)) {
             return;
         }
+        // console.log(pointLayer.getData(BoundingBox.fromDimension(
+        //     50,
+        //     200,
+        //     Vector.Zero,
+        //     new Vector(100, 100),
+        //     // new Vector(gridX * this.cellWidth, gridY * this.cellHeight),
+        // )))
+        const polygons = this.polygonLayer.getData(BoundingBox.fromDimension(
+            this.cellWidth,
+            this.cellHeight,
+            Vector.Half,
+            location,
+            // new Vector(gridX * this.cellWidth, gridY * this.cellHeight),
+        ));
+        // polygons.pop();
+        // this.manager.add(new MapRegion({
+        //     ...polygons.pop(),
+        //     elevation: 0.6,
+        //     moisture: 0.5,
+        // }))
+
+        polygons.forEach(polygon => {
+            if (this.polygons.has(polygon)) {
+                return;
+            }
+
+            this.polygons.add(polygon)
+            this.manager.add(new MapRegion({
+                ...polygon,
+                elevation: Math.random(),
+                moisture: 0.5,
+            }));
+        })
+
+        this.currentGridPos.x = Math.floor(location.x);
+        this.currentGridPos.y = Math.floor(location.y);
+        return;
 
         const start = performance.now();
 
@@ -62,7 +110,7 @@ export class LayeredWorld extends BaseActor {
                 const currentCell = this.generateCell(x, y);
                 this.cells.set(x, y, currentCell);
                 newCells.set(x, y, currentCell);
-                this.manager.add(currentCell);
+                // this.manager.add(currentCell);
                 --maxCreates;
             }
         }
@@ -153,34 +201,17 @@ export class LayeredWorld extends BaseActor {
         });
     }
 
-    private getGroundUsingNoise(x: number, y: number): number {
-        const zoom = 1;
-        const heightScale = 1;
-        const rand = (
-            ((this.gridSeedNoise(x * zoom, y * zoom) * heightScale) +
-                (this.gridSeedNoise(x * zoom / 10, y * zoom / 10) * heightScale)) *
-            (this.gridSeedNoise(x * zoom / 5, y * zoom / 5)) +
-            (this.gridSeedNoise(x * zoom / 10, y * zoom / 10) * heightScale) +
-            (heightScale / 2)
-        );
-
-        if (x === 0 && y === 0) {
-            return this.seed;
-        }
-
-        return Math.floor(Math.abs(rand) * 1000000);
-    }
-
     private generateCell(gridX: number, gridY: number): LayeredCell {
         return new LayeredCell(
-            this.getGroundUsingNoise(gridX, gridY),
+            this.seedGenerator.getSeed(gridX, gridY),
             BoundingBox.fromDimension(
                 this.cellWidth,
                 this.cellHeight,
                 Vector.Zero,
                 new Vector(gridX * this.cellWidth, gridY * this.cellHeight),
-                ),
+            ),
             this.pointsPerCell,
+            this.manager
         );
     }
 }

@@ -3,6 +3,7 @@ import Randomizer from "../Randomizer.ts";
 import {BaseActor} from "../../../Actor/BaseActor.ts";
 import {MapGenFunction} from "../MapGenFunction.ts";
 import {MapRegion} from "../../../Actor/MapRegion.ts";
+import {ActorRenderManager} from "../../../Utility/ActorRenderManager.ts";
 
 // Level 0 = random points
 // Level 1 = Poisson points
@@ -28,7 +29,7 @@ type CellData = {
     4: boolean,
 }
 
-export class LayeredCell extends BaseActor { //TODO Sure we want this to be BaseActor? Maybe create a "getTestActor()"?
+export class LayeredCell { //TODO Sure we want this to be BaseActor? Maybe create a "getTestActor()"?
     static maxLevel: number = 4;
     private currentLevel: number = 0;
     private readonly neighbors: Set<LayeredCell> = new Set<LayeredCell>();
@@ -49,14 +50,15 @@ export class LayeredCell extends BaseActor { //TODO Sure we want this to be Base
         seed: number,
         private readonly area: BoundingBox,
         startingPoints: number,
+        private readonly manager: ActorRenderManager,
     ) {
-        super({
-            pos: area.center,
-            z: -5,
-        });
+        // super({
+        //     pos: area.center,
+        //     z: -5,
+        // });
 
-        const grid = this.getGridPos();
-        this.name = `Grid ${grid.x},${grid.y}`;
+        // const grid = this.getGridPos();
+        // this.name = `Grid ${grid.x},${grid.y}`;
 
         this.coordinateOffset = new Vector(-area.width / 2, -area.height / 2);
 
@@ -88,13 +90,29 @@ export class LayeredCell extends BaseActor { //TODO Sure we want this to be Base
 
         // this.renderPoints(randomPoints, Color.DarkGray);
 
-        this.graphics.use(new Rectangle({
+        const gridOutline = new BaseActor({
+            z: -5,
+            pos: Vector.Zero,
+            height: area.height,
+            width: area.width,
+        })
+        gridOutline.graphics.use(new Rectangle({
             height: area.height,
             width: area.width,
             color: Color.Transparent,
             strokeColor: Color.DarkGray,
             lineWidth: 1,
         }));
+
+        // this.addChild(gridOutline)
+
+        // this.graphics.use(new Rectangle({
+        //     height: area.height,
+        //     width: area.width,
+        //     color: Color.Transparent,
+        //     strokeColor: Color.DarkGray,
+        //     lineWidth: 1,
+        // }));
 
         // this.addChild(new Label({
         //     text: `${this.area.left / this.area.width},${this.area.top / this.area.height}`,// - ${this.seed}`,
@@ -115,6 +133,11 @@ export class LayeredCell extends BaseActor { //TODO Sure we want this to be Base
 
     public translateCoordinatesToLocal(point: Vector): Vector {
         return point.sub(this.area.topLeft);
+    }
+
+    private addChild(actor:BaseActor):void {
+        actor.pos = this.translateCoordinatesToGlobal(actor.pos)
+        this.manager.add(actor)
     }
 
     // @ts-expect-error Debug function
@@ -252,7 +275,7 @@ export class LayeredCell extends BaseActor { //TODO Sure we want this to be Base
             this.metadata["3"].push({
                 ...regionData,
                 pos,
-                elevation: 0.5,
+                elevation: Math.min(1, Math.random() + 0.25),
                 moisture: 0.5,
             });
         }

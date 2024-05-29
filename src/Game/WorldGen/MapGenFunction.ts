@@ -98,11 +98,11 @@ export class MapGenFunction {
     static calculateAnchor(vertices: Vector[]): Vector {
         const min = new Vector(Infinity, Infinity);
         const max = new Vector(-Infinity, -Infinity);
-        vertices.forEach(vertice => {
-            min.x = Math.min(min.x, vertice.x);
-            min.y = Math.min(min.y, vertice.y);
-            max.x = Math.max(max.x, vertice.x);
-            max.y = Math.max(max.y, vertice.y);
+        vertices.forEach(vertex => {
+            min.x = Math.min(min.x, vertex.x);
+            min.y = Math.min(min.y, vertex.y);
+            max.x = Math.max(max.x, vertex.x);
+            max.y = Math.max(max.y, vertex.y);
         });
 
         return max.add(min).scale(0.5);
