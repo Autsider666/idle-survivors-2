@@ -65,13 +65,13 @@ export class LayeredWorld extends BaseActor {
         //     new Vector(100, 100),
         //     // new Vector(gridX * this.cellWidth, gridY * this.cellHeight),
         // )))
-        const polygons = this.polygonLayer.getData(BoundingBox.fromDimension(
+        const polygons = this.polygonLayer.getFilteredData(BoundingBox.fromDimension(
             this.cellWidth,
             this.cellHeight,
             Vector.Half,
             location,
             // new Vector(gridX * this.cellWidth, gridY * this.cellHeight),
-        ));
+        ), this.polygons);
         // polygons.pop();
         // this.manager.add(new MapRegion({
         //     ...polygons.pop(),
@@ -80,10 +80,6 @@ export class LayeredWorld extends BaseActor {
         // }))
 
         polygons.forEach(polygon => {
-            if (this.polygons.has(polygon)) {
-                return;
-            }
-
             this.polygons.add(polygon)
             this.manager.add(new MapRegion({
                 ...polygon,

@@ -1,11 +1,11 @@
-import {DataLayer} from "./DataLayer.ts";
+import {DataLayerInterface} from "./DataLayerInterface.ts";
 import {BoundingBox, Vector} from "excalibur";
 import Array2D from "../../../../Utility/Array2D.ts";
 import {MapGenFunction} from "../../MapGenFunction.ts";
 import Randomizer from "../../Randomizer.ts";
 import {CoordinateBasedSeedGenerator} from "../../../../Utility/CoordinateBasedSeedGenerator.ts";
 
-export class RandomPointLayer implements DataLayer<Vector[]> {
+export class RandomPointLayer implements DataLayerInterface<Vector> {
     private readonly data: Array2D<Vector[]> = new Array2D<Vector[]>();
     private readonly generator: CoordinateBasedSeedGenerator;
 
@@ -18,8 +18,8 @@ export class RandomPointLayer implements DataLayer<Vector[]> {
         this.generator = new CoordinateBasedSeedGenerator(seed);
     }
 
-    public getData(area: BoundingBox): Vector[] {
-        const data: Vector[] = [];
+    public getData(area: BoundingBox): Set<Vector> {
+        const data= new Set<Vector>;
 
         let maxX = area.right / this.gridWidth;
         if (Number.isInteger(maxX)) {
@@ -40,7 +40,7 @@ export class RandomPointLayer implements DataLayer<Vector[]> {
                 const randomPoints = this.retrieveData(gridX, gridY);
                 for (const point of randomPoints) {
                     if (area.contains(point)) {
-                        data.push(point);
+                        data.add(point);
                     }
                 }
             }

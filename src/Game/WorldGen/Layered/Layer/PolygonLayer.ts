@@ -1,39 +1,41 @@
-import {DataLayer} from "./DataLayer.ts";
+import {DataLayerInterface} from "./DataLayerInterface.ts";
 import {BoundingBox, Vector} from "excalibur";
 import Array2D from "../../../../Utility/Array2D.ts";
 import {MapGenFunction} from "../../MapGenFunction.ts";
+import {AbstractFilteredDataLayer} from "./AbstractFilteredDataLayer.ts";
 
 export type PolygonData = Readonly<{
     pos: Vector,
     vertices: Vector[]
 }>
 
-export class PolygonLayer implements DataLayer<PolygonData[]> {
+export class PolygonLayer extends AbstractFilteredDataLayer<PolygonData> {
     private readonly data: Array2D<PolygonData[]> = new Array2D<PolygonData[]>();
 
     constructor(
         private readonly gridWidth: number,
         private readonly gridHeight: number,
-        private readonly pointLayer: DataLayer<Vector[]>,
+        private readonly pointLayer: DataLayerInterface<Vector>,
     ) {
+        super();
     }
 
-    public getFilteredData(area:BoundingBox,exclude:Set<PolygonData>):Set<PolygonData> {
-        const data = this.getData(area);
-        const result = new Set<PolygonData>();
-        for (const polygon of data) {
-            if (exclude.has(polygon)) {
-                continue;
-            }
+    // public getFilteredData(area:BoundingBox,exclude:Set<PolygonData>):Set<PolygonData> {
+    //     const data = this.getData(area);
+    //     const result = new Set<PolygonData>();
+    //     for (const polygon of data) {
+    //         if (exclude.has(polygon)) {
+    //             continue;
+    //         }
+    //
+    //         result.add(polygon)
+    //     }
+    //
+    //     return result;
+    // }
 
-            result.add(polygon)
-        }
-
-        return result;
-    }
-
-    public getData(area: BoundingBox): PolygonData[] {
-        const data: PolygonData[] = [];
+    public getData(area: BoundingBox): Set<PolygonData> {
+        const data = new Set<PolygonData>();
 
         let maxX = area.right / this.gridWidth;
         if (Number.isInteger(maxX)) {
@@ -54,7 +56,7 @@ export class PolygonLayer implements DataLayer<PolygonData[]> {
                 const polygons = this.retrieveData(gridX, gridY);
                 for (const polygon of polygons) {
                     if (area.contains(polygon.pos)) {
-                        data.push(polygon);
+                        data.add(polygon);
                     }
                 }
             }
@@ -89,7 +91,7 @@ export class PolygonLayer implements DataLayer<PolygonData[]> {
         );
 
         const polygons:PolygonData[] = [];
-        for (const vertices of MapGenFunction.calculateVertices(points)) {
+        for (const vertices of MapGenFunction.calculateVertices(Array.from(points))) {
             if (vertices.length < 3) {
                 continue;
             }
