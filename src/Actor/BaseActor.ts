@@ -1,12 +1,13 @@
-import { Actor, EventEmitter, EventKey, Handler, Subscription } from "excalibur";
+import {Actor, EventEmitter, EventKey, Handler, Subscription, Vector} from "excalibur";
 // @ts-expect-error No other way
-import { ActorEvents } from "excalibur/build/dist/Actor";
-import { DamageEvent } from "../Event/DamageEvent";
+import {ActorEvents} from "excalibur/build/dist/Actor";
+import {DamageEvent} from "../Event/DamageEvent";
 import {LevelUpEvent} from "../Event/LevelUpEvent.ts";
 
 type Events = {
     damage: DamageEvent,
     'level-up': LevelUpEvent,
+    'moving': {direction:Vector},
 } & ActorEvents
 
 export class BaseActor extends Actor {

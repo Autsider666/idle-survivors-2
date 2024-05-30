@@ -7,6 +7,7 @@ import {NETWORK_SEND_UPDATE_EVENT, NetworkUpdate} from "../Multiplayer/NetworkCl
 import {ItemCollector} from "./Tool/ItemCollector.ts";
 import {PointerControlledComponent} from "../Component/Movement/PointerControlledComponent.ts";
 import {WEAPONS} from "../config.ts";
+import {DashComponent} from "../Component/Movement/DashComponent.ts";
 
 export const PlayerTag = 'PLAYER_TAG';
 
@@ -19,7 +20,7 @@ export default class Player extends BaseActor {
             // width: 32,
             // height: 32,
             color: Color.Red,
-            collisionType: CollisionType.Active,
+            collisionType: CollisionType.Fixed,
             collisionGroup: CollisionGroup.Player,
         });
 
@@ -38,6 +39,7 @@ export default class Player extends BaseActor {
         this.addComponent(new KeyboardControlledComponent(speed));
         this.addComponent(new PointerControlledComponent(speed));
         this.addComponent(new LevelComponent());
+        this.addComponent(new DashComponent());
 
         if (!addWeapons) {
             return;

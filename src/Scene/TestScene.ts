@@ -2,6 +2,7 @@ import {Scene, Vector} from "excalibur";
 import {LayeredWorld} from "../Game/WorldGen/Layered/LayeredWorld.ts";
 import Player from "../Actor/Player.ts";
 import PlayerCameraStrategy from "../Utility/PlayerCameraStrategy.ts";
+import {MonsterSpawnSystem} from "../System/MonsterSpawnSystem.ts";
 
 export class TestScene extends Scene {
     private readonly layeredWorld: LayeredWorld;
@@ -12,6 +13,8 @@ export class TestScene extends Scene {
         this.layeredWorld = new LayeredWorld(seed);
 
         this.add(this.layeredWorld);
+
+        this.world.add(MonsterSpawnSystem);
     }
 
     public onInitialize() {
