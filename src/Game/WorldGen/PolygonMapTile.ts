@@ -104,16 +104,6 @@ export class MapRegion extends BaseActor {
         return `rgb(${Math.max(0, red) | 0}, ${Math.max(0, green) | 0}, ${Math.max(0, blue) | 0})`;
     }
 
-    private biomeTypeFunction():string {
-        if (this.elevation < 0.1) return '#26618d';// WATER
-        else if (this.elevation < 0.2) return '#d5b63b';// BEACH
-        else if (this.elevation < 0.3) return '#21b65d';// FOREST
-        else if (this.elevation < 0.5) return '#15773b';// JUNGLE
-        else if (this.elevation < 0.7) return '#d5b63b';// SAVANNAH
-        else if (this.elevation < 0.9) return '#987F6E42';// DESERT
-        else return '#FFF';// SNOW
-    }
-
     isSlow():boolean {
         return this.elevation < 0.5;
     }
