@@ -2,6 +2,8 @@ import {EventEmitter, Keys, PreUpdateEvent, Vector} from "excalibur";
 import {Direction, DirectionQueue} from "../../Utility/DirectionQueue.ts";
 import {BaseActor} from "../../Actor/BaseActor.ts";
 import {BaseMovementComponent} from "./BaseMovementComponent.ts";
+import {AttributeWatcher} from "../../Utility/AttributeWatcher.ts";
+import {Attribute} from "../../Utility/AttributeStore.ts";
 
 type KeyEventCallback = () => void;
 // type LinkedKeyEvents = {
@@ -20,10 +22,10 @@ export class KeyboardControlledComponent extends BaseMovementComponent {
     private readonly keysToWatch = new Set<Keys>();
 
     constructor(
-        maxSpeed: number,
+        speed: AttributeWatcher<Attribute.Speed>|number,
         keyEvents?: Map<Keys, KeyEventCallback>,
     ) {
-        super(maxSpeed);
+        super(speed);
 
         keyEvents?.forEach((callback, key) => this.onKey(key, callback));
     }
@@ -34,7 +36,7 @@ export class KeyboardControlledComponent extends BaseMovementComponent {
 
             this.handleMovement();
 
-            this.keysToWatch.forEach(( key) => {
+            this.keysToWatch.forEach((key) => {
                 if (engine.input.keyboard.wasPressed(key)) {
                     this.events.emit(key);
                 }
@@ -42,12 +44,16 @@ export class KeyboardControlledComponent extends BaseMovementComponent {
         });
     }
 
-    onKey(key:Keys, callback: KeyEventCallback):void {
-        this.events.on(key,callback);
+    onKey(key: Keys, callback: KeyEventCallback): void {
+        this.events.on(key, callback);
         this.keysToWatch.add(key);
     }
 
     private handleMovement(): void {
+        if (this.owner === undefined) {
+            return;
+        }
+
         this.owner.vel.x = 0;
         this.owner.vel.y = 0;
 

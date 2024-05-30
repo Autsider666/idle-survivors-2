@@ -52,7 +52,7 @@ export class Monster extends BaseActor {
     constructor() {
         super({
             scale: SCALE_2x,
-            collider: new CircleCollider({radius: 8, offset: new Vector(0, 1)}),
+            collider: new CircleCollider({radius: 7, offset: new Vector(0, 1)}),
             collisionType: CollisionType.Active,
             collisionGroup: CollisionGroup.Enemy,
         });

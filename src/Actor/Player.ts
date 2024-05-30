@@ -8,12 +8,14 @@ import {ItemCollector} from "./Tool/ItemCollector.ts";
 import {PointerControlledComponent} from "../Component/Movement/PointerControlledComponent.ts";
 import {WEAPONS} from "../config.ts";
 import {DashComponent} from "../Component/Movement/DashComponent.ts";
+import {Attribute, AttributeData, AttributeStore} from "../Utility/AttributeStore.ts";
 
 export const PlayerTag = 'PLAYER_TAG';
 
 export default class Player extends BaseActor {
+    private readonly attributes: AttributeStore;
 
-    constructor(pos: Vector, addWeapons: boolean = true) {
+    constructor(pos: Vector, addWeapons: boolean = true, attributes: Partial<AttributeData> = {}) {
         super({
             pos,
             radius: 14,
@@ -24,6 +26,8 @@ export default class Player extends BaseActor {
             collisionGroup: CollisionGroup.Player,
         });
 
+        this.attributes = new AttributeStore({[Attribute.Speed]:100, ...attributes});
+
         // this.graphics.use(new Circle({
         //     radius: 12,
         //     color: Color.Red,
@@ -33,11 +37,9 @@ export default class Player extends BaseActor {
 
         this.addTag(PlayerTag);
 
-        const speed:number = 100;
-
         // this.addComponent(new HealthComponent(100));
-        this.addComponent(new KeyboardControlledComponent(speed));
-        this.addComponent(new PointerControlledComponent(speed));
+        this.addComponent(new KeyboardControlledComponent(this.attributes.generateWatcher(Attribute.Speed)));
+        this.addComponent(new PointerControlledComponent(this.attributes.generateWatcher(Attribute.Speed)));
         this.addComponent(new LevelComponent());
         this.addComponent(new DashComponent());
 

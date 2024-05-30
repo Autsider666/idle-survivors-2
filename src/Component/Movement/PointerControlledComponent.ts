@@ -1,5 +1,7 @@
 import {BaseActor} from "../../Actor/BaseActor.ts";
 import {BaseMovementComponent} from "./BaseMovementComponent.ts";
+import {AttributeWatcher} from "../../Utility/AttributeWatcher.ts";
+import {Attribute} from "../../Utility/AttributeStore.ts";
 
 enum TrackState {
     Idle, // No mouse down and on mouse up
@@ -10,8 +12,8 @@ enum TrackState {
 export class PointerControlledComponent extends BaseMovementComponent {
     private state: TrackState = TrackState.Idle;
 
-    constructor(maxSpeed:number) {
-        super(maxSpeed);
+    constructor(speed:AttributeWatcher<Attribute.Speed>|number) {
+        super(speed);
     }
 
     onAdd(owner: BaseActor): void {
@@ -19,7 +21,12 @@ export class PointerControlledComponent extends BaseMovementComponent {
     }
 
     private initialize(): void {
-        const engine = this.owner.scene?.engine;
+        const owner = this.owner;
+        if (owner === undefined) {
+            throw new Error('Can\'t initialize without an owner.');
+        }
+
+        const engine = owner.scene?.engine;
         if (engine === undefined) {
             throw new Error('Why no engine?');
         }
@@ -49,12 +56,12 @@ export class PointerControlledComponent extends BaseMovementComponent {
             }
         };
 
-        this.owner.on<'preupdate'>('preupdate', () => {
+        owner.on<'preupdate'>('preupdate', () => {
             if (this.state !== TrackState.Active) {
                 return;
             }
 
-            this.moveInDirection(engine.screen.screenToWorldCoordinates(pointer.lastScreenPos).sub(this.owner.pos));
+            this.moveInDirection(engine.screen.screenToWorldCoordinates(pointer.lastScreenPos).sub(owner.pos));
         });
     }
 }

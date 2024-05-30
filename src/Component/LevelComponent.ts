@@ -44,7 +44,7 @@ export class LevelComponent extends BaseComponent {
             levelElement.innerText = this.currentLevel.toString();
             document.getElementById('xp')?.setAttribute('max', this.experienceTillNextLevel.toString());
 
-            this.owner.emit<'level-up'>('level-up', {level: this.currentLevel});
+            this.owner?.emit<'level-up'>('level-up', {level: this.currentLevel});
         }
 
         document.getElementById('xp')?.setAttribute('value', this.currentExperience.toString());
@@ -64,7 +64,7 @@ export class LevelComponent extends BaseComponent {
                 continue;
             }
 
-            this.owner.addChild(new data.type(data));
+            this.owner?.addChild(new data.type(data));
 
         }
     }

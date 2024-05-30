@@ -41,7 +41,7 @@ export class DirectionalAnimationComponent extends BaseComponent {
                 this.setAnimation(dY > 0 ? 'down' : 'up');
             }
 
-            const animation = this.owner.graphics.current as Animation;
+            const animation = this.owner?.graphics.current as Animation;
             animation.speed = owner.has(SlowedComponent) ? 0.5:1;
         });
     }
@@ -52,7 +52,7 @@ export class DirectionalAnimationComponent extends BaseComponent {
         }
 
         const newAnimation = this[direction] ?? this['idle'];
-        this.owner.graphics.use(newAnimation);
+        this.owner?.graphics.use(newAnimation);
 
         this.currentDirection = direction;
     }

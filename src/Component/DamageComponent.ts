@@ -47,7 +47,7 @@ export class DamageComponent extends BaseComponent {
         other.emit('damage', { amount: this.damage });
 
         if (this.killAfterHits !== undefined && --this.killAfterHits === 0) {
-            this.owner.kill();
+            this.owner?.kill();
         }
     }
 }

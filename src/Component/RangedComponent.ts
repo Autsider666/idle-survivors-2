@@ -78,10 +78,15 @@ export class RangedComponent extends BaseComponent {
     }
 
     private fireProjectile(): void {
+        const owner = this.owner;
+        if (owner === undefined) {
+            return;
+        }
+
         let closestTarget: Actor|undefined;
         let closestDistance = Infinity;
         for (const potentialTarget of this.targets.values()) {
-            const distance = this.owner.getGlobalPos().distance(potentialTarget.pos);
+            const distance = owner.getGlobalPos().distance(potentialTarget.pos);
             if (distance >= closestDistance) {
                 continue;
             }
@@ -94,16 +99,16 @@ export class RangedComponent extends BaseComponent {
             return;
         }
 
-        let pool = pools.get(this.owner.name);
+        let pool = pools.get(owner.name);
         if (pool === undefined) {
-            pool = new ActorPool<Projectile>(() => new Projectile(this.owner,{ color: this.color, damage: 1, pierce: this.pierce, maxLifetime: this.lifetime,speed: this.speed }));
-            pools.set(this.owner.name, pool);
+            pool = new ActorPool<Projectile>(() => new Projectile(owner,{ color: this.color, damage: 1, pierce: this.pierce, maxLifetime: this.lifetime,speed: this.speed }));
+            pools.set(owner.name, pool);
         }
 
         const projectile = pool.requestActor();
         projectile.setTarget(closestTarget);
 
-        this.owner.scene?.add(projectile);
+        owner.scene?.add(projectile);
 
         this.nextShot = 1000.0 / this.rateOfFire;
     }
