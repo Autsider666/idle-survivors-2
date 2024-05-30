@@ -1,4 +1,5 @@
 import { Actor, EventEmitter, EventKey, Handler, Subscription } from "excalibur";
+// @ts-expect-error No other way
 import { ActorEvents } from "excalibur/build/dist/Actor";
 import { DamageEvent } from "../Event/DamageEvent";
 import {LevelUpEvent} from "../Event/LevelUpEvent.ts";

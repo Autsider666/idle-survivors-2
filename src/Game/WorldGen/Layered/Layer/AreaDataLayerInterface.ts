@@ -1,5 +1,5 @@
 import {BoundingBox} from "excalibur";
 
-export interface DataLayerInterface<PointData> {
-    getData(area: BoundingBox): Set<PointData>;
+export interface AreaDataLayerInterface<AreaData> {
+    getData(area: BoundingBox): Set<AreaData>;
 }

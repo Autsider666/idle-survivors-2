@@ -2,7 +2,7 @@ import {BoundingBox, Color, Label, Rectangle, Vector} from "excalibur";
 import Randomizer from "../Randomizer.ts";
 import {BaseActor} from "../../../Actor/BaseActor.ts";
 import {MapGenFunction} from "../MapGenFunction.ts";
-import {MapRegion} from "../../../Actor/MapRegion.ts";
+import {PolygonMapTile} from "../PolygonMapTile.ts";
 import {ActorRenderManager} from "../../../Utility/ActorRenderManager.ts";
 
 // Level 0 = random points
@@ -95,7 +95,7 @@ export class LayeredCell { //TODO Sure we want this to be BaseActor? Maybe creat
             pos: Vector.Zero,
             height: area.height,
             width: area.width,
-        })
+        });
         gridOutline.graphics.use(new Rectangle({
             height: area.height,
             width: area.width,
@@ -136,8 +136,8 @@ export class LayeredCell { //TODO Sure we want this to be BaseActor? Maybe creat
     }
 
     private addChild(actor:BaseActor):void {
-        actor.pos = this.translateCoordinatesToGlobal(actor.pos)
-        this.manager.add(actor)
+        actor.pos = this.translateCoordinatesToGlobal(actor.pos);
+        this.manager.add(actor);
     }
 
     // @ts-expect-error Debug function
@@ -290,7 +290,7 @@ export class LayeredCell { //TODO Sure we want this to be BaseActor? Maybe creat
 
         this.checkLevelNeighbors(3);
 
-        let i = 0;
+        // let i = 0;
         for (const regionData of this.metadata["3"]) {
             // const poly = new BaseActor({
             //     pos: this.translateCoordinatesForRendering(regionData.pos)
@@ -327,11 +327,11 @@ export class LayeredCell { //TODO Sure we want this to be BaseActor? Maybe creat
             //     scale: new Vector(1,1)
             // }))
 
-            i++;
+            // i++;
 
             regionData.pos = this.translateCoordinatesForRendering(regionData.pos);
             regionData.vertices = regionData.vertices.map(point => this.translateCoordinatesForRendering(point));
-            this.addChild(new MapRegion(
+            this.addChild(new PolygonMapTile(
                 regionData
             ));
         }

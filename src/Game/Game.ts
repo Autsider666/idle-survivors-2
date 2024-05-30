@@ -1,5 +1,4 @@
 import {Color, DisplayMode, Engine} from "excalibur";
-import {RunActivationData, RunScene} from "../Scene/RunScene.ts";
 import {TestScene} from "../Scene/TestScene.ts";
 
 
@@ -10,10 +9,10 @@ export default class Game extends Engine {
         super({
             // width: VIEWPORT_WIDTH * VIEWPORT_SCALE,
             // height: VIEWPORT_HEIGHT * VIEWPORT_SCALE,
-            // fixedUpdateFps: 60,
+            fixedUpdateFps: 60,
             // antialiasing: false,
             // pixelArt: true,
-            displayMode: DisplayMode.FitScreenAndFill,
+            displayMode: DisplayMode.FitScreen,
             backgroundColor: Color.Black,
         });
     }

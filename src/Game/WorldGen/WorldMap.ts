@@ -7,7 +7,7 @@ import Delaunator from 'delaunator';
 import {createNoise2D, NoiseFunction2D} from 'simplex-noise';
 import Randomizer from "./Randomizer";
 import PoissonDiskSampling from "poisson-disk-sampling";
-import {MapRegion} from "../../Actor/MapRegion";
+import {PolygonMapTile} from "./PolygonMapTile.ts";
 import {
     MAP_GEN_HEIGHT,
     MAP_GEN_WAVE_LENGTH,
@@ -53,7 +53,7 @@ export class WorldMap extends Actor {
     private readonly regions: RegionData[] = [];
 
     private readonly actorRenderManager:ActorRenderManager = new ActorRenderManager();
-    private readonly safeRegions = new Set<MapRegion>();
+    private readonly safeRegions = new Set<PolygonMapTile>();
 
     constructor(
         seed: number,
@@ -86,7 +86,7 @@ export class WorldMap extends Actor {
         });
     }
 
-    public getRandomSafeRegion(): MapRegion {
+    public getRandomSafeRegion(): PolygonMapTile {
         const random = new Random();
         return random.pickOne(Array.from(this.safeRegions));
     }
@@ -140,7 +140,7 @@ export class WorldMap extends Actor {
                 //
                 // const anchorVector = max.add(min).scale(0.5);
 
-                const regionActor = new MapRegion({
+                const regionActor = new PolygonMapTile({
                     pos: MapGenFunction.calculateAnchor(vertices),
                     elevation: elevation[regionId],
                     moisture: moisture[regionId],

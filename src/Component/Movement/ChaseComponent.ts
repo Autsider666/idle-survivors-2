@@ -9,9 +9,7 @@ type ComponentProps = {
 export class ChaseComponent extends BaseMovementComponent {
 
     constructor({ speed }: ComponentProps) {
-        super();
-
-        this.maxSpeed = speed;
+        super(speed);
     }
 
     onAdd(owner: BaseActor): void {

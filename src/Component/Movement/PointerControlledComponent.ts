@@ -10,10 +10,8 @@ enum TrackState {
 export class PointerControlledComponent extends BaseMovementComponent {
     private state: TrackState = TrackState.Idle;
 
-    constructor() {
-        super();
-
-        this.maxSpeed = 160;
+    constructor(maxSpeed:number) {
+        super(maxSpeed);
     }
 
     onAdd(owner: BaseActor): void {

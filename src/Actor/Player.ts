@@ -15,19 +15,28 @@ export default class Player extends BaseActor {
     constructor(pos: Vector, addWeapons: boolean = true) {
         super({
             pos,
-            width: 32,
-            height: 32,
+            radius: 14,
+            // width: 32,
+            // height: 32,
             color: Color.Red,
-
             collisionType: CollisionType.Active,
             collisionGroup: CollisionGroup.Player,
         });
 
+        // this.graphics.use(new Circle({
+        //     radius: 12,
+        //     color: Color.Red,
+        //     lineWidth: 1,
+        //     strokeColor: Color.Orange,
+        // }));
+
         this.addTag(PlayerTag);
 
+        const speed:number = 100;
+
         // this.addComponent(new HealthComponent(100));
-        this.addComponent(new KeyboardControlledComponent());
-        this.addComponent(new PointerControlledComponent());
+        this.addComponent(new KeyboardControlledComponent(speed));
+        this.addComponent(new PointerControlledComponent(speed));
         this.addComponent(new LevelComponent());
 
         if (!addWeapons) {

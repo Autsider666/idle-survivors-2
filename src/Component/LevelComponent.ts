@@ -36,7 +36,12 @@ export class LevelComponent extends BaseComponent {
 
             this.handleLevelUp();
 
-            document.getElementById('currentLevel').innerText = this.currentLevel.toString();
+            const levelElement = document.getElementById('currentLevel');
+            if (levelElement === null) {
+                throw new Error('No level element found!');
+            }
+
+            levelElement.innerText = this.currentLevel.toString();
             document.getElementById('xp')?.setAttribute('max', this.experienceTillNextLevel.toString());
 
             this.owner.emit<'level-up'>('level-up', {level: this.currentLevel});
@@ -46,14 +51,14 @@ export class LevelComponent extends BaseComponent {
     }
 
     get experienceForNextLevel(): number {
-        return Math.pow(this.currentLevel,2) * 25;
+        return Math.pow(this.currentLevel, 2) * 25;
     }
 
     get experienceTillNextLevel(): number {
         return this.experienceForNextLevel - this.currentExperience;
     }
 
-    private handleLevelUp():void {
+    private handleLevelUp(): void {
         for (const data of Object.values(WEAPONS)) {
             if (data.minLevel !== this.currentLevel) {
                 continue;

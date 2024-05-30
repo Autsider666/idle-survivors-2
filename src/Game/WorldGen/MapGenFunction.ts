@@ -119,7 +119,7 @@ export class MapGenFunction {
                 points.push(new Vector(
                     random(x,x+xIndex),
                     random(y,y+yIndex),
-                ))
+                ));
             }
         }
 

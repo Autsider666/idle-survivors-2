@@ -14,11 +14,9 @@ export class DirectionComponent extends BaseMovementComponent {
     private readonly callback?: FinishedCallback;
 
     constructor({ direction, velocity, callback }: Props) {
-        super();
+        super(velocity);
 
         this.direction = direction;
-
-        this.maxSpeed = velocity;
         this.callback = callback;
     }
 

@@ -1,8 +1,8 @@
-import {CollisionType, Color, Graphic, Polygon, PolygonCollider, Vector} from "excalibur";
-import {BaseActor} from "./BaseActor";
-import {CollisionGroup} from "../Game/CollisionGroups";
-import Player from "./Player.ts";
-import {SlowedComponent} from "../Component/SlowedComponent.ts";
+import {CollisionType, Color, Polygon, PolygonCollider, Vector} from "excalibur";
+import {BaseActor} from "../../Actor/BaseActor.ts";
+import {CollisionGroup} from "../CollisionGroups.ts";
+import Player from "../../Actor/Player.ts";
+import {SlowedComponent} from "../../Component/SlowedComponent.ts";
 
 export type RegionProps = {
     pos: Vector,
@@ -11,11 +11,9 @@ export type RegionProps = {
     moisture: number,
 }
 
-export class MapRegion extends BaseActor {
-    private elevation: number;
-    private moisture: number;
-
-    private graphic: Graphic;
+export class PolygonMapTile extends BaseActor {
+    private readonly elevation: number;
+    private readonly moisture: number;
 
     constructor({pos, elevation, moisture, vertices}: RegionProps) {
         vertices = vertices.map(vertex => vertex.sub(pos));
@@ -42,8 +40,7 @@ export class MapRegion extends BaseActor {
             throw new Error('Need more vertices for a Poligon.');
         }
 
-        this.graphic = this.generatePolygon(vertices);
-        this.graphics.use(this.graphic);
+        this.graphics.use(this.generatePolygon(vertices));
 
         this.on<'collisionstart'>('collisionstart', ({other}) => {
             if (other instanceof Player) {

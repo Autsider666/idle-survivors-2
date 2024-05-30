@@ -1,5 +1,5 @@
-import {BoundingBox} from "excalibur";
+import {Vector} from "excalibur";
 
-export interface DataLayerInterface<PointData> {
-    getData(area: BoundingBox): Set<PointData>;
+export interface CoordinateDataLayerInterface<CoordinateData> {
+    getData(coordinate:Vector): CoordinateData;
 }

@@ -1,8 +1,9 @@
-import {DataLayerInterface} from "./DataLayerInterface.ts";
+import {AreaDataLayerInterface} from "./AreaDataLayerInterface.ts";
 import {BoundingBox, Vector} from "excalibur";
 import Array2D from "../../../../Utility/Array2D.ts";
 import {MapGenFunction} from "../../MapGenFunction.ts";
 import {AbstractFilteredDataLayer} from "./AbstractFilteredDataLayer.ts";
+import {LayerFunction} from "../../../../Utility/LayerFunction.ts";
 
 export type PolygonData = Readonly<{
     pos: Vector,
@@ -15,7 +16,7 @@ export class PolygonLayer extends AbstractFilteredDataLayer<PolygonData> {
     constructor(
         private readonly gridWidth: number,
         private readonly gridHeight: number,
-        private readonly pointLayer: DataLayerInterface<Vector>,
+        private readonly pointLayer: AreaDataLayerInterface<Vector>,
     ) {
         super();
     }
@@ -37,30 +38,14 @@ export class PolygonLayer extends AbstractFilteredDataLayer<PolygonData> {
     public getData(area: BoundingBox): Set<PolygonData> {
         const data = new Set<PolygonData>();
 
-        let maxX = area.right / this.gridWidth;
-        if (Number.isInteger(maxX)) {
-            maxX--;
-        } else {
-            maxX = Math.floor(maxX);
-        }
-
-        let maxY = area.bottom / this.gridHeight;
-        if (Number.isInteger(maxY)) {
-            maxY--;
-        } else {
-            maxY = Math.floor(maxY);
-        }
-
-        for (let gridX = Math.floor(area.left / this.gridWidth); gridX <= maxX; gridX++) {
-            for (let gridY = Math.floor(area.top / this.gridHeight); gridY <= maxY; gridY++) {
-                const polygons = this.retrieveData(gridX, gridY);
-                for (const polygon of polygons) {
-                    if (area.contains(polygon.pos)) {
-                        data.add(polygon);
-                    }
+        LayerFunction.iterateGridByArea(area, this.gridWidth, this.gridHeight, (gridX: number, gridY: number): void => {
+            const polygons = this.retrieveData(gridX, gridY);
+            for (const polygon of polygons) {
+                if (area.contains(polygon.pos)) {
+                    data.add(polygon);
                 }
             }
-        }
+        });
 
         return data;
     }
@@ -72,7 +57,7 @@ export class PolygonLayer extends AbstractFilteredDataLayer<PolygonData> {
 
         const data = this.data.get(x, y);
         if (data === undefined) {
-            throw new Error('This should never happen right?')
+            throw new Error('This should never happen right?');
         }
 
         return data;
@@ -86,18 +71,18 @@ export class PolygonLayer extends AbstractFilteredDataLayer<PolygonData> {
                 this.gridWidth * 3,
                 this.gridHeight * 3,
                 Vector.Zero,
-                globalOffset.sub(new Vector(this.gridWidth,this.gridHeight))
+                globalOffset.sub(new Vector(this.gridWidth, this.gridHeight))
             )
         );
 
-        const polygons:PolygonData[] = [];
+        const polygons: PolygonData[] = [];
         for (const vertices of MapGenFunction.calculateVertices(Array.from(points))) {
             if (vertices.length < 3) {
                 continue;
             }
 
             const pos = MapGenFunction.calculateAnchor(vertices);
-            if (!this.isPointInGrid(pos,x,y)) {
+            if (!this.isPointInGrid(pos, x, y)) {
                 continue;
             }
 
