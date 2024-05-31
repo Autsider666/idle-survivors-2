@@ -4,6 +4,8 @@ import {BaseActor} from "../BaseActor.ts";
 import {SCALE_2x} from "../../Game/Constant.ts";
 import {CollisionGroup} from "../../Game/CollisionGroups.ts";
 import {DirectionComponent} from "../../Component/Movement/DirectionComponent.ts";
+import {Attribute} from "../../Utility/Attribute/AttributeStore.ts";
+import {AttributeComponent} from "../../Component/AttributeComponent.ts";
 
 export type ProjectileProperties = {
     color: Color,
@@ -16,7 +18,6 @@ export type ProjectileProperties = {
 }
 
 export class Projectile extends BaseActor {
-    private readonly speed: number;
     public pierce: number;
     public readonly maxLifetime: number;
     private lifetime: number;
@@ -36,7 +37,6 @@ export class Projectile extends BaseActor {
             collisionGroup: CollisionGroup.Weapon,
         });
 
-        this.speed = projectile.speed;
         this.pierce = projectile.pierce ?? 0;
         this.friendlyFire = projectile.friendlyFire ?? false;
 
@@ -57,11 +57,11 @@ export class Projectile extends BaseActor {
             }
         });
 
+        this.addComponent(new AttributeComponent({[Attribute.Speed]: projectile.speed}));
         this.addComponent(new DamageComponent(projectile));
         this.addComponent(new DirectionComponent({
             // direction: target.pos.sub(origin.getGlobalPos()),
             direction: Vector.Zero,
-            velocity: this.speed,
             callback: (other) => {
                 if (this.friendlyFire && other === this) {
                     return;
@@ -75,8 +75,8 @@ export class Projectile extends BaseActor {
     }
 
     public setTarget(target: BaseActor): void {
-        this.get(DirectionComponent).direction = target.pos.sub(this.origin.getGlobalPos());
-        this.pos = this.origin.getGlobalPos().clone();
+        this.get(DirectionComponent).direction = target.pos.sub(this.origin.globalPos);
+        this.pos = this.origin.globalPos.clone();
         this.lifetime = this.maxLifetime;
     }
 }

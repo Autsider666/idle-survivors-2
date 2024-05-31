@@ -1,28 +1,34 @@
 import {Vector} from "excalibur";
 import {BaseComponent} from "../BaseComponent.ts";
-import {AttributeWatcher} from "../../Utility/AttributeWatcher.ts";
-import {Attribute} from "../../Utility/AttributeStore.ts";
+import {Attribute} from "../../Utility/Attribute/AttributeStore.ts";
+import {AttributeComponent} from "../AttributeComponent.ts";
+import {BaseActor} from "../../Actor/BaseActor.ts";
 
 export abstract class BaseMovementComponent extends BaseComponent {
-    protected speed: number;
+    private onAddChecked: boolean = false;
 
-    protected constructor(
-        speed: AttributeWatcher<Attribute.Speed> | number
-    ) {
+    constructor(protected speed: number = 0) {
         super();
+    }
 
-        if (speed instanceof AttributeWatcher) {
-            this.speed = speed.value;
-            speed.onChange((value: number) => {
-                this.speed = value;
-            });
-        } else {
-            this.speed = speed;
-        }
+    initializeSpeed(owner: BaseActor) {
+        this.onAddChecked = true;
+        owner.whenComponentExists(AttributeComponent, component => {
+            component.onChange(Attribute.Speed, (value: number) => this.speed = value);
+        });
     }
 
     protected moveInDirection(direction: Vector, maxDistance?: number): void {
-        if (this.owner === undefined || direction.x === 0 && direction.y === 0) {
+        if (this.owner === undefined) {
+            return;
+        }
+
+        if (this.speed === 0 && !this.onAddChecked) {
+            this.initializeSpeed(this.owner);
+        }
+
+        if (direction.x === 0 && direction.y === 0) {
+            this.owner.emit('moving', {direction});
             return;
         }
 

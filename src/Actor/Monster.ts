@@ -10,6 +10,8 @@ import {SearchComponent} from "../Component/SearchComponent.ts";
 import {DropsLootComponent} from "../Component/DropsLootComponent.ts";
 import {Image} from "../Utility/ImageLoader.ts";
 import {DirectionalAnimationComponent} from "../Component/Animation/DirectionalAnimationComponent.ts";
+import {AttributeComponent} from "../Component/AttributeComponent.ts";
+import {Attribute} from "../Utility/Attribute/AttributeStore.ts";
 
 // const MONSTER_WALK_VELOCITY = 30;
 const MONSTER_CHASE_VELOCITY = 100;
@@ -61,16 +63,19 @@ export class Monster extends BaseActor {
         // this.graphics.use(Animation.fromSpriteSheet(spriteSheet, [0, 1, 2, 3], 300))
         this.addTag(MonsterTag);
 
+        this.addComponent(new AttributeComponent({
+            [Attribute.Speed]: MONSTER_CHASE_VELOCITY,
+        }));
         this.addComponent(new HealthComponent(1));
         this.addComponent(new DamageComponent({damage: 1, targetTag: PlayerTag}));
-        this.addComponent(new ChaseComponent({speed: MONSTER_CHASE_VELOCITY}));
+        this.addComponent(new ChaseComponent());
         this.addComponent(new SearchComponent({queryTags: [PlayerTag]}));
         this.addComponent(new DropsLootComponent({experience: {min: 1, max: 3}}));
         this.addComponent(new DirectionalAnimationComponent({
             idle: Animation.fromSpriteSheet(spriteSheet, [0], animationSpeed),
-            left: Animation.fromSpriteSheet(spriteSheet, [4,5,6,7], animationSpeed),
-            right: Animation.fromSpriteSheet(spriteSheet, [8,9,10,11], animationSpeed),
-            up: Animation.fromSpriteSheet(spriteSheet, [12,13,14,15], animationSpeed),
+            left: Animation.fromSpriteSheet(spriteSheet, [4, 5, 6, 7], animationSpeed),
+            right: Animation.fromSpriteSheet(spriteSheet, [8, 9, 10, 11], animationSpeed),
+            up: Animation.fromSpriteSheet(spriteSheet, [12, 13, 14, 15], animationSpeed),
             down: Animation.fromSpriteSheet(spriteSheet, [0, 1, 2, 3], animationSpeed),
         }));
     }

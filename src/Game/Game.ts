@@ -1,4 +1,4 @@
-import {Color, DisplayMode, Engine} from "excalibur";
+import {Color, DisplayMode, Engine, SolverStrategy} from "excalibur";
 import {TestScene} from "../Scene/TestScene.ts";
 
 
@@ -12,8 +12,11 @@ export default class Game extends Engine {
             fixedUpdateFps: 60,
             // antialiasing: false,
             // pixelArt: true,
-            displayMode: DisplayMode.FitScreen,
+            displayMode: DisplayMode.FitScreenAndFill,
             backgroundColor: Color.Black,
+            physics:{
+                solver: SolverStrategy.Realistic,
+            }
         });
     }
 

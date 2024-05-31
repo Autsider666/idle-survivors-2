@@ -1,8 +1,12 @@
 import {AttributeWatcher} from "./AttributeWatcher.ts";
-import {EventEmitter} from "excalibur";
+import {EventEmitter, Handler} from "excalibur";
+import {AttributeGetterInterface} from "./AttributeGetterInterface.ts";
+import {AttributeSetterInterface} from "./AttributeSetterInterface.ts";
 
 export enum Attribute {
-    Speed = 'Speed'
+    Dashes = 'Dashes',
+    Health = 'Health',
+    Speed = 'Speed',
 }
 
 export type AttributeData = {
@@ -10,7 +14,7 @@ export type AttributeData = {
 }
 
 
-export class AttributeStore {
+export class AttributeStore implements AttributeGetterInterface, AttributeSetterInterface {
     private readonly attributes: Partial<AttributeData> = {};
     private readonly watchers = new Map<Attribute, AttributeWatcher<Attribute>>();
 
@@ -50,5 +54,10 @@ export class AttributeStore {
         this.watchers.set(attribute, newWatcher);
 
         return newWatcher;
+    }
+
+    onChange(attribute: Attribute, callback: Handler<number>): void {
+        callback(this.get(attribute));
+        this.generateWatcher<Attribute>(attribute).onChange(callback);
     }
 }

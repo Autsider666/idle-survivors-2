@@ -1,7 +1,5 @@
 import {BaseActor} from "../../Actor/BaseActor.ts";
 import {BaseMovementComponent} from "./BaseMovementComponent.ts";
-import {AttributeWatcher} from "../../Utility/AttributeWatcher.ts";
-import {Attribute} from "../../Utility/AttributeStore.ts";
 
 enum TrackState {
     Idle, // No mouse down and on mouse up
@@ -12,8 +10,8 @@ enum TrackState {
 export class PointerControlledComponent extends BaseMovementComponent {
     private state: TrackState = TrackState.Idle;
 
-    constructor(speed:AttributeWatcher<Attribute.Speed>|number) {
-        super(speed);
+    constructor() {
+        super();
     }
 
     onAdd(owner: BaseActor): void {

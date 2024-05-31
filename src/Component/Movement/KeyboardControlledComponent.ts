@@ -2,8 +2,6 @@ import {EventEmitter, Keys, PreUpdateEvent, Vector} from "excalibur";
 import {Direction, DirectionQueue} from "../../Utility/DirectionQueue.ts";
 import {BaseActor} from "../../Actor/BaseActor.ts";
 import {BaseMovementComponent} from "./BaseMovementComponent.ts";
-import {AttributeWatcher} from "../../Utility/AttributeWatcher.ts";
-import {Attribute} from "../../Utility/AttributeStore.ts";
 
 type KeyEventCallback = () => void;
 // type LinkedKeyEvents = {
@@ -22,10 +20,9 @@ export class KeyboardControlledComponent extends BaseMovementComponent {
     private readonly keysToWatch = new Set<Keys>();
 
     constructor(
-        speed: AttributeWatcher<Attribute.Speed>|number,
         keyEvents?: Map<Keys, KeyEventCallback>,
     ) {
-        super(speed);
+        super();
 
         keyEvents?.forEach((callback, key) => this.onKey(key, callback));
     }

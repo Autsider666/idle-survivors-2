@@ -31,7 +31,7 @@ export class Experience extends BaseActor {
 
         this.addTag(COLLECTABLE_TAG);
 
-        this.addComponent(new ChaseComponent({speed: 500}));
+        this.addComponent(new ChaseComponent(500));
 
         this.graphics.use(circle);
     }

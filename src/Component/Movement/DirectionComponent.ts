@@ -5,19 +5,18 @@ import {BaseMovementComponent} from "./BaseMovementComponent.ts";
 type FinishedCallback = (target:BaseActor) => void;
 type Props = {
     direction: Vector,
-    velocity: number,
     callback?: FinishedCallback
 }
 
 export class DirectionComponent extends BaseMovementComponent {
     public direction: Vector;
-    private readonly callback?: FinishedCallback;
+    private readonly onCollisionCallback?: FinishedCallback;
 
-    constructor({ direction, velocity, callback }: Props) {
-        super(velocity);
+    constructor({ direction, callback }: Props) {
+        super();
 
         this.direction = direction;
-        this.callback = callback;
+        this.onCollisionCallback = callback;
     }
 
     onAdd(owner: BaseActor): void {
@@ -26,8 +25,8 @@ export class DirectionComponent extends BaseMovementComponent {
         });
 
         owner.on<'collisionstart'>('collisionstart', ({other}) => {
-            if (this.callback && other instanceof BaseActor){
-                this.callback(other);
+            if (this.onCollisionCallback && other instanceof BaseActor){
+                this.onCollisionCallback(other);
             }
         });
     }

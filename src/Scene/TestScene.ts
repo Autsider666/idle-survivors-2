@@ -2,6 +2,9 @@ import {Scene, Vector} from "excalibur";
 import {LayeredWorld} from "../Game/WorldGen/Layered/LayeredWorld.ts";
 import Player from "../Actor/Player.ts";
 import PlayerCameraStrategy from "../Utility/PlayerCameraStrategy.ts";
+// @ts-expect-error It's for testing
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import {MonsterSpawnSystem} from "../System/MonsterSpawnSystem.ts";
 
 export class TestScene extends Scene {
     private readonly layeredWorld: LayeredWorld;

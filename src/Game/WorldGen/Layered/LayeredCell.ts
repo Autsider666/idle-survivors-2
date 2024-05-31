@@ -1,4 +1,4 @@
-import {BoundingBox, Color, Label, Rectangle, Vector} from "excalibur";
+import {BoundingBox, Color, Rectangle, Vector} from "excalibur";
 import Randomizer from "../Randomizer.ts";
 import {BaseActor} from "../../../Actor/BaseActor.ts";
 import {MapGenFunction} from "../MapGenFunction.ts";
@@ -140,35 +140,34 @@ export class LayeredCell { //TODO Sure we want this to be BaseActor? Maybe creat
         this.manager.add(actor);
     }
 
-    // @ts-expect-error Debug function
-    private renderPoints(
-        points: Vector[],
-        color: Color,
-        addLabel: boolean = false,
-        addCallback: (actor: BaseActor) => void = actor => this.addChild(actor),
-    ): void {
-        for (const point of points) {
-            addCallback(new BaseActor({
-                name: `Point ${Math.round(point.x)},${Math.round(point.y)}`,
-                z: -1,
-                pos: point,
-                radius: 4,
-                color,
-            }));
-
-            if (!addLabel) {
-                return;
-            }
-
-            addCallback(new Label({
-                name: `Label ${Math.round(point.x)},${Math.round(point.y)}`,
-                text: `${Math.round(point.x)},${Math.round(point.y)}`,
-                pos: point,
-                radius: 2,
-                color: Color.Gray,
-            }));
-        }
-    }
+    // private renderPoints(
+    //     points: Vector[],
+    //     color: Color,
+    //     addLabel: boolean = false,
+    //     addCallback: (actor: BaseActor) => void = actor => this.addChild(actor),
+    // ): void {
+    //     for (const point of points) {
+    //         addCallback(new BaseActor({
+    //             name: `Point ${Math.round(point.x)},${Math.round(point.y)}`,
+    //             z: -1,
+    //             pos: point,
+    //             radius: 4,
+    //             color,
+    //         }));
+    //
+    //         if (!addLabel) {
+    //             return;
+    //         }
+    //
+    //         addCallback(new Label({
+    //             name: `Label ${Math.round(point.x)},${Math.round(point.y)}`,
+    //             text: `${Math.round(point.x)},${Math.round(point.y)}`,
+    //             pos: point,
+    //             radius: 2,
+    //             color: Color.Gray,
+    //         }));
+    //     }
+    // }
 
     get level(): number {
         return this.currentLevel;

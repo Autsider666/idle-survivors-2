@@ -2,10 +2,10 @@ import {BaseActor} from "./BaseActor.ts";
 import {Circle, Color, GraphicsGroup} from "excalibur";
 
 const crosshairGraphic = new Circle({
-    radius: 10,
+    radius: 12,
     color: Color.Transparent,
     strokeColor: Color.Red,
-    lineWidth: 3,
+    lineWidth: 2,
     lineDash: [5],
 });
 
@@ -32,6 +32,7 @@ const crosshairGraphic = new Circle({
 
 export class Crosshair extends BaseActor {
     private readonly graphicsGroup: GraphicsGroup;
+    public speed: number = 0;
 
     constructor() {
         super();
@@ -43,11 +44,19 @@ export class Crosshair extends BaseActor {
         this.graphics.use(this.graphicsGroup);
     }
 
-    onPostUpdate() {
+    onInitialize() {
         if (!(this.parent instanceof BaseActor)) {
             return;
         }
 
-        this.parent.vel;
+        this.parent.on<'moving'>('moving', ({direction}) => {
+            let duration = 100;
+            if (direction.x === 0 && direction.y === 0) {
+                duration = 50;
+            }
+
+            this.actions.clearActions();
+            this.actions.easeTo(direction.scaleEqual(this.speed), duration);
+        });
     }
 }

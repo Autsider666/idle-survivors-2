@@ -2,29 +2,40 @@ import {BaseComponent} from "../BaseComponent.ts";
 import {BaseActor} from "../../Actor/BaseActor.ts";
 import {KeyboardControlledComponent} from "./KeyboardControlledComponent.ts";
 import {CircleCollider, EasingFunctions, Keys} from "excalibur";
-
+import {CrosshairComponent} from "../CrosshairComponent.ts";
+import {AttributeComponent} from "../AttributeComponent.ts";
+import {Attribute} from "../../Utility/Attribute/AttributeStore.ts";
 
 
 export class DashComponent extends BaseComponent {
+    private target?: BaseActor;
     private keyBoard?: KeyboardControlledComponent;
     private dashing: boolean = false;
-    private remainingCharges: number;
+    private remainingCharges: number = 0;
+    private maxCharges: number = 0;
 
     constructor(
-        private readonly maxDistance: number = 150,
-        private readonly maxCharges: number = 2,
         private readonly rechargeTime: number = 1000,
         private readonly dashWakeRadius: number = 20,
     ) {
         super();
-
-        this.remainingCharges = this.maxCharges;
     }
 
     onAdd(owner: BaseActor) {
         this.keyBoard = owner.get(KeyboardControlledComponent);
 
         this.keyBoard?.onKey(Keys.Space, this.initiateDash.bind(this));
+
+        owner.whenComponentExists(CrosshairComponent,component => {
+            this.target = component.actor;
+        });
+
+        owner.whenComponentExists(AttributeComponent,component => {
+            component.onChange(Attribute.Dashes, value => {
+                this.maxCharges = value;
+                this.remainingCharges = Math.min(value, this.remainingCharges);
+            });
+        });
 
         owner.on('postupdate', ({delta}) => {
             if (!this.dashing && this.remainingCharges < this.maxCharges) {
@@ -41,25 +52,23 @@ export class DashComponent extends BaseComponent {
         }
 
         const owner = this.owner;
+        if (owner === undefined) {
+            return;
+        }
 
-        owner?.once<'postupdate'>('postupdate', () => {
-            const currentVelocity = owner.vel;
-            if (currentVelocity.x === 0 && currentVelocity.y === 0) {
+        owner.once<'postupdate'>('postupdate', () => {
+            if (owner.vel.x === 0 && owner.vel.y === 0) {
                 return;
             }
 
             this.dashing = true;
             this.remainingCharges--;
 
-            // this.owner.body.collisionType = CollisionType.Fixed;
-            const collider = owner.collider.get();
-            if (collider instanceof CircleCollider) {
-                collider.radius += this.dashWakeRadius;
+            if (this.target === undefined) {
+                return;
             }
 
-            const dashVector = currentVelocity.normalize().scaleEqual(this.maxDistance);
-
-            owner.actions.easeBy(dashVector, 300, EasingFunctions.EaseOutCubic).callMethod(this.recover.bind(this));
+            owner.actions.easeTo(this.target.globalPos, 300, EasingFunctions.EaseOutCubic).callMethod(this.recover.bind(this));
         });
     }
 

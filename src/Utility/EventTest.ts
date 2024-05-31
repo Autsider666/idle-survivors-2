@@ -86,7 +86,9 @@ actorWithCustomEvents.on('collisionend', (event: InitializeEvent) => console.log
 
 // This change will also make it easy to hook into the already existing system events because of GameEvent.
 // (This is the only not 100% valid code example, because of the Actor/Entity class created for this example)
+// @ts-expect-error Example
 actorWithCustomEvents.on('collisionend', (event: CollisionEndEvent<Player>) => {
+// @ts-expect-error Example
     event.other.emit('damage-taken', (event: DamageTakenEvent) => {
         console.log(event);
     });

@@ -8,46 +8,43 @@ import {ItemCollector} from "./Tool/ItemCollector.ts";
 import {PointerControlledComponent} from "../Component/Movement/PointerControlledComponent.ts";
 import {WEAPONS} from "../config.ts";
 import {DashComponent} from "../Component/Movement/DashComponent.ts";
-import {Attribute, AttributeData, AttributeStore} from "../Utility/AttributeStore.ts";
+import {Attribute, AttributeData} from "../Utility/Attribute/AttributeStore.ts";
+import {AttributeComponent} from "../Component/AttributeComponent.ts";
+import {CrosshairComponent} from "../Component/CrosshairComponent.ts";
 
 export const PlayerTag = 'PLAYER_TAG';
 
-export default class Player extends BaseActor {
-    private readonly attributes: AttributeStore;
+const defaultPlayerAttributes: Partial<AttributeData> = {
+    [Attribute.Speed]: 100,
+    [Attribute.Dashes]: 2,
+};
 
+export default class Player extends BaseActor {
     constructor(pos: Vector, addWeapons: boolean = true, attributes: Partial<AttributeData> = {}) {
         super({
             pos,
             radius: 14,
-            // width: 32,
-            // height: 32,
             color: Color.Red,
             collisionType: CollisionType.Fixed,
             collisionGroup: CollisionGroup.Player,
         });
 
-        this.attributes = new AttributeStore({[Attribute.Speed]:100, ...attributes});
-
-        // this.graphics.use(new Circle({
-        //     radius: 12,
-        //     color: Color.Red,
-        //     lineWidth: 1,
-        //     strokeColor: Color.Orange,
-        // }));
-
         this.addTag(PlayerTag);
 
+        this.addComponent(new AttributeComponent({...defaultPlayerAttributes, ...attributes}));
+
         // this.addComponent(new HealthComponent(100));
-        this.addComponent(new KeyboardControlledComponent(this.attributes.generateWatcher(Attribute.Speed)));
-        this.addComponent(new PointerControlledComponent(this.attributes.generateWatcher(Attribute.Speed)));
+        this.addComponent(new KeyboardControlledComponent());
+        this.addComponent(new PointerControlledComponent());
         this.addComponent(new LevelComponent());
+
+        this.addComponent(new CrosshairComponent());
         this.addComponent(new DashComponent());
 
         if (!addWeapons) {
             return;
         }
 
-        // this.addChild(new Weapon(150, Color.Magenta, 3));
         for (const data of Object.values(WEAPONS)) {
             if (data.minLevel) {
                 continue;
