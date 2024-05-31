@@ -94,23 +94,17 @@ export class PolygonMapTile extends BaseActor implements MapTileInterface {
         }
 
         const distance = sourceLocation.distance(this.pos);
-        console.log('stabelize',this.id, distance,  MapGenFunction.lerp(0, distance,0.5));
 
-
-        const fadeVector = this.pos.sub(sourceLocation).normalize().scale(MapGenFunction.lerp(0, distance,0.5));
-        //
         this.graphics.opacity = 0;
-        // tile.scale = new Vector(2,2);
 
         const fadeIn = new ParallelActions([
-            // new ScaleTo(tile,1,1,1.5,1.5),
             new Fade(this, 1, MapGenFunction.lerp(distance, 500, 0.2)),//MapGenFunction.lerp(distance, 1000, 0.5)),
             new EaseTo(this, this.pos.x, this.pos.y, MapGenFunction.lerp(distance, 500, 0.4), EasingFunctions.EaseInOutCubic)
         ]);
-        // this.pos = this.pos.add(fadeVector);
+
         this.state = State.Phasing;
 
-        this.pos = this.pos.add(fadeVector);
+        this.pos = this.pos.add(this.pos.sub(sourceLocation).normalize().scale(MapGenFunction.lerp(0, distance,0.5)));
 
         this.actions
             .runAction(fadeIn)
@@ -118,11 +112,7 @@ export class PolygonMapTile extends BaseActor implements MapTileInterface {
     }
 
     destabilize(sourceLocation:Vector): void {
-        // if (this.graphics.opacity === 0) {
-        //     return;
-        // }
 
-        console.log('destabelize',this.id);
         this.actions.clearActions();
 
         const distance = sourceLocation.distance(this.pos);

@@ -40,6 +40,8 @@ export class MapTileLayer extends AbstractFilteredDataLayer<PolygonMapTile> {
                 saturation: this.config.saturation,
                 ...polygon,
             }));
+
+            this.handledPolygons.add(polygon);
         }
 
         return mapTiles;

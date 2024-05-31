@@ -54,38 +54,18 @@ export class LayeredWorld extends BaseActor {
     }
 
     onPostUpdate(engine: Engine) {
-        this.manager.check(engine); //TODO move to listener?
+        this.manager.check(engine);
     }
 
     onInitialize(engine: Engine) {
         this.manager.setScene(engine.currentScene);
-
-        // this.readyArea(Vector.Zero, true);
     }
 
     readyArea(area:BoundingBox, initial: boolean = false): void {
-        // if (this.currentGridPos.x === Math.floor(playerLocation.x) && this.currentGridPos.y === Math.floor(playerLocation.y)) {
-        //     return;
-        // }
-        //
-        // const {stabilityRadius} = this.config;
-        //
-        // const tiles = this.mapTileLayer.getFilteredData(BoundingBox.fromDimension(
-        //     stabilityRadius * 2,
-        //     stabilityRadius * 2,
-        //     Vector.Half,
-        //     playerLocation,
-        // ), this.tiles);
-
         this.mapTileLayer.getFilteredData(area, this.tiles).forEach(tile => {
-            if(!initial){
-                tile.stabilize(area.center);
-            }
+            tile.stabilize(area.center,initial);
 
             this.manager.add(tile);
         });
-
-        // this.currentGridPos.x = Math.floor(playerLocation.x);
-        // this.currentGridPos.y = Math.floor(playerLocation.y);
     }
 }

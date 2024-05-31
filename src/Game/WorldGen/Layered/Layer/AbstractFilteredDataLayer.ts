@@ -13,8 +13,6 @@ export abstract class AbstractFilteredDataLayer<PointData> implements AreaDataLa
             }
 
             result.add(pointData);
-
-            exclude.add(pointData);
         }
 
         return result;
