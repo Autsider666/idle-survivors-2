@@ -4,7 +4,7 @@ import {BoundingBox} from "excalibur";
 export abstract class AbstractFilteredDataLayer<PointData> implements AreaDataLayerInterface<PointData> {
     abstract getData(area: BoundingBox): Set<PointData>;
 
-    public getFilteredData(area:BoundingBox,exclude:Set<PointData>):Set<PointData> {
+    public getFilteredData(area: BoundingBox, exclude: Set<PointData>): Set<PointData> {
         const data = this.getData(area);
         const result = new Set<PointData>();
         for (const pointData of data) {
@@ -13,6 +13,8 @@ export abstract class AbstractFilteredDataLayer<PointData> implements AreaDataLa
             }
 
             result.add(pointData);
+
+            exclude.add(pointData);
         }
 
         return result;

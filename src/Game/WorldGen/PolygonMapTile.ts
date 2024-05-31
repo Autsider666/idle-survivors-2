@@ -1,20 +1,39 @@
-import {CollisionType, Color, Polygon, PolygonCollider, Vector} from "excalibur";
+import {
+    CollisionType,
+    Color,
+    EaseTo,
+    EasingFunctions,
+    Fade,
+    ParallelActions,
+    Polygon,
+    PolygonCollider,
+    Vector
+} from "excalibur";
 import {BaseActor} from "../../Actor/BaseActor.ts";
 import {CollisionGroup} from "../CollisionGroups.ts";
 import {SlowedComponent} from "../../Component/SlowedComponent.ts";
 import {MapGenFunction} from "./MapGenFunction.ts";
+import {MapTileInterface} from "./MapTileInterface.ts";
 
 export type RegionProps = {
     pos: Vector,
     vertices: Vector[],
     elevation: number,
     moisture: number,
-    saturation?:number,
+    saturation?: number,
 }
 
-export class PolygonMapTile extends BaseActor {
+enum State {
+    Stable,
+    Phasing,
+    Unstable
+}
+
+export class PolygonMapTile extends BaseActor implements MapTileInterface {
+    private readonly backupPos:Vector;
     private readonly elevation: number;
     private readonly moisture: number;
+    private state: State = State.Unstable;
 
     constructor({pos, elevation, moisture, vertices, saturation = 1}: RegionProps) {
         vertices = vertices.map(vertex => vertex.sub(pos));
@@ -32,7 +51,10 @@ export class PolygonMapTile extends BaseActor {
             collisionGroup: CollisionGroup.Ground,
             // radius: 3,
             // color: Color.Red,
+            // opacity: 0,
         });
+
+        this.backupPos = pos.clone();
 
         this.elevation = elevation;
         this.moisture = moisture;
@@ -60,7 +82,67 @@ export class PolygonMapTile extends BaseActor {
         });
     }
 
-    private generatePolygon(vertices: Vector[],saturation:number): Polygon {
+    stabilize(sourceLocation: Vector, instant:boolean = false): void {
+        if (this.state !== State.Unstable) {
+            return;
+        }
+
+        if (instant || this.scene === undefined) {
+            this.state = State.Stable;
+            this.graphics.opacity = 1;
+            return;
+        }
+
+        const distance = sourceLocation.distance(this.pos);
+        console.log('stabelize',this.id, distance,  MapGenFunction.lerp(0, distance,0.5));
+
+
+        const fadeVector = this.pos.sub(sourceLocation).normalize().scale(MapGenFunction.lerp(0, distance,0.5));
+        //
+        this.graphics.opacity = 0;
+        // tile.scale = new Vector(2,2);
+
+        const fadeIn = new ParallelActions([
+            // new ScaleTo(tile,1,1,1.5,1.5),
+            new Fade(this, 1, MapGenFunction.lerp(distance, 500, 0.2)),//MapGenFunction.lerp(distance, 1000, 0.5)),
+            new EaseTo(this, this.pos.x, this.pos.y, MapGenFunction.lerp(distance, 500, 0.4), EasingFunctions.EaseInOutCubic)
+        ]);
+        // this.pos = this.pos.add(fadeVector);
+        this.state = State.Phasing;
+
+        this.pos = this.pos.add(fadeVector);
+
+        this.actions
+            .runAction(fadeIn)
+            .callMethod(() => this.state = State.Stable);
+    }
+
+    destabilize(sourceLocation:Vector): void {
+        // if (this.graphics.opacity === 0) {
+        //     return;
+        // }
+
+        console.log('destabelize',this.id);
+        this.actions.clearActions();
+
+        const distance = sourceLocation.distance(this.pos);
+
+        // const fadeVector = this.pos.sub(sourceLocation).normalize().scale(distance / 15);
+        // tile.scale = new Vector(2,2);
+
+        const fadeOut = new ParallelActions([
+            // new ScaleTo(tile,1,1,1.5,1.5),
+            new Fade(this, 0, MapGenFunction.lerp(distance, 500, 0.8)),
+            // new EaseTo(this, this.pos.x, this.pos.y, MapGenFunction.lerp(distance, 500, 0.4), EasingFunctions.EaseInQuad)
+        ]);
+        // this.pos = this.pos.add(fadeVector);
+        this.actions
+            .moveTo(this.backupPos,10000)
+            .runAction(fadeOut)
+            .callMethod(() => this.state = State.Unstable);
+    }
+
+    private generatePolygon(vertices: Vector[], saturation: number): Polygon {
         return new Polygon({
             points: vertices,
             strokeColor: Color.Black,
@@ -71,7 +153,7 @@ export class PolygonMapTile extends BaseActor {
         });
     }
 
-    private biomeColorFunction(saturation:number): string {
+    private biomeColorFunction(saturation: number): string {
         let elevation = (this.elevation - 0.5) * 2;
         // let elevation = this.elevation -0.5;
         let moisture = this.moisture * 2;

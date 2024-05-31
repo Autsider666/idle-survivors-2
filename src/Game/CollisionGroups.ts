@@ -6,7 +6,7 @@ enum Category {
     Enemy = 0b0000_0100, // prettier-ignore
     Item = 0b0000_1000, // prettier-ignore
     Weapon = 0b0001_0000, // prettier-ignore
-    Projectile = 0b0010_0000, // prettier-ignore
+    Shield = 0b0010_0000, // prettier-ignore
     Hazard = 0b0100_0000, // prettier-ignore
     Climbable = 0b1000_0000, // prettier-ignore
 }
@@ -19,7 +19,12 @@ export const CollisionGroup: Record<string, EXCollisionGroup> = {
     Ground: new EXCollisionGroup(
         'ground',
         Category.Ground,
-        collideWith(Category.Player, Category.Enemy)
+        collideWith(Category.Player, Category.Enemy, Category.Shield)
+    ),
+    Shield: new EXCollisionGroup(
+        'shield',
+        Category.Shield,
+        collideWith(Category.Ground)
     ),
     Player: new EXCollisionGroup(
         'player',

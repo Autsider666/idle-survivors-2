@@ -1,4 +1,4 @@
-import {Scene, Vector} from "excalibur";
+import {BoundingBox, Scene, Vector} from "excalibur";
 import {LayeredWorld} from "../Game/WorldGen/Layered/LayeredWorld.ts";
 import Player from "../Actor/Player.ts";
 import PlayerCameraStrategy from "../Utility/PlayerCameraStrategy.ts";
@@ -9,10 +9,33 @@ import {MonsterSpawnSystem} from "../System/MonsterSpawnSystem.ts";
 export class TestScene extends Scene {
     private readonly layeredWorld: LayeredWorld;
 
-    constructor(seed: number, private readonly  startingPosition: Vector = new Vector(0, 0)) {
+    constructor(seed: number, private readonly startingPosition: Vector = new Vector(0, 0)) {
         super();
 
-        this.layeredWorld = new LayeredWorld(seed);
+        this.layeredWorld = new LayeredWorld({
+            seed,
+            stable: false,
+            elevationConfig: {
+                // Higher means more zoomed in, showing details better
+                scale: 250, // Current default 200, because it looks nice
+                // Higher means more levels of detail in the noise
+                octaves: 3,//Default 4?
+                // Higher means lower amplitude over octaves, resulting in smaller features having more effect (No clue really)
+                persistence: 2,//Default 2
+                // Higher means faster frequency growth over octaves, resulting in higher octaves (meant for smaller features) to be more prominent
+                lacunarity: 0.5, //Default 0.5,
+            },
+            moistureConfig: {
+                // Higher means more zoomed in, showing details better
+                scale: 250, // Current default 200, because it looks nice
+                // Higher means more levels of detail in the noise
+                octaves: 1,//Default 4?
+                // Higher means lower amplitude over octaves, resulting in smaller features having more effect (No clue really)
+                persistence: 2,//Default 2
+                // Higher means faster frequency growth over octaves, resulting in higher octaves (meant for smaller features) to be more prominent
+                lacunarity: 0.5, //Default 0.5,
+            }
+        });
 
         this.add(this.layeredWorld);
 
@@ -23,7 +46,13 @@ export class TestScene extends Scene {
         const player = new Player(this.startingPosition, false);
         this.add(player);
 
-        player.on<"postupdate">("postupdate", () => this.layeredWorld.moveTo(player.pos));
+        const stabilityRadius = 500;
+
+        const playerArea = BoundingBox.fromDimension(stabilityRadius,stabilityRadius,Vector.Half,player.pos);
+        this.layeredWorld.readyArea(playerArea);
+        player.on<"postupdate">("postupdate", () => {
+            this.layeredWorld.readyArea(playerArea.translate(player.pos));
+        });
 
         this.camera.addStrategy(new PlayerCameraStrategy(player));
     }

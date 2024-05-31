@@ -24,7 +24,6 @@ export class CrosshairComponent extends BaseComponent {
 
     private syncCrosshairSpeed(): void {
         if (this.synched) {
-            console.log(1);
             this.owner?.off('postupdate', this.syncCrosshairSpeed);
             return;
         }
