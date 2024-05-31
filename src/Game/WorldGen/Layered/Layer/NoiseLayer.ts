@@ -8,13 +8,12 @@ export class NoiseLayer implements CoordinateDataLayerInterface<number> {
 
     constructor(
         seed: number,
-        private readonly waveLength: number = 1,
     ) {
-        const          random = new Randomizer(seed);
+        const random = new Randomizer(seed);
         this.noise = createNoise2D(() => random.getFloat());
     }
 
     getData(coordinate: Vector): number {
-        return (this.noise(coordinate.x / this.waveLength, coordinate.y / this.waveLength) + 1) * 0.5;
+        return (this.noise(coordinate.x, coordinate.y) + 1) * 0.5;
     }
 }

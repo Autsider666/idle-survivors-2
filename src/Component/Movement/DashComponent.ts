@@ -52,7 +52,8 @@ export class DashComponent extends BaseComponent {
         }
 
         const owner = this.owner;
-        if (owner === undefined) {
+        const target = this.target;
+        if (owner === undefined || target === undefined) {
             return;
         }
 
@@ -64,11 +65,12 @@ export class DashComponent extends BaseComponent {
             this.dashing = true;
             this.remainingCharges--;
 
-            if (this.target === undefined) {
-                return;
+            const collider = this.owner?.collider.get();
+            if (collider instanceof CircleCollider) {
+                collider.radius += this.dashWakeRadius;
             }
 
-            owner.actions.easeTo(this.target.globalPos, 300, EasingFunctions.EaseOutCubic).callMethod(this.recover.bind(this));
+            owner.actions.easeTo(target.globalPos, 300, EasingFunctions.EaseOutCubic).callMethod(this.recover.bind(this));
         });
     }
 

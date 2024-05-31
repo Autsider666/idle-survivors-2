@@ -1,7 +1,7 @@
 import { CameraStrategy, Vector } from "excalibur";
 import Player from "../Actor/Player";
 
-const CAMERA_SPEED = 0.04;
+const CAMERA_SPEED = 0.06;
 
 export default class PlayerCameraStrategy implements CameraStrategy<Player> {
     private position: Vector;

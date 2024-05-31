@@ -48,7 +48,6 @@ export class BaseActor extends Actor {
             if (newComponent === undefined) {
                 return;
             }
-            console.log(component, callback,newComponent);
 
             callback(newComponent);
 

@@ -15,7 +15,7 @@ import {CrosshairComponent} from "../Component/CrosshairComponent.ts";
 export const PlayerTag = 'PLAYER_TAG';
 
 const defaultPlayerAttributes: Partial<AttributeData> = {
-    [Attribute.Speed]: 100,
+    [Attribute.Speed]: 140,
     [Attribute.Dashes]: 2,
 };
 

@@ -34,7 +34,7 @@ export abstract class BaseMovementComponent extends BaseComponent {
 
         let normalizedDirection = direction.normalize();
         this.owner.emit('moving', {direction: normalizedDirection.clone()});
-        normalizedDirection = normalizedDirection.scaleEqual(Math.min(this.speed, maxDistance ?? this.speed));
+        normalizedDirection = normalizedDirection.scale(Math.min(this.speed, maxDistance ?? this.speed));
         this.owner.vel.x = normalizedDirection.x;
         this.owner.vel.y = normalizedDirection.y;
 

@@ -1,21 +1,22 @@
 import {CollisionType, Color, Polygon, PolygonCollider, Vector} from "excalibur";
 import {BaseActor} from "../../Actor/BaseActor.ts";
 import {CollisionGroup} from "../CollisionGroups.ts";
-import Player from "../../Actor/Player.ts";
 import {SlowedComponent} from "../../Component/SlowedComponent.ts";
+import {MapGenFunction} from "./MapGenFunction.ts";
 
 export type RegionProps = {
     pos: Vector,
     vertices: Vector[],
     elevation: number,
     moisture: number,
+    saturation?:number,
 }
 
 export class PolygonMapTile extends BaseActor {
     private readonly elevation: number;
     private readonly moisture: number;
 
-    constructor({pos, elevation, moisture, vertices}: RegionProps) {
+    constructor({pos, elevation, moisture, vertices, saturation = 1}: RegionProps) {
         vertices = vertices.map(vertex => vertex.sub(pos));
         const collider = new PolygonCollider({
             points: vertices,
@@ -40,12 +41,9 @@ export class PolygonMapTile extends BaseActor {
             throw new Error('Need more vertices for a Poligon.');
         }
 
-        this.graphics.use(this.generatePolygon(vertices));
+        this.graphics.use(this.generatePolygon(vertices, saturation));
 
         this.on<'collisionstart'>('collisionstart', ({other}) => {
-            if (other instanceof Player) {
-                console.log(this.name, this.elevation);
-            }
             if (this.isSlow()) {
                 other.addComponent(new SlowedComponent());
                 other.get(SlowedComponent).counter++;
@@ -54,7 +52,7 @@ export class PolygonMapTile extends BaseActor {
 
         this.on<'collisionend'>('collisionend', ({other}) => {
             if (this.isSlow()) {
-                const component =other.get(SlowedComponent);
+                const component = other.get(SlowedComponent);
                 if (component && (--component.counter) === 0) {
                     other.removeComponent(SlowedComponent);
                 }
@@ -62,18 +60,18 @@ export class PolygonMapTile extends BaseActor {
         });
     }
 
-    private generatePolygon(vertices: Vector[]): Polygon {
+    private generatePolygon(vertices: Vector[],saturation:number): Polygon {
         return new Polygon({
             points: vertices,
             strokeColor: Color.Black,
-            lineWidth:1,
+            lineWidth: 1,
             // color: Color.Transparent,
-            color: Color.fromRGBString(this.biomeColorFunction()),
+            color: Color.fromRGBString(this.biomeColorFunction(saturation)),
             // color: Color.fromHex(this.biomeTypeFunction()),
         });
     }
 
-    private biomeColorFunction(): string {
+    private biomeColorFunction(saturation:number): string {
         let elevation = (this.elevation - 0.5) * 2;
         // let elevation = this.elevation -0.5;
         let moisture = this.moisture * 2;
@@ -84,7 +82,7 @@ export class PolygonMapTile extends BaseActor {
             red = 48 + 48 * elevation;
             green = 64 + 64 * elevation;
             blue = 127 + 127 * elevation;
-        } else if (elevation < 0.7 ) {
+        } else if (elevation < 0.7) {
             moisture = moisture * (1 - elevation);
             elevation = elevation ** 4; // tweaks
             red = 210 - 100 * moisture;
@@ -98,10 +96,18 @@ export class PolygonMapTile extends BaseActor {
             green = 220 * elevation;
             blue = 220 * elevation;
         }
-        return `rgb(${Math.max(0, red) | 0}, ${Math.max(0, green) | 0}, ${Math.max(0, blue) | 0})`;
+
+        const color = MapGenFunction.applySaturation(
+            red,
+            green,
+            blue,
+            saturation,
+        );
+
+        return `rgb(${color.red | 0}, ${color.green | 0}, ${color.blue | 0})`;
     }
 
-    isSlow():boolean {
+    isSlow(): boolean {
         return this.elevation < 0.5;
     }
 

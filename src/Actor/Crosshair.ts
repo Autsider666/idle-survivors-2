@@ -56,7 +56,7 @@ export class Crosshair extends BaseActor {
             }
 
             this.actions.clearActions();
-            this.actions.easeTo(direction.scaleEqual(this.speed), duration);
+            this.actions.easeTo(direction.scale(this.speed), duration);
         });
     }
 }
