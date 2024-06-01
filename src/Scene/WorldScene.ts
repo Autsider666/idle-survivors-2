@@ -2,14 +2,17 @@ import {Engine, Scene, SceneActivationContext, Vector} from "excalibur";
 import {LayeredWorld, LayeredWorldConfig} from "../Game/WorldGen/Layered/LayeredWorld.ts";
 import Player from "../Actor/Player.ts";
 import PlayerCameraStrategy from "../Utility/PlayerCameraStrategy.ts";
-import {MonsterSpawnSystem} from "../System/MonsterSpawnSystem.ts";
+import {MONSTER_SPAWN_TAG, MonsterSpawnSystem} from "../System/MonsterSpawnSystem.ts";
 import {ActorRenderManager} from "../Utility/ActorRenderManager.ts";
 import {Circle} from "../Utility/Area/Circle.ts";
 import {Area} from "../Utility/Area/Area.ts";
+import {PUNISHABLE_TAG, PunishmentSystem} from "../System/PunishmentSystem.ts";
 
 export type WorldSceneData = {
     world: LayeredWorldConfig,
 }
+
+
 
 export class WorldScene extends Scene {
     private readonly actorManager: ActorRenderManager = new ActorRenderManager(this);
@@ -19,6 +22,7 @@ export class WorldScene extends Scene {
         super();
 
         this.world.add(MonsterSpawnSystem);
+        this.world.add(PunishmentSystem);
     }
 
     onPostUpdate(engine: Engine) {
@@ -53,6 +57,12 @@ export class WorldScene extends Scene {
         this.layeredWorld?.readyArea(area, tile => {
             this.actorManager.add(tile);
             tile.stabilize(area.center); //TODO move to component, because this is acting up way too often
+
+            if(tile.isSafe()) {
+                tile.addTag(MONSTER_SPAWN_TAG);
+            }
+
+            tile.addTag(PUNISHABLE_TAG);
         });
     }
 }

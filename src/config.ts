@@ -4,7 +4,7 @@ import {ProjectileWeapon} from "./Actor/Tool/ProjectileWeapon.ts";
 
 export const SPAWN_MAX_MONSTERS:number = Number.parseInt(import.meta.env.VITE_SPAWN_MAX_MONSTERS);
 export const SPAWN_BASE_RATE:number = Number.parseInt(import.meta.env.VITE_SPAWN_BASE_RATE);
-export const SPAWN_DISTANCE:number = 400;
+export const SPAWN_DISTANCE:number = 300;
 
 export const XP_MAX_MERGE_RANGE:number = 25;
 
