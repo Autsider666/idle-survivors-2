@@ -33,7 +33,6 @@ export default class Player extends BaseActor {
 
         this.addComponent(new AttributeComponent({...defaultPlayerAttributes, ...attributes}));
 
-        // this.addComponent(new HealthComponent(100));
         this.addComponent(new KeyboardControlledComponent());
         this.addComponent(new PointerControlledComponent());
         this.addComponent(new LevelComponent());

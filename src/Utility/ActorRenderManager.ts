@@ -4,23 +4,26 @@ import {
     CoordPlane,
     Engine, ExitViewPortEvent,
     GraphicsComponent,
-    Scene,
     TransformComponent,
     Vector
 } from "excalibur";
 
+type ActorStore = {
+    add: (actor: BaseActor) => void;
+    remove: (actor: BaseActor) => void;
+}
+
 export class ActorRenderManager {
-    private readonly inactiveActors: BaseActor[] = []; //TODO REPLACE WITH SET?
+    private readonly inactiveActors: BaseActor[] = [];
     private readonly registeredActors: BaseActor[] = [];
 
-    constructor(private readonly maxMsRandomSpread?:number, private currentScene?: Scene) {
+    constructor(
+        private readonly scene: ActorStore,
+        private readonly maxMsRandomSpread: number
+    ) {
     }
 
     public check(engine: Engine, distanceOffscreen: number = 0): void {
-        if (this.currentScene === undefined) {
-            throw new Error('No current scene');
-        }
-
         let worldBounds = engine.screen.getWorldBounds();
         if (distanceOffscreen !== 0) {
             const worldBoundPoints = worldBounds.getPoints();
@@ -36,10 +39,14 @@ export class ActorRenderManager {
                 continue;
             }
 
-            console.debug('Render manager adding',inactiveActor.name);
-            this.currentScene.add(inactiveActor);
+            console.debug('Render manager adding', inactiveActor.name);
+            this.scene.add(inactiveActor);
             this.inactiveActors.splice(this.inactiveActors.indexOf(inactiveActor), 1);
         }
+    }
+
+    public has(actor: BaseActor): boolean {
+        return this.registeredActors.includes(actor);
     }
 
     public add(actor: BaseActor): void {
@@ -66,6 +73,12 @@ export class ActorRenderManager {
         this.inactiveActors.splice(this.inactiveActors.indexOf(actor), 1);
     }
 
+    public reset() {
+        this.registeredActors.forEach(actor => actor.off('exitviewport', this.onActorExitViewPort.bind(this)));
+        this.registeredActors.length = 0;
+        this.inactiveActors.length = 0;
+    }
+
     private isActorOffscreen(actor: BaseActor, worldBounds: BoundingBox): boolean {
         const transform: TransformComponent = actor.get(TransformComponent);
         const graphics: GraphicsComponent = actor.get(GraphicsComponent);
@@ -80,29 +93,20 @@ export class ActorRenderManager {
     }
 
     private onActorExitViewPort(event: ExitViewPortEvent): void {
-        if (this.currentScene === undefined) {
-            throw new Error('No current scene');
-        }
-
         const {target} = event as ExitViewPortEvent & { target: BaseActor };
         if (this.inactiveActors.includes(target)) {
             return;
         }
 
-        console.debug('Render manager removing',target.name);
+        console.debug('Render manager removing', target.name);
 
-        this.currentScene.remove(target);
+        this.scene.remove(target);
 
-        const queueCallback = ()=> this.inactiveActors.push(target);
+        const queueCallback = () => this.inactiveActors.push(target);
         if (this.maxMsRandomSpread) {
-            setTimeout(queueCallback,Math.ceil(this.maxMsRandomSpread * Math.random()));
+            setTimeout(queueCallback, Math.ceil(this.maxMsRandomSpread * Math.random()));
         } else {
             queueCallback();
         }
-    }
-
-    setScene(scene: Scene) {
-        this.currentScene = scene;
-        //TODO (re)move all current actors?
     }
 }
