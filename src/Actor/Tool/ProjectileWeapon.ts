@@ -7,8 +7,8 @@ type Props = {
     name: string,
     range: number,
     color: Color,
-    rateOfFire: number,
-    pierce: number,
+    rateOfFire?: number,
+    pierce?: number,
 }
 
 export class ProjectileWeapon extends BaseActor {

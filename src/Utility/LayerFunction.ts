@@ -1,8 +1,9 @@
 import {BoundingBox} from "excalibur";
+import {Area} from "./Area/Area.ts";
 
 export class LayerFunction {
     static iterateGridByArea(
-        area: BoundingBox,
+        area: BoundingBox|Area,
         gridWidth: number,
         gridHeight: number,
         callback: (gridX:number, gridY:number) => void,

@@ -1,10 +1,10 @@
 import {AreaDataLayerInterface} from "./AreaDataLayerInterface.ts";
-import {BoundingBox} from "excalibur";
+import {Area} from "../../../../Utility/Area/Area.ts";
 
 export abstract class AbstractFilteredDataLayer<PointData> implements AreaDataLayerInterface<PointData> {
-    abstract getData(area: BoundingBox): Set<PointData>;
+    abstract getData(area: Area): Set<PointData>;
 
-    public getFilteredData(area: BoundingBox, exclude: Set<PointData>): Set<PointData> {
+    public getFilteredData(area: Area, exclude: Set<PointData>): Set<PointData> {
         const data = this.getData(area);
         const result = new Set<PointData>();
         for (const pointData of data) {

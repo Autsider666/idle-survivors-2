@@ -1,18 +1,18 @@
 import {AbstractFilteredDataLayer} from "./AbstractFilteredDataLayer.ts";
 import {PolygonMapTile} from "../../PolygonMapTile.ts";
-import {BoundingBox} from "excalibur";
-import {PolygonData} from "./PolygonLayer.ts";
 import {CoordinateDataLayerInterface} from "./CoordinateDataLayerInterface.ts";
+import {Polygon} from "../../../../Utility/Area/Polygon.ts";
+import {Area} from "../../../../Utility/Area/Area.ts";
 
 export type MapTileConfig = {
     saturation?: number,
 }
 
 export class MapTileLayer extends AbstractFilteredDataLayer<PolygonMapTile> {
-    private readonly handledPolygons = new Set<PolygonData>();
+    private readonly handledPolygons = new Set<Polygon>();
 
     constructor(
-        private readonly polygonLayer: AbstractFilteredDataLayer<PolygonData>,
+        private readonly polygonLayer: AbstractFilteredDataLayer<Polygon>,
         private readonly elevationLayer: CoordinateDataLayerInterface<number>,
         private readonly moistureLayer: CoordinateDataLayerInterface<number>,
         private readonly config: MapTileConfig = {},
@@ -20,25 +20,17 @@ export class MapTileLayer extends AbstractFilteredDataLayer<PolygonMapTile> {
         super();
     }
 
-    getData(area: BoundingBox): Set<PolygonMapTile> {
+    getData(area: Area): Set<PolygonMapTile> {
         const mapTiles = new Set<PolygonMapTile>();
-
-        // LayerFunction.iterateGridByArea(area, this.gridWidth, this.gridHeight, (gridX: number, gridY: number): void => {
-        //     const mapTiles = this.retrieveData(area);
-        //     for (const mapTile of mapTiles) {
-        //         if (area.contains(mapTile.pos)) {
-        //             data.add(mapTile);
-        //         }
-        //     }
-        // });
 
         const polygons = this.polygonLayer.getFilteredData(area, this.handledPolygons);
         for (const polygon of polygons) {
+            // console.log(polygon.center.distance(area.center));
             mapTiles.add(new PolygonMapTile({
-                elevation: this.elevationLayer.getData(polygon.pos),
-                moisture: this.moistureLayer.getData(polygon.pos),
-                saturation: this.config.saturation,
-                ...polygon,
+                elevation: this.elevationLayer.getData(polygon.center),
+                moisture: this.moistureLayer.getData(polygon.center),
+                saturation: this.config.saturation, //this.moistureLayer.getData(polygon.center),
+                polygon,
             }));
 
             this.handledPolygons.add(polygon);

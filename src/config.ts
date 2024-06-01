@@ -1,21 +1,16 @@
 import {BaseActor} from "./Actor/BaseActor.ts";
 import {Color} from "excalibur";
+import {ProjectileWeapon} from "./Actor/Tool/ProjectileWeapon.ts";
 
 export const SPAWN_MAX_MONSTERS:number = Number.parseInt(import.meta.env.VITE_SPAWN_MAX_MONSTERS);
 export const SPAWN_BASE_RATE:number = Number.parseInt(import.meta.env.VITE_SPAWN_BASE_RATE);
 export const SPAWN_DISTANCE:number = 400;
 
-export const MAP_GEN_WAVE_LENGTH:number = 0.5;
-export const MAP_GEN_HEIGHT:number = 5000;
-export const MAP_GEN_WIDTH:number = 5000;
-
-export const MAP_ACTOR_EXTRA_DISTANCE_OFFSCREEN:number = Number.parseInt(import.meta.env.VITE_MAX_MAP_ACTORS_OUTSIDE_VIEWPORT);
-
 export const XP_MAX_MERGE_RANGE:number = 25;
 
-type WeaponData<W extends BaseActor> = {
+type WeaponData = {
     name: string,
-    type: W & (new (data: WeaponData<W>) => W),
+    type: (new (data: WeaponData) => BaseActor),
     minLevel?: number,
     range: number,
     color: Color,
@@ -25,15 +20,15 @@ type WeaponData<W extends BaseActor> = {
     pushback?:boolean,
     clockwise?: boolean,
 }
-export const WEAPONS: Record<string, WeaponData<BaseActor>> = {
-    // 'main': {
-    //     name: 'Pea shooter',
-    //     type: ProjectileWeapon,
-    //     range: 150,
-    //     color: Color.Red,
-    //     rateOfFire: 3,
-    //     damage: 1,
-    // },
+export const WEAPONS: Record<string, WeaponData> = {
+    'main': {
+        name: 'Pea shooter',
+        type: ProjectileWeapon,
+        range: 150,
+        color: Color.Red,
+        rateOfFire: 3,
+        damage: 1,
+    },
     // 'axe': {
     //     name: 'Axe',
     //     type: MeleeWeapon,
@@ -52,25 +47,25 @@ export const WEAPONS: Record<string, WeaponData<BaseActor>> = {
     // //     pushback: true,
     // //     minLevel: 3,
     // // }<MeleeWeapon>,
-    // 'pdc': {
-    //     name: 'Personal Defense Cannon',
-    //     type: ProjectileWeapon,
-    //     minLevel: 2,
-    //     range: 50,
-    //     color: Color.White,
-    //     rateOfFire: 10,
-    //     damage: 1,
-    // },
-    // 'sniper': {
-    //     name: 'Sniper',
-    //     type: ProjectileWeapon,
-    //     minLevel: 3,
-    //     range: 250,
-    //     color: Color.Blue,
-    //     rateOfFire: 0.5,
-    //     pierce: 5,
-    //     damage: 10,
-    // },
+    'pdc': {
+        name: 'Personal Defense Cannon',
+        type: ProjectileWeapon,
+        minLevel: 2,
+        range: 50,
+        color: Color.White,
+        rateOfFire: 10,
+        damage: 1,
+    },
+    'sniper': {
+        name: 'Sniper',
+        type: ProjectileWeapon,
+        minLevel: 3,
+        range: 250,
+        color: Color.Blue,
+        rateOfFire: 0.5,
+        pierce: 5,
+        damage: 10,
+    },
 };
 
 

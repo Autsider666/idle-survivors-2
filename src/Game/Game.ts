@@ -46,13 +46,16 @@ export default class Game extends Engine {
                   },
                   moistureConfig: {
                       // Higher means more zoomed in, showing details better
-                      scale: 250, // Current default 200, because it looks nice
+                      scale: 1000, // Current default 250, because it looks nice
                       // Higher means more levels of detail in the noise
-                      octaves: 1,//Default 4?
+                      octaves: 4,//Default 1
                       // Higher means lower amplitude over octaves, resulting in smaller features having more effect (No clue really)
-                      persistence: 2,//Default 2
+                      persistence: 1,//Default 2
                       // Higher means faster frequency growth over octaves, resulting in higher octaves (meant for smaller features) to be more prominent
                       lacunarity: 0.5, //Default 0.5,
+                  },
+                  mapTileConfig: {
+                      saturation: 1.5,
                   }
               }
           }

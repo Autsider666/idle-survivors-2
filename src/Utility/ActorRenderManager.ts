@@ -14,13 +14,10 @@ type ActorStore = {
 }
 
 export class ActorRenderManager {
-    private readonly inactiveActors: BaseActor[] = [];
+    private readonly inactiveActors: Set<BaseActor> = new Set<BaseActor>();
     private readonly registeredActors: BaseActor[] = [];
 
-    constructor(
-        private readonly scene: ActorStore,
-        private readonly maxMsRandomSpread: number
-    ) {
+    constructor(private readonly scene: ActorStore) {
     }
 
     public check(engine: Engine, distanceOffscreen: number = 0): void {
@@ -41,8 +38,10 @@ export class ActorRenderManager {
 
             console.debug('Render manager adding', inactiveActor.name);
             this.scene.add(inactiveActor);
-            this.inactiveActors.splice(this.inactiveActors.indexOf(inactiveActor), 1);
+            this.inactiveActors.delete(inactiveActor);
         }
+        // console.log(this.inactiveActors.size);
+        // throw new Error('2');
     }
 
     public has(actor: BaseActor): boolean {
@@ -56,7 +55,7 @@ export class ActorRenderManager {
 
         actor.on<'exitviewport'>('exitviewport', this.onActorExitViewPort.bind(this));
 
-        this.inactiveActors.push(actor);
+        this.inactiveActors.add(actor);
         this.registeredActors.push(actor);
     }
 
@@ -65,18 +64,14 @@ export class ActorRenderManager {
             return;
         }
 
-        if (this.inactiveActors.includes(actor)) {
-            this.inactiveActors.splice(this.inactiveActors.indexOf(actor), 1);
-        }
 
-
-        this.inactiveActors.splice(this.inactiveActors.indexOf(actor), 1);
+        this.inactiveActors.delete(actor);
     }
 
     public reset() {
         this.registeredActors.forEach(actor => actor.off('exitviewport', this.onActorExitViewPort.bind(this)));
         this.registeredActors.length = 0;
-        this.inactiveActors.length = 0;
+        this.inactiveActors.clear();
     }
 
     private isActorOffscreen(actor: BaseActor, worldBounds: BoundingBox): boolean {
@@ -85,6 +80,8 @@ export class ActorRenderManager {
         if (transform.coordPlane === CoordPlane.World) {
             const bounds = graphics.localBounds;
             const transformedBounds = bounds.transform(transform.get().matrix);
+
+            // console.log(bounds, transformedBounds, !worldBounds.overlaps(transformedBounds));
             return !worldBounds.overlaps(transformedBounds);
         } else {
             // TODO screen coordinates
@@ -94,19 +91,13 @@ export class ActorRenderManager {
 
     private onActorExitViewPort(event: ExitViewPortEvent): void {
         const {target} = event as ExitViewPortEvent & { target: BaseActor };
-        if (this.inactiveActors.includes(target)) {
+        if (this.inactiveActors.has(target)) {
             return;
         }
 
         console.debug('Render manager removing', target.name);
 
         this.scene.remove(target);
-
-        const queueCallback = () => this.inactiveActors.push(target);
-        if (this.maxMsRandomSpread) {
-            setTimeout(queueCallback, Math.ceil(this.maxMsRandomSpread * Math.random()));
-        } else {
-            queueCallback();
-        }
+        this.inactiveActors.add(target);
     }
 }

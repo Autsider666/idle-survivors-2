@@ -1,11 +1,11 @@
-import { BodyComponent, Engine, Random, Scene, System, SystemType, TagQuery, Vector, World } from "excalibur";
-import { Monster, MonsterTag } from "../Actor/Monster";
-import { PlayerTag } from "../Actor/Player";
+import {BodyComponent, Engine, Random, Scene, System, SystemType, TagQuery, Vector, World} from "excalibur";
+import {Monster, MonsterTag} from "../Actor/Monster";
+import {PlayerTag} from "../Actor/Player";
 import DynamicEventListener from "../Utility/DynamicEventListener";
 import {ActorPool} from "../Utility/ActorPool.ts";
 import {SPAWN_DISTANCE, SPAWN_MAX_MONSTERS, SPAWN_BASE_RATE} from "../config.ts";
 
-const pool = new ActorPool<Monster>(()=> new Monster());
+const pool = new ActorPool<Monster>(() => new Monster());
 
 export class MonsterSpawnSystem extends System {
     private readonly maxMonsters: number = SPAWN_MAX_MONSTERS;
@@ -50,6 +50,10 @@ export class MonsterSpawnSystem extends System {
     }
 
     private spawnMonster(): void {
+        if (this.playerQuery.entities.length === 0) {
+            return;
+        }
+
         const playerEntity = this.random.pickSet(this.playerQuery.entities, 1)[0];
         if (playerEntity === undefined) {
             return;

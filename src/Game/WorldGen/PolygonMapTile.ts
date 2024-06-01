@@ -4,8 +4,8 @@ import {
     EaseTo,
     EasingFunctions,
     Fade,
+    Polygon as PolygonGraphic,
     ParallelActions,
-    Polygon,
     PolygonCollider,
     Vector
 } from "excalibur";
@@ -14,10 +14,10 @@ import {CollisionGroup} from "../CollisionGroups.ts";
 import {SlowedComponent} from "../../Component/SlowedComponent.ts";
 import {MapGenFunction} from "./MapGenFunction.ts";
 import {MapTileInterface} from "./MapTileInterface.ts";
+import {Polygon} from "../../Utility/Area/Polygon.ts";
 
 export type RegionProps = {
-    pos: Vector,
-    vertices: Vector[],
+    polygon: Polygon,
     elevation: number,
     moisture: number,
     saturation?: number,
@@ -35,8 +35,9 @@ export class PolygonMapTile extends BaseActor implements MapTileInterface {
     private readonly moisture: number;
     private state: State = State.Unstable;
 
-    constructor({pos, elevation, moisture, vertices, saturation = 1}: RegionProps) {
-        vertices = vertices.map(vertex => vertex.sub(pos));
+    constructor({polygon, elevation, moisture, saturation = 1}: RegionProps) {
+        const pos = polygon.center;
+        const vertices = polygon.vertices.map(vertex => vertex.sub(pos)); //TODO add this to Polygon (and maybe all areas?)
         const collider = new PolygonCollider({
             points: vertices,
             suppressConvexWarning: true,
@@ -104,9 +105,10 @@ export class PolygonMapTile extends BaseActor implements MapTileInterface {
 
         this.state = State.Phasing;
 
-        this.pos = this.pos.add(this.pos.sub(sourceLocation).normalize().scale(MapGenFunction.lerp(0, distance,0.5)));
+        const startPos = this.pos.add(this.pos.sub(sourceLocation).normalize().scale(MapGenFunction.lerp(0, distance,0.5)));
 
         this.actions
+            .moveTo(startPos,1000)
             .runAction(fadeIn)
             .callMethod(() => this.state = State.Stable);
     }
@@ -132,8 +134,8 @@ export class PolygonMapTile extends BaseActor implements MapTileInterface {
             .callMethod(() => this.state = State.Unstable);
     }
 
-    private generatePolygon(vertices: Vector[], saturation: number): Polygon {
-        return new Polygon({
+    private generatePolygon(vertices: Vector[], saturation: number): PolygonGraphic {
+        return new PolygonGraphic({
             points: vertices,
             strokeColor: Color.Black,
             lineWidth: 1,

@@ -1,10 +1,11 @@
 import {AreaDataLayerInterface} from "./AreaDataLayerInterface.ts";
-import {BoundingBox, Vector} from "excalibur";
+import {Vector} from "excalibur";
 import Array2D from "../../../../Utility/Array2D.ts";
 import {MapGenFunction} from "../../MapGenFunction.ts";
 import Randomizer from "../../Randomizer.ts";
 import {CoordinateBasedSeedGenerator} from "../../../../Utility/CoordinateBasedSeedGenerator.ts";
 import {LayerFunction} from "../../../../Utility/LayerFunction.ts";
+import {Area} from "../../../../Utility/Area/Area.ts";
 
 export class RandomPointLayer implements AreaDataLayerInterface<Vector> {
     private readonly data: Array2D<Vector[]> = new Array2D<Vector[]>();
@@ -19,7 +20,7 @@ export class RandomPointLayer implements AreaDataLayerInterface<Vector> {
         this.generator = new CoordinateBasedSeedGenerator(seed);
     }
 
-    public getData(area: BoundingBox): Set<Vector> {
+    public getData(area: Area): Set<Vector> {
         const data = new Set<Vector>;
 
         LayerFunction.iterateGridByArea(area, this.gridWidth, this.gridHeight, (gridX: number, gridY: number) => {

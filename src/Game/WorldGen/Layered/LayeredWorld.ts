@@ -1,6 +1,3 @@
-import {
-    BoundingBox,
-} from "excalibur";
 import {RandomPointLayer} from "./Layer/RandomPointLayer.ts";
 import {PolygonLayer} from "./Layer/PolygonLayer.ts";
 import {PolygonMapTile} from "../PolygonMapTile.ts";
@@ -8,6 +5,7 @@ import {NoiseLayer} from "./Layer/NoiseLayer.ts";
 import {ElevationLayer, NoiseConfig} from "./Layer/ElevationLayer.ts";
 import {MapTileConfig, MapTileLayer} from "./Layer/MapTileLayer.ts";
 import {BaseActor} from "../../../Actor/BaseActor.ts";
+import {Area} from "../../../Utility/Area/Area.ts";
 
 export type LayeredWorldConfig = {
     seed: number,
@@ -25,7 +23,7 @@ export class LayeredWorld {
         const {seed, elevationConfig, moistureConfig, mapTileConfig} = config;
 
         const gridSize: number = 250;
-        const pointsPerGrid: number = 25;
+        const pointsPerGrid: number = 50;
         const pointLayer = new RandomPointLayer(seed, gridSize, gridSize, pointsPerGrid);
         const polygonLayer = new PolygonLayer(gridSize, gridSize, pointLayer);
         const elevationLayer = new ElevationLayer(
@@ -45,10 +43,14 @@ export class LayeredWorld {
         );
     }
 
-    readyArea(area: BoundingBox, initial: boolean = false): Set<BaseActor> {
+    readyArea(area: Area, onNew?:(tile:PolygonMapTile)=>void): Set<BaseActor> {
         const newTiles = this.mapTileLayer.getFilteredData(area, this.tiles);
         newTiles.forEach(tile => {
-            tile.stabilize(area.center, initial);
+            this.tiles.add(tile);
+            if (onNew) {
+                onNew(tile);
+            }
+
         });
 
         return newTiles;

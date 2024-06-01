@@ -1,5 +1,5 @@
-import {BoundingBox} from "excalibur";
+import {Area} from "../../../../Utility/Area/Area.ts";
 
 export interface AreaDataLayerInterface<AreaData> {
-    getData(area: BoundingBox): Set<AreaData>;
+    getData(area: Area): Set<AreaData>;
 }

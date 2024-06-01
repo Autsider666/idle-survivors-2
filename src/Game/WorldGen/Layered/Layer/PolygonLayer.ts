@@ -1,17 +1,15 @@
 import {AreaDataLayerInterface} from "./AreaDataLayerInterface.ts";
-import {BoundingBox, Vector} from "excalibur";
+import {Vector} from "excalibur";
 import Array2D from "../../../../Utility/Array2D.ts";
 import {MapGenFunction} from "../../MapGenFunction.ts";
 import {AbstractFilteredDataLayer} from "./AbstractFilteredDataLayer.ts";
 import {LayerFunction} from "../../../../Utility/LayerFunction.ts";
+import {Area} from "../../../../Utility/Area/Area.ts";
+import {Polygon} from "../../../../Utility/Area/Polygon.ts";
+import {Rectangle} from "../../../../Utility/Area/Rectangle.ts";
 
-export type PolygonData = Readonly<{
-    pos: Vector,
-    vertices: Vector[]
-}>
-
-export class PolygonLayer extends AbstractFilteredDataLayer<PolygonData> {
-    private readonly data: Array2D<PolygonData[]> = new Array2D<PolygonData[]>();
+export class PolygonLayer extends AbstractFilteredDataLayer<Polygon> {
+    private readonly cache: Array2D<Polygon[]> = new Array2D<Polygon[]>();
 
     constructor(
         private readonly gridWidth: number,
@@ -21,27 +19,13 @@ export class PolygonLayer extends AbstractFilteredDataLayer<PolygonData> {
         super();
     }
 
-    // public getFilteredData(area:BoundingBox,exclude:Set<PolygonData>):Set<PolygonData> {
-    //     const data = this.getData(area);
-    //     const result = new Set<PolygonData>();
-    //     for (const polygon of data) {
-    //         if (exclude.has(polygon)) {
-    //             continue;
-    //         }
-    //
-    //         result.add(polygon)
-    //     }
-    //
-    //     return result;
-    // }
-
-    public getData(area: BoundingBox): Set<PolygonData> {
-        const data = new Set<PolygonData>();
+    public getData(area: Area): Set<Polygon> {
+        const data = new Set<Polygon>();
 
         LayerFunction.iterateGridByArea(area, this.gridWidth, this.gridHeight, (gridX: number, gridY: number): void => {
-            const polygons = this.retrieveData(gridX, gridY);
+            const polygons = this.cache.get(gridX, gridY) ?? this.generateGridArea(gridX, gridY);
             for (const polygon of polygons) {
-                if (area.contains(polygon.pos)) {
+                if (area.contains(polygon)) {
                     data.add(polygon);
                 }
             }
@@ -50,49 +34,35 @@ export class PolygonLayer extends AbstractFilteredDataLayer<PolygonData> {
         return data;
     }
 
-    private retrieveData(x: number, y: number): PolygonData[] {
-        if (!this.data.has(x, y)) {
-            this.generateGridArea(x, y);
-        }
 
-        const data = this.data.get(x, y);
-        if (data === undefined) {
-            throw new Error('This should never happen right?');
-        }
-
-        return data;
-    }
-
-    private generateGridArea(x: number, y: number): void {
+    private generateGridArea(x: number, y: number): Polygon[] {
         const globalOffset = new Vector(x * this.gridWidth, y * this.gridHeight);
 
         const points = this.pointLayer.getData(
-            BoundingBox.fromDimension(
+            new Rectangle(
+                globalOffset,
                 this.gridWidth * 3,
                 this.gridHeight * 3,
-                Vector.Zero,
-                globalOffset.sub(new Vector(this.gridWidth, this.gridHeight))
-            )
+            ),
         );
 
-        const polygons: PolygonData[] = [];
+        const polygons: Polygon[] = [];
         for (const vertices of MapGenFunction.calculateVertices(Array.from(points))) {
             if (vertices.length < 3) {
                 continue;
             }
 
-            const pos = MapGenFunction.calculateAnchor(vertices);
-            if (!this.isPointInGrid(pos, x, y)) {
+            const center = MapGenFunction.calculateAnchor(vertices);
+            if (!this.isPointInGrid(center, x, y)) {
                 continue;
             }
 
-            polygons.push({
-                vertices,
-                pos,
-            });
+            polygons.push(new Polygon(center,vertices));
         }
 
-        this.data.set(x, y, polygons);
+        this.cache.set(x, y, polygons);
+
+        return polygons;
     }
 
     private isPointInGrid(point: Vector, x: number, y: number): boolean {
