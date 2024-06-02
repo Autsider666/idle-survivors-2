@@ -1,5 +1,6 @@
 import {Color, DisplayMode, Engine, SolverStrategy} from "excalibur";
 import {WorldScene, WorldSceneData} from "../Scene/WorldScene.ts";
+import {TileType} from "./WorldGen/Layered/Layer/MapTileLayer.ts";
 
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -9,7 +10,7 @@ export default class Game extends Engine {
         super({
             fixedUpdateFps: 60,
             pixelArt: true,
-            displayMode: DisplayMode.FitScreenAndFill,
+            displayMode: DisplayMode.FitScreenAndZoom,
             backgroundColor: Color.Black,
             physics:{
                 solver: SolverStrategy.Realistic,
@@ -17,9 +18,7 @@ export default class Game extends Engine {
         });
     }
 
-    onInitialize(engine: Engine) {
-        super.onInitialize(engine);
-
+    onInitialize() {
         // const client = new NetworkClient(engine, this.seed);
         // new NetworkActorManager(engine);
         //
@@ -56,6 +55,10 @@ export default class Game extends Engine {
                   },
                   mapTileConfig: {
                       saturation: 1.5,
+                      type:TileType.Voronoi,
+                      // type:TileType.Square,
+                      // type:TileType.FlatTopHexagon,
+                      // type:TileType.PointyTopHexagon,
                   }
               }
           }

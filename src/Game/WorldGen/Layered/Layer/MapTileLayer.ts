@@ -4,8 +4,16 @@ import {CoordinateDataLayerInterface} from "./CoordinateDataLayerInterface.ts";
 import {Polygon} from "../../../../Utility/Area/Polygon.ts";
 import {Area} from "../../../../Utility/Area/Area.ts";
 
+export enum TileType {
+    Voronoi = 'Voronoi',
+    Square = 'Square',
+    FlatTopHexagon = 'FlatTopHexagon',
+    PointyTopHexagon = 'PointTopHexagon',
+}
+
 export type MapTileConfig = {
     saturation?: number,
+    type?: TileType,
 }
 
 export class MapTileLayer extends AbstractFilteredDataLayer<PolygonMapTile> {

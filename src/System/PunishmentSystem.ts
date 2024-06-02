@@ -27,7 +27,7 @@ export class PunishmentSystem extends System {
 
         this.next = this.interval;
 
-        console.log(this.punishableQuery.entities.length, this.punishableCounter);
+        // console.log(this.punishableQuery.entities.length, this.punishableCounter);
     }
 
 }
