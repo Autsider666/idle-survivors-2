@@ -1,5 +1,5 @@
-import {Engine, Scene, SceneActivationContext, Vector} from "excalibur";
-import {LayeredWorld, LayeredWorldConfig} from "../Game/WorldGen/Layered/LayeredWorld.ts";
+import {Engine, Scene, SceneActivationContext} from "excalibur";
+import {defaultConfig, LayeredWorld, LayeredWorldConfig} from "../Game/WorldGen/Layered/LayeredWorld.ts";
 import Player from "../Actor/Player.ts";
 import PlayerCameraStrategy from "../Utility/PlayerCameraStrategy.ts";
 import {MONSTER_SPAWN_TAG, MonsterSpawnSystem} from "../System/MonsterSpawnSystem.ts";
@@ -9,10 +9,9 @@ import {Area} from "../Utility/Area/Area.ts";
 import {PUNISHABLE_TAG, PunishmentSystem} from "../System/PunishmentSystem.ts";
 
 export type WorldSceneData = {
-    world: LayeredWorldConfig,
+    player:Player,
+    world: Partial<LayeredWorldConfig> & {seed:number},
 }
-
-
 
 export class WorldScene extends Scene {
     private readonly actorManager: ActorRenderManager = new ActorRenderManager(this);
@@ -34,8 +33,9 @@ export class WorldScene extends Scene {
             throw new Error('WorldScene config is required.');
         }
 
+        const player = data.player;
+
         const stabilityRadius = 150; //TODO make this player dependant?
-        const player = new Player(Vector.Zero, true);
 
         player.on<"postupdate">("postupdate", () => this.generateWorld(new Circle(player.pos.clone(), stabilityRadius)));
 
@@ -43,7 +43,7 @@ export class WorldScene extends Scene {
 
         this.actorManager.reset();
 
-        this.layeredWorld = new LayeredWorld(data.world);
+        this.layeredWorld = new LayeredWorld({...defaultConfig, ...data.world});
 
         this.actorManager.add(player);
 

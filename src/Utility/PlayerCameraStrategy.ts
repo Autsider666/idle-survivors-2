@@ -7,7 +7,7 @@ export default class PlayerCameraStrategy implements CameraStrategy<Player> {
     private readonly cameraPosition: Vector;
 
     constructor(public target: Player, private readonly cameraSpeed:number) {
-        this.cameraPosition = Vector.Zero;
+        this.cameraPosition = target.pos.clone();
     }
 
     action(): Vector {

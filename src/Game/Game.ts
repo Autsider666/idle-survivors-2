@@ -1,21 +1,26 @@
-import {Color, DisplayMode, Engine, SolverStrategy} from "excalibur";
+import {Color, DisplayMode, Engine, Keys, SolverStrategy, Vector} from "excalibur";
 import {WorldScene, WorldSceneData} from "../Scene/WorldScene.ts";
 import {TileType} from "./WorldGen/Layered/Layer/MapTileLayer.ts";
+import Player from "../Actor/Player.ts";
 
 
 const urlParams = new URLSearchParams(window.location.search);
 
 export default class Game extends Engine {
-    constructor(private readonly seed:number = Number.parseInt(urlParams.get('game') ?? Date.now().toString())) {
+    private readonly player: Player;
+
+    constructor(private readonly seed: number = Number.parseInt(urlParams.get('game') ?? Date.now().toString())) {
         super({
             fixedUpdateFps: 60,
             pixelArt: true,
             displayMode: DisplayMode.FitScreenAndZoom,
             backgroundColor: Color.Black,
-            physics:{
+            physics: {
                 solver: SolverStrategy.Realistic,
             },
         });
+
+        this.player = new Player(Vector.Zero, true);
     }
 
     onInitialize() {
@@ -28,40 +33,53 @@ export default class Game extends Engine {
         // this.goToScene<RunActivationData>('run',{sceneActivationData:{seed:this.seed}});
 
         this.add('world', new WorldScene());
-        this.goToScene<WorldSceneData>('world',{
-          sceneActivationData: {
-              world: { //TODO see if it's possible to make everything besides seed optional?
-                  seed: this.seed,
-                  stable: false,
-                  elevationConfig: {
-                      // Higher means more zoomed in, showing details better
-                      scale: 250, // Current default 200, because it looks nice
-                      // Higher means more levels of detail in the noise
-                      octaves: 3,//Default 4?
-                      // Higher means lower amplitude over octaves, resulting in smaller features having more effect (No clue really)
-                      persistence: 2,//Default 2
-                      // Higher means faster frequency growth over octaves, resulting in higher octaves (meant for smaller features) to be more prominent
-                      lacunarity: 0.5, //Default 0.5,
-                  },
-                  moistureConfig: {
-                      // Higher means more zoomed in, showing details better
-                      scale: 1000, // Current default 250, because it looks nice
-                      // Higher means more levels of detail in the noise
-                      octaves: 4,//Default 1
-                      // Higher means lower amplitude over octaves, resulting in smaller features having more effect (No clue really)
-                      persistence: 1,//Default 2
-                      // Higher means faster frequency growth over octaves, resulting in higher octaves (meant for smaller features) to be more prominent
-                      lacunarity: 0.5, //Default 0.5,
-                  },
-                  mapTileConfig: {
-                      saturation: 1.5,
-                      type:TileType.Voronoi,
-                      // type:TileType.Square,
-                      // type:TileType.FlatTopHexagon,
-                      // type:TileType.PointyTopHexagon,
-                  }
-              }
-          }
+        this.goToScene<WorldSceneData>('world', {
+            sceneActivationData: {
+                player: this.player,
+                world: { //TODO see if it's possible to make everything besides seed optional?
+                    seed: this.seed,
+                    mapTileConfig: {
+                        saturation: 1.5,
+                        type: TileType.Voronoi,
+                        // type: TileType.Square,
+                        // type:TileType.FlatTopHexagon,
+                        // type:TileType.PointyTopHexagon,
+                    }
+                }
+            }
+        });
+
+        let i = 0;
+        const types = [
+            TileType.Square,
+            TileType.FlatTopHexagon,
+            TileType.PointyTopHexagon,
+            TileType.Voronoi,
+        ];
+
+        this.input.keyboard.on('release', ({key}) => {
+            if (key !== Keys.Q) {
+                return;
+            }
+            this.goToScene<WorldSceneData>('world', {
+                sceneActivationData: {
+                    player: this.player,
+                    world: { //TODO see if it's possible to make everything besides seed optional?
+                        seed: this.seed,
+                        mapTileConfig: {
+                            saturation: 1.5,
+                            // type:TileType.Voronoi,
+                            // type: TileType.Square,
+                            type: types[i++],
+                            // type:TileType.PointyTopHexagon,
+                        }
+                    }
+                }
+            });
+
+            if (i > types.length - 1) {
+                i = 0;
+            }
         });
     }
 }
