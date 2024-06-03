@@ -1,19 +1,8 @@
-import {
-    CollisionType,
-    Color,
-    EaseTo,
-    EasingFunctions,
-    Fade,
-    Polygon as PolygonGraphic,
-    ParallelActions,
-    PolygonCollider,
-    Vector
-} from "excalibur";
+import {CollisionType, Color, Polygon as PolygonGraphic, PolygonCollider, Vector} from "excalibur";
 import {BaseActor} from "../../Actor/BaseActor.ts";
 import {CollisionGroup} from "../CollisionGroups.ts";
 import {SlowedComponent} from "../../Component/SlowedComponent.ts";
 import {MapGenFunction} from "./MapGenFunction.ts";
-import {MapTileInterface} from "./MapTileInterface.ts";
 import {Polygon} from "../../Utility/Geometry/Polygon.ts";
 import {NeighborInterface} from "./NeighborInterface.ts";
 
@@ -24,17 +13,9 @@ export type RegionProps = {
     saturation?: number,
 }
 
-enum State {
-    Stable,
-    Phasing,
-    Unstable
-}
-
-export class PolygonMapTile extends BaseActor implements MapTileInterface, NeighborInterface {
-    private readonly backupPos:Vector;
+export class PolygonMapTile extends BaseActor implements NeighborInterface {
     private readonly elevation: number;
     private readonly moisture: number;
-    private state: State = State.Unstable;
     private readonly globalVertices:Vector[];
 
     constructor({polygon, elevation, moisture, saturation = 1}: RegionProps) {
@@ -54,12 +35,9 @@ export class PolygonMapTile extends BaseActor implements MapTileInterface, Neigh
             collisionGroup: CollisionGroup.Ground,
             // radius: 3,
             // color: Color.Red,
-            // opacity: 0,
         });
 
         this.globalVertices = polygon.vertices;
-
-        this.backupPos = pos.clone();
 
         this.elevation = elevation;
         this.moisture = moisture;
@@ -85,61 +63,14 @@ export class PolygonMapTile extends BaseActor implements MapTileInterface, Neigh
                 }
             }
         });
+
+        if(this.isSafe()) {
+            this.body.collisionType = CollisionType.PreventCollision;
+        }
     }
 
     getNeighbourhoodPoints(): Vector[] {
         return this.globalVertices;
-    }
-
-    stabilize(sourceLocation: Vector, instant:boolean = false): void {
-        if (this.state !== State.Unstable) {
-            return;
-        }
-
-        if (instant || this.scene === undefined) {
-            this.state = State.Stable;
-            this.graphics.opacity = 1;
-            return;
-        }
-
-        const distance = sourceLocation.distance(this.pos);
-
-        this.graphics.opacity = 0;
-
-        const fadeIn = new ParallelActions([
-            new Fade(this, 1, MapGenFunction.lerp(distance, 500, 0.2)),//MapGenFunction.lerp(distance, 1000, 0.5)),
-            new EaseTo(this, this.pos.x, this.pos.y, MapGenFunction.lerp(distance, 500, 0.4), EasingFunctions.EaseInOutCubic)
-        ]);
-
-        this.state = State.Phasing;
-
-        const startPos = this.pos.add(this.pos.sub(sourceLocation).normalize().scale(MapGenFunction.lerp(0, distance,0.5)));
-
-        this.actions
-            .moveTo(startPos,1000)
-            .runAction(fadeIn)
-            .callMethod(() => this.state = State.Stable);
-    }
-
-    destabilize(sourceLocation:Vector): void {
-
-        this.actions.clearActions();
-
-        const distance = sourceLocation.distance(this.pos);
-
-        // const fadeVector = this.pos.sub(sourceLocation).normalize().scale(distance / 15);
-        // tile.scale = new Vector(2,2);
-
-        const fadeOut = new ParallelActions([
-            // new ScaleTo(tile,1,1,1.5,1.5),
-            new Fade(this, 0, MapGenFunction.lerp(distance, 500, 0.8)),
-            // new EaseTo(this, this.pos.x, this.pos.y, MapGenFunction.lerp(distance, 500, 0.4), EasingFunctions.EaseInQuad)
-        ]);
-        // this.pos = this.pos.add(fadeVector);
-        this.actions
-            .moveTo(this.backupPos,10000)
-            .runAction(fadeOut)
-            .callMethod(() => this.state = State.Unstable);
     }
 
     private generatePolygon(vertices: Vector[], saturation: number): PolygonGraphic {

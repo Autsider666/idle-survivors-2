@@ -1,9 +1,8 @@
-import {CollisionType, Color, Engine, Vector} from "excalibur";
+import {CollisionType, Color, Vector} from "excalibur";
 import {BaseActor} from "./BaseActor";
 import {KeyboardControlledComponent} from "../Component/Movement/KeyboardControlledComponent.ts";
 import {CollisionGroup} from "../Game/CollisionGroups";
 import {LevelComponent} from "../Component/LevelComponent.ts";
-import {NETWORK_SEND_UPDATE_EVENT, NetworkUpdate} from "../Multiplayer/NetworkClient.ts";
 import {ItemCollector} from "./Tool/ItemCollector.ts";
 import {PointerControlledComponent} from "../Component/Movement/PointerControlledComponent.ts";
 import {WEAPONS} from "../config.ts";
@@ -55,23 +54,23 @@ export default class Player extends BaseActor {
         this.addChild(new ItemCollector(100));
     }
 
-    onInitialize(engine: Engine) {
-        this.on<'postupdate'>('postupdate', () => {
-            if (this.vel.x !== 0 || this.vel.y !== 0) {
-
-                const update: NetworkUpdate = {
-                    id: this.id,
-                    position: {
-                        x: this.pos.x,
-                        y: this.pos.y,
-                    },
-                    velocity: {
-                        x: this.vel.x,
-                        y: this.vel.y,
-                    },
-                };
-                engine.emit(NETWORK_SEND_UPDATE_EVENT, update);
-            }
-        });
-    }
+    // onInitialize(engine: Engine) {
+    //     this.on<'postupdate'>('postupdate', () => {
+    //         if (this.vel.x !== 0 || this.vel.y !== 0) {
+    //
+    //             const update: NetworkUpdate = {
+    //                 id: this.id,
+    //                 position: {
+    //                     x: this.pos.x,
+    //                     y: this.pos.y,
+    //                 },
+    //                 velocity: {
+    //                     x: this.vel.x,
+    //                     y: this.vel.y,
+    //                 },
+    //             };
+    //             engine.emit(NETWORK_SEND_UPDATE_EVENT, update);
+    //         }
+    //     });
+    // }
 }

@@ -13,6 +13,9 @@ import {Shape} from "../Utility/Geometry/Shape.ts";
 import {PUNISHABLE_TAG, PunishmentSystem} from "../System/PunishmentSystem.ts";
 import {Neighbourhood} from "../Game/WorldGen/Neighbourhood.ts";
 import {PolygonMapTile} from "../Game/WorldGen/PolygonMapTile.ts";
+import {UnstableComponent} from "../Component/UnstableComponent.ts";
+import cloneDeep from 'lodash/cloneDeep';
+import merge from 'lodash/merge';
 
 export type WorldSceneData = {
     player: Player,
@@ -44,11 +47,17 @@ export class WorldScene extends Scene {
 
         const {player, world} = data;
 
-        const stabilityRadius = 150; //TODO make this player dependant?
+        const stabilityRadius = 200; //TODO make this player dependant?
+        const unstabilityRadius = 400;
 
-        player.on<"postupdate">("postupdate", () => this.generateWorld(new Circle(player.pos.clone(), stabilityRadius)));
+        player.on<"postupdate">("postupdate", () => this.generateWorld(
+            new Circle(player.pos.clone(), stabilityRadius),
+            tile => tile.addComponent(new UnstableComponent(player, stabilityRadius,unstabilityRadius))
+        ));
 
-        this.layeredWorld = new LayeredWorld({...defaultConfig, ...world});
+        const config = cloneDeep(defaultConfig);
+
+        this.layeredWorld = new LayeredWorld(merge(config, world));
 
         this.actorManager.add(player);
 
@@ -63,16 +72,17 @@ export class WorldScene extends Scene {
         this.actorManager.reset();
     }
 
-    private generateWorld(area: Shape): void {
+    private generateWorld(area: Shape, callback:(tile:PolygonMapTile)=>void): void {
         this.layeredWorld?.readyArea(area, tile => {
             this.actorManager.add(tile);
-            tile.stabilize(area.center); //TODO move to component, because this is acting up way too often
+            // tile.stabilize(area.center); //TODO move to component, because this is acting up way too often
 
             if (tile.isSafe()) {
                 tile.addTag(MONSTER_SPAWN_TAG);
             }
             tile.addTag(PUNISHABLE_TAG);
             this.neighborhood.add(tile);
+            callback(tile);
         }).forEach(tile => {
             if (this.neighborhood.getNeighbors(tile).length === 0) {
                 throw new Error('Tile can\'t exist without neighbors');

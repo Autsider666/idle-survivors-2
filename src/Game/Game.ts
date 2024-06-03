@@ -39,7 +39,6 @@ export default class Game extends Engine {
                 world: { //TODO see if it's possible to make everything besides seed optional?
                     seed: this.seed,
                     mapTileConfig: {
-                        saturation: 1.5,
                         type: TileType.Voronoi,
                         // type: TileType.Square,
                         // type:TileType.FlatTopHexagon,

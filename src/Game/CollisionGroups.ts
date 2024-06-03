@@ -8,7 +8,7 @@ enum Category {
     Weapon = 0b0001_0000, // prettier-ignore
     Shield = 0b0010_0000, // prettier-ignore
     Hazard = 0b0100_0000, // prettier-ignore
-    Climbable = 0b1000_0000, // prettier-ignore
+    Collector = 0b1000_0000, // prettier-ignore
 }
 
 function collideWith(...categories: Category[]): number {
@@ -34,7 +34,6 @@ export const CollisionGroup: Record<string, EXCollisionGroup> = {
             Category.Enemy,
             Category.Item,
             Category.Hazard,
-            Category.Climbable
         )
     ),
     Enemy: new EXCollisionGroup(
@@ -50,7 +49,7 @@ export const CollisionGroup: Record<string, EXCollisionGroup> = {
     Item: new EXCollisionGroup(
         'item',
         Category.Item,
-        collideWith(Category.Player)
+        collideWith(Category.Player, Category.Collector)
     ),
     Weapon: new EXCollisionGroup(
         'weapon',
@@ -62,9 +61,9 @@ export const CollisionGroup: Record<string, EXCollisionGroup> = {
         Category.Weapon,
         collideWith(Category.Enemy)
     ),
-    Climbable: new EXCollisionGroup(
-        'climbable',
-        Category.Climbable,
-        collideWith(Category.Player)
+    Collector: new EXCollisionGroup(
+        'collector',
+        Category.Collector,
+        collideWith(Category.Item)
     ),
 };

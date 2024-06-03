@@ -12,7 +12,7 @@ export class ItemCollector extends BaseActor {
             opacity: 0.6,
             z: -1,
             collisionType: CollisionType.Passive,
-            collisionGroup: CollisionGroup.Player,
+            collisionGroup: CollisionGroup.Collector,
         });
 
         this.graphics.add(new Circle({

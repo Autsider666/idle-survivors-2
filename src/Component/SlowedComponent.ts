@@ -1,26 +1,25 @@
 import { BaseComponent } from "./BaseComponent";
 import { BaseActor } from "../Actor/BaseActor";
-import { Color, EmitterType, ParticleEmitter, Vector } from "excalibur";
 
-const emitter: ParticleEmitter = new ParticleEmitter({ width: 2, height: 2 });
-emitter.emitterType = EmitterType.Circle;
-emitter.radius = 5;
-emitter.minVel = 20;
-emitter.maxVel = 40;
-emitter.minAngle = 0;
-emitter.maxAngle = 6.2;
-emitter.isEmitting = true;
-emitter.emitRate = 5;
-emitter.opacity = 0;
-emitter.fadeFlag = true;
-emitter.particleLife = 400;
-emitter.maxSize = 10;
-emitter.minSize = 1;
-emitter.startSize = 0;
-emitter.endSize = 0;
-emitter.acceleration = new Vector(0, 0);
-emitter.beginColor = Color.Cyan;
-emitter.endColor = Color.Blue;
+// const emitter: ParticleEmitter = new ParticleEmitter({ width: 2, height: 2 });
+// emitter.emitterType = EmitterType.Circle;
+// emitter.radius = 5;
+// emitter.minVel = 20;
+// emitter.maxVel = 40;
+// emitter.minAngle = 0;
+// emitter.maxAngle = 6.2;
+// emitter.isEmitting = true;
+// emitter.emitRate = 5;
+// emitter.opacity = 0;
+// emitter.fadeFlag = true;
+// emitter.particleLife = 400;
+// emitter.maxSize = 10;
+// emitter.minSize = 1;
+// emitter.startSize = 0;
+// emitter.endSize = 0;
+// emitter.acceleration = new Vector(0, 0);
+// emitter.beginColor = Color.Cyan;
+// emitter.endColor = Color.Blue;
 
 export class SlowedComponent extends BaseComponent {
     public counter = 0;

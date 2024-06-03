@@ -8,7 +8,7 @@ export enum Direction {
 }
 
 export class DirectionQueue {
-    private heldDirections: Direction[] = []; // TODO readonly?
+    private heldDirections: Direction[] = [];
 
     get direction(): Direction | null {
         return this.heldDirections[0] ?? null;
