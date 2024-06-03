@@ -47,11 +47,9 @@ export class Collision {
         }
 
         // Check if inside
-        if (checkInside && this.checkPointInPolygon(circle.center,polygon)) {
-            return true;
-        }
+        return checkInside && this.checkPointInPolygon(circle.center, polygon);
 
-        return false;
+
     }
 
     // https://www.jeffreythompson.org/collision-detection/line-circle.php

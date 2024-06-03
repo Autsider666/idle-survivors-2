@@ -4,9 +4,9 @@ import Array2D from "../../../../Utility/Array2D.ts";
 import {MapGenFunction} from "../../MapGenFunction.ts";
 import {AbstractFilteredDataLayer} from "./AbstractFilteredDataLayer.ts";
 import {LayerFunction} from "../../../../Utility/LayerFunction.ts";
-import {Area} from "../../../../Utility/Area/Area.ts";
-import {Polygon} from "../../../../Utility/Area/Polygon.ts";
-import {Rectangle} from "../../../../Utility/Area/Rectangle.ts";
+import {Shape} from "../../../../Utility/Geometry/Shape.ts";
+import {Polygon} from "../../../../Utility/Geometry/Polygon.ts";
+import {Rectangle} from "../../../../Utility/Geometry/Rectangle.ts";
 
 export class PolygonLayer extends AbstractFilteredDataLayer<Polygon> {
     private readonly cache: Array2D<Polygon[]> = new Array2D<Polygon[]>();
@@ -19,7 +19,7 @@ export class PolygonLayer extends AbstractFilteredDataLayer<Polygon> {
         super();
     }
 
-    public getData(area: Area): Set<Polygon> {
+    public getData(area: Shape): Set<Polygon> {
         const data = new Set<Polygon>();
 
         LayerFunction.iterateGridByArea(area, this.gridWidth, this.gridHeight, (gridX: number, gridY: number): void => {

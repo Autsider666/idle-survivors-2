@@ -1,9 +1,9 @@
 import {Vector} from "excalibur";
 import Array2D from "../../../../Utility/Array2D.ts";
 import {LayerFunction} from "../../../../Utility/LayerFunction.ts";
-import {Area} from "../../../../Utility/Area/Area.ts";
+import {Shape} from "../../../../Utility/Geometry/Shape.ts";
 import {AbstractFilteredDataLayer} from "./AbstractFilteredDataLayer.ts";
-import {Polygon} from "../../../../Utility/Area/Polygon.ts";
+import {Polygon} from "../../../../Utility/Geometry/Polygon.ts";
 
 const TAU = 2 * Math.PI;
 
@@ -46,7 +46,7 @@ export class HexagonGridPointLayer extends AbstractFilteredDataLayer<Polygon> {
         }
     }
 
-    public getData(area: Area): Set<Polygon> {
+    public getData(area: Shape): Set<Polygon> {
         const data = new Set<Polygon>();
 
         LayerFunction.iterateGridByArea(area, this.amountX*this.distanceX, this.amountY*this.distanceY, (gridX: number, gridY: number): void => {

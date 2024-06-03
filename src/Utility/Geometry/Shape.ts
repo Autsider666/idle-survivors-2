@@ -1,9 +1,9 @@
 import {BoundingBox, Vector} from "excalibur";
 
-export abstract class Area {
+export abstract class Shape {
     protected constructor(
         public readonly center: Vector,
-        private readonly edgeDistance: number,
+        public readonly edgeDistance: number,
     ) {
     }
 
@@ -23,5 +23,9 @@ export abstract class Area {
         return this.center.y + this.edgeDistance;
     }
 
-    abstract contains(value: Area | BoundingBox | Vector): boolean;
+    abstract contains(value: Shape | BoundingBox | Vector): boolean;
+
+    overlaps(value: Shape | BoundingBox):boolean {
+        return this.contains(value);
+    }
 }

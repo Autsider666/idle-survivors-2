@@ -1,9 +1,9 @@
 import {Vector, BoundingBox} from "excalibur";
-import {Area} from "./Area.ts";
+import {Shape} from "./Shape.ts";
 import {Circle} from "./Circle.ts";
 import {Collision} from "./Collision.ts";
 
-export class Polygon extends Area {
+export class Polygon extends Shape {
     constructor(center: Vector, public readonly vertices: Vector[]) {
         let maxDistance = 0;
         vertices.forEach(vertex => {
@@ -13,7 +13,7 @@ export class Polygon extends Area {
         super(center, maxDistance);
     }
 
-    contains(value: Area | Vector | BoundingBox): boolean {
+    contains(value: Shape | Vector | BoundingBox): boolean {
         if (value instanceof Vector) {
             return Collision.checkPointInPolygon(value, this);
         }

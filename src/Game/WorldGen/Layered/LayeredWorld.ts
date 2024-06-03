@@ -4,10 +4,9 @@ import {PolygonMapTile} from "../PolygonMapTile.ts";
 import {NoiseLayer} from "./Layer/NoiseLayer.ts";
 import {ElevationLayer, NoiseConfig} from "./Layer/ElevationLayer.ts";
 import {MapTileConfig, MapTileLayer, TileType} from "./Layer/MapTileLayer.ts";
-import {BaseActor} from "../../../Actor/BaseActor.ts";
-import {Area} from "../../../Utility/Area/Area.ts";
+import {Shape} from "../../../Utility/Geometry/Shape.ts";
 import {SquareGridPointLayer} from "./Layer/SquareGridPointLayer.ts";
-import {Polygon} from "../../../Utility/Area/Polygon.ts";
+import {Polygon} from "../../../Utility/Geometry/Polygon.ts";
 import {AbstractFilteredDataLayer} from "./Layer/AbstractFilteredDataLayer.ts";
 import {HexagonGridPointLayer} from "./Layer/HexagonGridPointLayer.ts";
 
@@ -76,20 +75,19 @@ export class LayeredWorld {
         );
     }
 
-    readyArea(area: Area, onNew?: (tile: PolygonMapTile) => void): Set<BaseActor> {
+    readyArea(area: Shape, onNew?: (tile: PolygonMapTile) => void): Set<PolygonMapTile> {
         const newTiles = this.mapTileLayer.getFilteredData(area, this.tiles);
         newTiles.forEach(tile => {
             this.tiles.add(tile);
             if (onNew) {
                 onNew(tile);
             }
-
         });
 
         return newTiles;
     }
 
-    private generatePolygonLayer({mapTileConfig, seed}: LayeredWorldConfig): AbstractFilteredDataLayer<Polygon> {
+    private generatePolygonLayer({mapTileConfig, seed}: LayeredWorldConfig): AbstractFilteredDataLayer<Polygon> { //TODO LayerBuilder
         const gridSize: number = 250;
         const pointsPerGrid: number = 50;
 

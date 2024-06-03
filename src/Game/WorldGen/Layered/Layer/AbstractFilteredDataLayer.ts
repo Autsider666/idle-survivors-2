@@ -1,10 +1,10 @@
 import {AreaDataLayerInterface} from "./AreaDataLayerInterface.ts";
-import {Area} from "../../../../Utility/Area/Area.ts";
+import {Shape} from "../../../../Utility/Geometry/Shape.ts";
 
 export abstract class AbstractFilteredDataLayer<PointData> implements AreaDataLayerInterface<PointData> {
-    abstract getData(area: Area): Set<PointData>;
+    abstract getData(area: Shape): Set<PointData>;
 
-    public getFilteredData(area: Area, exclude: Set<PointData>): Set<PointData> {
+    public getFilteredData(area: Shape, exclude: Set<PointData>): Set<PointData> {
         const data = this.getData(area);
         const result = new Set<PointData>();
         for (const pointData of data) {

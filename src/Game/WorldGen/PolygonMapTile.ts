@@ -14,7 +14,8 @@ import {CollisionGroup} from "../CollisionGroups.ts";
 import {SlowedComponent} from "../../Component/SlowedComponent.ts";
 import {MapGenFunction} from "./MapGenFunction.ts";
 import {MapTileInterface} from "./MapTileInterface.ts";
-import {Polygon} from "../../Utility/Area/Polygon.ts";
+import {Polygon} from "../../Utility/Geometry/Polygon.ts";
+import {NeighborInterface} from "./NeighborInterface.ts";
 
 export type RegionProps = {
     polygon: Polygon,
@@ -29,11 +30,12 @@ enum State {
     Unstable
 }
 
-export class PolygonMapTile extends BaseActor implements MapTileInterface {
+export class PolygonMapTile extends BaseActor implements MapTileInterface, NeighborInterface {
     private readonly backupPos:Vector;
     private readonly elevation: number;
     private readonly moisture: number;
     private state: State = State.Unstable;
+    private readonly globalVertices:Vector[];
 
     constructor({polygon, elevation, moisture, saturation = 1}: RegionProps) {
         const pos = polygon.center;
@@ -54,6 +56,8 @@ export class PolygonMapTile extends BaseActor implements MapTileInterface {
             // color: Color.Red,
             // opacity: 0,
         });
+
+        this.globalVertices = polygon.vertices;
 
         this.backupPos = pos.clone();
 
@@ -81,6 +85,10 @@ export class PolygonMapTile extends BaseActor implements MapTileInterface {
                 }
             }
         });
+    }
+
+    getNeighbourhoodPoints(): Vector[] {
+        return this.globalVertices;
     }
 
     stabilize(sourceLocation: Vector, instant:boolean = false): void {

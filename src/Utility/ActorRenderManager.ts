@@ -15,6 +15,7 @@ type ActorStore = {
 
 export class ActorRenderManager {
     private readonly inactiveActors: Set<BaseActor> = new Set<BaseActor>();
+    private readonly activeActors: Set<BaseActor> = new Set<BaseActor>();
     private readonly registeredActors: BaseActor[] = [];
 
     constructor(private readonly scene: ActorStore) {
@@ -39,9 +40,8 @@ export class ActorRenderManager {
             console.debug('Render manager adding', inactiveActor.name);
             this.scene.add(inactiveActor);
             this.inactiveActors.delete(inactiveActor);
+            this.activeActors.add(inactiveActor);
         }
-        // console.log(this.inactiveActors.size);
-        // throw new Error('2');
     }
 
     public has(actor: BaseActor): boolean {
@@ -64,14 +64,18 @@ export class ActorRenderManager {
             return;
         }
 
-
         this.inactiveActors.delete(actor);
+    }
+
+    public getActiveActors():ReadonlySet<BaseActor> {
+        return this.activeActors;
     }
 
     public reset() {
         this.registeredActors.forEach(actor => actor.off('exitviewport', this.onActorExitViewPort.bind(this)));
         this.registeredActors.length = 0;
         this.inactiveActors.clear();
+        this.activeActors.clear();
     }
 
     private isActorOffscreen(actor: BaseActor, worldBounds: BoundingBox): boolean {
@@ -81,7 +85,6 @@ export class ActorRenderManager {
             const bounds = graphics.localBounds;
             const transformedBounds = bounds.transform(transform.get().matrix);
 
-            // console.log(bounds, transformedBounds, !worldBounds.overlaps(transformedBounds));
             return !worldBounds.overlaps(transformedBounds);
         } else {
             // TODO screen coordinates
@@ -99,5 +102,6 @@ export class ActorRenderManager {
 
         this.scene.remove(target);
         this.inactiveActors.add(target);
+        this.activeActors.delete(target);
     }
 }

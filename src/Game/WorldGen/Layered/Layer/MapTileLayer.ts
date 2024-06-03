@@ -1,8 +1,8 @@
 import {AbstractFilteredDataLayer} from "./AbstractFilteredDataLayer.ts";
 import {PolygonMapTile} from "../../PolygonMapTile.ts";
 import {CoordinateDataLayerInterface} from "./CoordinateDataLayerInterface.ts";
-import {Polygon} from "../../../../Utility/Area/Polygon.ts";
-import {Area} from "../../../../Utility/Area/Area.ts";
+import {Polygon} from "../../../../Utility/Geometry/Polygon.ts";
+import {Shape} from "../../../../Utility/Geometry/Shape.ts";
 
 export enum TileType {
     Voronoi = 'Voronoi',
@@ -28,12 +28,11 @@ export class MapTileLayer extends AbstractFilteredDataLayer<PolygonMapTile> {
         super();
     }
 
-    getData(area: Area): Set<PolygonMapTile> {
+    getData(area: Shape): Set<PolygonMapTile> {
         const mapTiles = new Set<PolygonMapTile>();
 
         const polygons = this.polygonLayer.getFilteredData(area, this.handledPolygons);
         for (const polygon of polygons) {
-            // console.log(polygon.center.distance(area.center));
             mapTiles.add(new PolygonMapTile({
                 elevation: this.elevationLayer.getData(polygon.center),
                 moisture: this.moistureLayer.getData(polygon.center),
