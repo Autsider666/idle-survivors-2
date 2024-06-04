@@ -64,7 +64,7 @@ export class ArenaScene extends Scene {
         player.addComponent(new GridComponent(tileSize));
         const config = cloneDeep(defaultConfig);
 
-        this.layeredWorld = new LayeredWorld(merge(config, world, {mapTileConfig: {outerBounds, tileSize}}));
+        this.layeredWorld = new LayeredWorld(merge(config, world, {tileSize}));
         this.generateWorld(new Polygon(outerBounds.center, outerBounds.getPoints()),tile => {
             tile.addTag(INFECTABLE_TAG);
             tile.addComponent(new GridComponent(tileSize));
