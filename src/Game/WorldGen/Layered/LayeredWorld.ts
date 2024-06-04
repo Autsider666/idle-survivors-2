@@ -13,6 +13,8 @@ import {HexagonGridPointLayer} from "./Layer/HexagonGridPointLayer.ts";
 export type LayeredWorldConfig = {
     seed: number,
     stable: boolean,
+    gridSize: number,
+    tileSize: number,
     elevationConfig: NoiseConfig,
     moistureConfig: NoiseConfig,
     mapTileConfig?: MapTileConfig,
@@ -20,6 +22,8 @@ export type LayeredWorldConfig = {
 
 export const defaultConfig: Omit<LayeredWorldConfig, 'seed'> = {
     stable: false,
+    gridSize: 250,
+    tileSize: 50,
     elevationConfig: {
         // Higher means more zoomed in, showing details better
         scale: 250, // Current default 200, because it looks nice
@@ -87,9 +91,14 @@ export class LayeredWorld {
         return newTiles;
     }
 
-    private generatePolygonLayer({mapTileConfig, seed}: LayeredWorldConfig): AbstractFilteredDataLayer<Polygon> { //TODO LayerBuilder
-        const gridSize: number = 250;
-        const tileSize:number = 50;
+    private generatePolygonLayer({
+                                     mapTileConfig,
+                                     gridSize,
+                                     tileSize,
+                                     seed
+                                 }: LayeredWorldConfig): AbstractFilteredDataLayer<Polygon> { //TODO LayerBuilder
+        gridSize = gridSize ?? 250;
+        tileSize = tileSize ?? 50;
         const pointsPerGrid: number = 50;
 
         switch (mapTileConfig?.type) {

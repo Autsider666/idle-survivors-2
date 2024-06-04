@@ -2,6 +2,7 @@ import {Color, DisplayMode, Engine, Keys, SolverStrategy, Vector} from "excalibu
 import {WorldScene, WorldSceneData} from "../Scene/WorldScene.ts";
 import {TileType} from "./WorldGen/Layered/Layer/MapTileLayer.ts";
 import Player from "../Actor/Player.ts";
+import {ArenaScene} from "../Scene/ArenaScene.ts";
 
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -33,6 +34,9 @@ export default class Game extends Engine {
         // this.goToScene<RunActivationData>('run',{sceneActivationData:{seed:this.seed}});
 
         this.add('world', new WorldScene());
+        this.add('arena', new ArenaScene());
+
+        const scene:string = 'arena';
 
         let i = 0;
         const types = [
@@ -41,7 +45,7 @@ export default class Game extends Engine {
             TileType.PointyTopHexagon,
             TileType.Voronoi,
         ];
-        this.goToScene<WorldSceneData>('world', {
+        this.goToScene<WorldSceneData>(scene, {
             sceneActivationData: {
                 player: this.player,
                 world: {
@@ -57,7 +61,7 @@ export default class Game extends Engine {
             if (key !== Keys.Q) {
                 return;
             }
-            this.goToScene<WorldSceneData>('world', {
+            this.goToScene<WorldSceneData>(scene, {
                 sceneActivationData: {
                     player: this.player,
                     world: {

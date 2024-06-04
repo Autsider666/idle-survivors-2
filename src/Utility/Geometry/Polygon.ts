@@ -22,7 +22,11 @@ export class Polygon extends Shape {
             return Collision.checkCircleInPolygon(value, this, true);
         }
 
-        return false;
+        if (value instanceof Polygon) { //TODO does not seem to work;
+            return Collision.checkPolygonInPolygon(value, this);
+        }
+
+        throw new Error('Not implemented yet');
     }
 
 }

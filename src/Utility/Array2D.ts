@@ -21,6 +21,12 @@ export default class Array2D<I> {
         this.cachedEntries = undefined;
     }
 
+    delete(x: number, y: number): void {
+        this.store.delete(`${x}${splitter}${y}`);
+
+        this.cachedEntries = undefined;
+    }
+
     entries(): Entries<I> {
         if (this.cachedEntries !== undefined) {
             return this.cachedEntries;

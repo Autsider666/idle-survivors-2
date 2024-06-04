@@ -17,11 +17,10 @@ export class SquareGridPointLayer extends AbstractFilteredDataLayer<Polygon> {
 
     public getData(area: Shape): Set<Polygon> {
         const data = new Set<Polygon>();
-
         LayerFunction.iterateGridByArea(area, this.tileSize, this.tileSize, (gridX: number, gridY: number): void => {
             const polygons = this.cache.get(gridX, gridY) ?? this.generateGridArea(gridX, gridY);
             for (const polygon of polygons) {
-                if (area.contains(polygon)) {
+                if (area.contains(polygon.center)) {// TODO replace with whole polygon
                     data.add(polygon);
                 }
             }

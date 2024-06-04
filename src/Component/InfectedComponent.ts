@@ -13,6 +13,7 @@ import {
 import {CollisionGroup} from "../Game/CollisionGroups.ts";
 import {HealthComponent} from "./HealthComponent.ts";
 import {DropsLootComponent} from "./DropsLootComponent.ts";
+import {INFECTABLE_TAG} from "../System/InfectionSpawnerSystem.ts";
 
 type BackupData = {
     color: Color,
@@ -24,13 +25,15 @@ type BackupData = {
 
 const random = new Random();
 
-export class LiveCellComponent extends BaseComponent {
+export class InfectedComponent extends BaseComponent {
     private backup?:BackupData;
     onAdd(owner: BaseActor) {
         const graphic = owner.graphics.current;
         if (!(graphic instanceof Raster)) {
             return;
         }
+
+        owner.removeTag(INFECTABLE_TAG);
 
         this.backup = {
             color: graphic.color,
@@ -52,7 +55,7 @@ export class LiveCellComponent extends BaseComponent {
         owner.addComponent(lootComponent);
         owner.addComponent(new HealthComponent(1, owner =>{
             lootComponent.drop();
-            owner.removeComponent(LiveCellComponent);
+            owner.removeComponent(InfectedComponent);
         }));
 
         owner.graphics.opacity = random.floating(0.8,1);
@@ -95,6 +98,8 @@ export class LiveCellComponent extends BaseComponent {
             return;
         }
 
+        previousOwner.addTag(INFECTABLE_TAG);
+
         const {
             color,
             strokeColor,
@@ -110,6 +115,7 @@ export class LiveCellComponent extends BaseComponent {
         previousOwner.body.collisionType = collisionType;
         previousOwner.actions.clearActions();
         previousOwner.scale = Vector.One;
+        previousOwner.graphics.opacity = 1;
 
         previousOwner.removeComponent(HealthComponent);
         previousOwner.removeComponent(DropsLootComponent);

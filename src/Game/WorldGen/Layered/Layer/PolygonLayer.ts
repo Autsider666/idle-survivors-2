@@ -21,7 +21,6 @@ export class PolygonLayer extends AbstractFilteredDataLayer<Polygon> {
 
     public getData(area: Shape): Set<Polygon> {
         const data = new Set<Polygon>();
-
         LayerFunction.iterateGridByArea(area, this.gridWidth, this.gridHeight, (gridX: number, gridY: number): void => {
             const polygons = this.cache.get(gridX, gridY) ?? this.generateGridArea(gridX, gridY);
             for (const polygon of polygons) {

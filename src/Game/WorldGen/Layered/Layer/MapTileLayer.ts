@@ -4,6 +4,7 @@ import {CoordinateDataLayerInterface} from "./CoordinateDataLayerInterface.ts";
 import {Polygon} from "../../../../Utility/Geometry/Polygon.ts";
 import {Shape} from "../../../../Utility/Geometry/Shape.ts";
 import {Neighbourhood} from "../../Neighbourhood.ts";
+import {BoundingBox} from "excalibur";
 
 export enum TileType {
     Voronoi = 'Voronoi',
@@ -15,6 +16,7 @@ export enum TileType {
 export type MapTileConfig = {
     saturation?: number,
     type?: TileType,
+    outerBounds?: BoundingBox,
 }
 
 export class MapTileLayer extends AbstractFilteredDataLayer<PolygonMapTile> {
@@ -32,9 +34,12 @@ export class MapTileLayer extends AbstractFilteredDataLayer<PolygonMapTile> {
 
     getData(area: Shape): Set<PolygonMapTile> {
         const mapTiles = new Set<PolygonMapTile>();
-
         const polygons = this.polygonLayer.getFilteredData(area, this.handledPolygons);
         for (const polygon of polygons) {
+            if (this.config.outerBounds && !this.config.outerBounds.contains(polygon.center)) {
+                continue;
+            }
+
             mapTiles.add(new PolygonMapTile({
                 elevation: this.elevationLayer.getData(polygon.center),
                 moisture: this.moistureLayer.getData(polygon.center),
