@@ -29,7 +29,7 @@ export class SearchComponent extends BaseComponent {
                 throw new Error('No player found to follow.');
             }
 
-            owner.addComponent(new TargetComponent({target}));
+            owner.addComponent(new TargetComponent(target));
         });
     }
 }

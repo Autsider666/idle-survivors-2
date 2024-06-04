@@ -51,6 +51,7 @@ export default class Player extends BaseActor {
             this.addChild(new data.type(data));
 
         }
+
         this.addChild(new ItemCollector(100));
     }
 

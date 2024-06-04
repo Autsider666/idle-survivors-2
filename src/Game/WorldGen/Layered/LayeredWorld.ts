@@ -41,7 +41,7 @@ export const defaultConfig: Omit<LayeredWorldConfig, 'seed'> = {
         lacunarity: 0.5, //Default 0.5,
     },
     mapTileConfig: {
-        saturation: 1.5,
+        saturation: 1.2,
         // type:TileType.Voronoi,
         type: TileType.Square,
         // type:TileType.FlatTopHexagon,
@@ -89,15 +89,16 @@ export class LayeredWorld {
 
     private generatePolygonLayer({mapTileConfig, seed}: LayeredWorldConfig): AbstractFilteredDataLayer<Polygon> { //TODO LayerBuilder
         const gridSize: number = 250;
+        const tileSize:number = 50;
         const pointsPerGrid: number = 50;
 
         switch (mapTileConfig?.type) {
             case TileType.FlatTopHexagon:
-                return new HexagonGridPointLayer(100, 50, true);
+                return new HexagonGridPointLayer(gridSize, tileSize, true);
             case TileType.PointyTopHexagon:
-                return new HexagonGridPointLayer(250, 50, false);
+                return new HexagonGridPointLayer(gridSize, tileSize, false);
             case TileType.Square:
-                return new SquareGridPointLayer(30);
+                return new SquareGridPointLayer(tileSize);
             case TileType.Voronoi:
             default:
                 return new PolygonLayer(gridSize, gridSize, new RandomPointLayer(seed, gridSize, gridSize, pointsPerGrid));

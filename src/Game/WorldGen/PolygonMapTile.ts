@@ -5,6 +5,7 @@ import {SlowedComponent} from "../../Component/SlowedComponent.ts";
 import {MapGenFunction} from "./MapGenFunction.ts";
 import {Polygon} from "../../Utility/Geometry/Polygon.ts";
 import {NeighborInterface} from "./NeighborInterface.ts";
+import {Neighbourhood} from "./Neighbourhood.ts";
 
 export type RegionProps = {
     polygon: Polygon,
@@ -13,14 +14,17 @@ export type RegionProps = {
     saturation?: number,
 }
 
-export class PolygonMapTile extends BaseActor implements NeighborInterface {
+export class PolygonMapTile extends BaseActor implements NeighborInterface { //TODO split into components?
     private readonly elevation: number;
     private readonly moisture: number;
-    private readonly globalVertices:Vector[];
+    private readonly globalVertices: Vector[];
 
-    constructor({polygon, elevation, moisture, saturation = 1}: RegionProps) {
+    constructor(
+        {polygon, elevation, moisture, saturation = 1}: RegionProps,
+        private readonly neighborhood: Neighbourhood<PolygonMapTile>,
+    ) {
         const pos = polygon.center;
-        const vertices = polygon.vertices.map(vertex => vertex.sub(pos)); //TODO add this to Polygon (and maybe all areas?)
+        const vertices = polygon.vertices.map(vertex => vertex.sub(pos));
         const collider = new PolygonCollider({
             points: vertices,
             suppressConvexWarning: true,
@@ -64,13 +68,19 @@ export class PolygonMapTile extends BaseActor implements NeighborInterface {
             }
         });
 
-        if(this.isSafe()) {
+        if (this.isSafe()) {
             this.body.collisionType = CollisionType.PreventCollision;
         }
+
+        this.neighborhood.add(this);
     }
 
     getNeighbourhoodPoints(): Vector[] {
         return this.globalVertices;
+    }
+
+    getNeighbors(): ReadonlyArray<PolygonMapTile> {
+        return this.neighborhood.getNeighbors(this);
     }
 
     private generatePolygon(vertices: Vector[], saturation: number): PolygonGraphic {

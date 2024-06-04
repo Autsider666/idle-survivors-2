@@ -33,20 +33,6 @@ export default class Game extends Engine {
         // this.goToScene<RunActivationData>('run',{sceneActivationData:{seed:this.seed}});
 
         this.add('world', new WorldScene());
-        this.goToScene<WorldSceneData>('world', {
-            sceneActivationData: {
-                player: this.player,
-                world: { //TODO see if it's possible to make everything besides seed optional?
-                    seed: this.seed,
-                    mapTileConfig: {
-                        type: TileType.Voronoi,
-                        // type: TileType.Square,
-                        // type:TileType.FlatTopHexagon,
-                        // type:TileType.PointyTopHexagon,
-                    }
-                }
-            }
-        });
 
         let i = 0;
         const types = [
@@ -55,6 +41,17 @@ export default class Game extends Engine {
             TileType.PointyTopHexagon,
             TileType.Voronoi,
         ];
+        this.goToScene<WorldSceneData>('world', {
+            sceneActivationData: {
+                player: this.player,
+                world: {
+                    seed: this.seed,
+                    mapTileConfig: {
+                        type: types[i++],
+                    }
+                }
+            }
+        });
 
         this.input.keyboard.on('release', ({key}) => {
             if (key !== Keys.Q) {
@@ -63,7 +60,7 @@ export default class Game extends Engine {
             this.goToScene<WorldSceneData>('world', {
                 sceneActivationData: {
                     player: this.player,
-                    world: { //TODO see if it's possible to make everything besides seed optional?
+                    world: {
                         seed: this.seed,
                         mapTileConfig: {
                             saturation: 1.5,

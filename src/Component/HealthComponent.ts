@@ -5,17 +5,25 @@ import {AttributeComponent} from "./AttributeComponent.ts";
 import {Attribute} from "../Utility/Attribute/AttributeStore.ts";
 
 export class HealthComponent extends BaseComponent {
-    public max: number = 0;
-    public amount: number = 0;
+    public amount: number;
+
+    constructor(
+        public maxAmount: number = 0,
+        private readonly onKill: (owner:BaseActor)=> void = owner => owner.kill(),
+    ) {
+        super();
+
+        this.amount = maxAmount;
+    }
 
     onAdd(owner: BaseActor): void {
         owner.whenComponentExists(AttributeComponent, (attributes) => {
             attributes.onChange(Attribute.Health, value => {
-                this.max = value;
+                this.maxAmount = value;
                 this.amount = Math.min(this.amount, value);
             });
 
-            this.amount = this.max;
+            this.amount = this.maxAmount;
         });
 
         owner.on('damage', ({amount: damage}) => {
@@ -24,11 +32,11 @@ export class HealthComponent extends BaseComponent {
             // this.owner.emit('health', { amount: this.amount })
 
             if (this.amount <= 0) {
-                owner.kill();
+                this.onKill(owner);
             }
         });
 
-        if (this.max > 1) {
+        if (this.maxAmount > 1) {
             owner.graphics.onPostDraw = (gfx: ExcaliburGraphicsContext) => {
                 gfx.drawRectangle(new Vector(-5, -2), 10, 4, Color.Green);
             };

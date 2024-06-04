@@ -3,7 +3,7 @@ import {BaseActor} from "../Actor/BaseActor.ts";
 import {EasingFunctions, Vector} from "excalibur";
 import {MapGenFunction} from "../Game/WorldGen/MapGenFunction.ts";
 
-enum State {
+export enum State {
     Stable = "Stable",
     Stabilizing = "Stabilizing",
     Destabilizing = "Destabilizing",
@@ -27,8 +27,13 @@ export class UnstableComponent extends BaseComponent {
         super();
     }
 
+    get currentState():State {
+        return this.state;
+    }
+
     onAdd(owner: BaseActor) {
 
+        owner.graphics.visible = false;
         owner.graphics.opacity = 0;
         // this.lastStablePosition = owner.pos.clone();
         owner.on('postupdate', ({delta}) => {
@@ -65,6 +70,7 @@ export class UnstableComponent extends BaseComponent {
 
             this.state = State.Unstable;
             owner.graphics.opacity = 0;
+            owner.graphics.visible = false;
         });
     }
 
@@ -80,6 +86,7 @@ export class UnstableComponent extends BaseComponent {
             return;
         }
 
+        owner.graphics.visible = true;
         owner.graphics.opacity = 0;
 
         // const fadeSpeed = MapGenFunction.lerp(distance, 500, 0.2);
@@ -178,6 +185,7 @@ export class UnstableComponent extends BaseComponent {
                 this.state = State.Unstable;
                 owner.graphics.opacity = 0;
                 owner.pos = origin;
+                owner.graphics.visible = false;
             }
         }
     }

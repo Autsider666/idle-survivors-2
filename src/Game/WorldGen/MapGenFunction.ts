@@ -29,8 +29,7 @@ export class MapGenFunction {
                 sumOfX += p.x;
                 sumOfY += p.y;
             }
-            centroids[t] = new Vector(sumOfX / 3, sumOfY / 3); // TODO does this work?
-            // centroids[t] = new Vector(Math.floor(sumOfX / 3),Math.floor( sumOfY / 3));
+            centroids[t] = new Vector(sumOfX / 3, sumOfY / 3);
         }
         return centroids;
     }

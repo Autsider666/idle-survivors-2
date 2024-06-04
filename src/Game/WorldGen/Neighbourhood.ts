@@ -1,7 +1,7 @@
 import {EventEmitter} from "excalibur";
 import {NeighborInterface} from "./NeighborInterface.ts";
 
-type NewNeighborEvent<Neighbor extends NeighborInterface>  = {
+type NewNeighborEvent<Neighbor extends NeighborInterface> = {
     neighbor: Neighbor
 }
 
@@ -14,6 +14,10 @@ export class Neighbourhood<Neighbor extends NeighborInterface> {
     private readonly neighbours = new Map<Neighbor, Neighbor[]>;
 
     add(neighbor: Neighbor): void {
+        if (this.neighbours.has(neighbor)) {
+            return;
+        }
+
         this.neighbours.set(neighbor, []);
         this.events.emit<'new'>('new', {neighbor});
 
@@ -25,7 +29,7 @@ export class Neighbourhood<Neighbor extends NeighborInterface> {
             const neighborPoints = newNeighbor.getNeighbourhoodPoints();
             for (const point of neighbor.getNeighbourhoodPoints()) {
                 for (const neighborPoint of neighborPoints) {
-                    if (!point.equals(neighborPoint,1)) {
+                    if (!point.equals(neighborPoint, 1)) {
                         continue;
                     }
 

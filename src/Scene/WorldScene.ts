@@ -16,6 +16,7 @@ import {PolygonMapTile} from "../Game/WorldGen/PolygonMapTile.ts";
 import {UnstableComponent} from "../Component/UnstableComponent.ts";
 import cloneDeep from 'lodash/cloneDeep';
 import merge from 'lodash/merge';
+import {CellularAutomatonSystem} from "../System/CellularAutomatonSystem.ts";
 
 export type WorldSceneData = {
     player: Player,
@@ -32,6 +33,7 @@ export class WorldScene extends Scene {
 
         this.world.add(MonsterSpawnSystem);
         this.world.add(PunishmentSystem);
+        this.world.add(CellularAutomatonSystem);
 
         this.actorManager = new ActorRenderManager(this);
     }
@@ -51,7 +53,7 @@ export class WorldScene extends Scene {
         const unstabilityRadius = 400;
 
         player.on<"postupdate">("postupdate", () => this.generateWorld(
-            new Circle(player.pos.clone(), stabilityRadius),
+            new Circle(player.pos.clone(), stabilityRadius * 2),
             tile => tile.addComponent(new UnstableComponent(player, stabilityRadius,unstabilityRadius))
         ));
 
@@ -75,11 +77,11 @@ export class WorldScene extends Scene {
     private generateWorld(area: Shape, callback:(tile:PolygonMapTile)=>void): void {
         this.layeredWorld?.readyArea(area, tile => {
             this.actorManager.add(tile);
-            // tile.stabilize(area.center); //TODO move to component, because this is acting up way too often
 
             if (tile.isSafe()) {
                 tile.addTag(MONSTER_SPAWN_TAG);
             }
+
             tile.addTag(PUNISHABLE_TAG);
             this.neighborhood.add(tile);
             callback(tile);

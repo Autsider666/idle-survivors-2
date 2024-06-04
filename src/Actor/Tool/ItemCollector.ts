@@ -32,10 +32,8 @@ export class ItemCollector extends BaseActor {
             return;
         }
 
-        if (this.parent === null) {
-            return;
+        if (this.parent instanceof BaseActor) {
+            other.addComponent(new TargetComponent(this.parent));
         }
-
-        other.addComponent(new TargetComponent({target: this.parent}));
     }
 }

@@ -3,6 +3,7 @@ import {PolygonMapTile} from "../../PolygonMapTile.ts";
 import {CoordinateDataLayerInterface} from "./CoordinateDataLayerInterface.ts";
 import {Polygon} from "../../../../Utility/Geometry/Polygon.ts";
 import {Shape} from "../../../../Utility/Geometry/Shape.ts";
+import {Neighbourhood} from "../../Neighbourhood.ts";
 
 export enum TileType {
     Voronoi = 'Voronoi',
@@ -18,6 +19,7 @@ export type MapTileConfig = {
 
 export class MapTileLayer extends AbstractFilteredDataLayer<PolygonMapTile> {
     private readonly handledPolygons = new Set<Polygon>();
+    private readonly neighborhood = new Neighbourhood<PolygonMapTile>();
 
     constructor(
         private readonly polygonLayer: AbstractFilteredDataLayer<Polygon>,
@@ -38,7 +40,7 @@ export class MapTileLayer extends AbstractFilteredDataLayer<PolygonMapTile> {
                 moisture: this.moistureLayer.getData(polygon.center),
                 saturation: this.config.saturation, //this.moistureLayer.getData(polygon.center),
                 polygon,
-            }));
+            }, this.neighborhood));
 
             this.handledPolygons.add(polygon);
         }
